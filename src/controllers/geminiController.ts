@@ -1,11 +1,10 @@
 
-// FIX: Aliased express Response type to avoid potential conflicts with global types.
-import { Response as ExpressResponse } from 'express';
+import express from 'express';
 import { type AuthRequest } from '../middleware/auth';
 import { generateAdDetailsFromImage } from '../services/geminiService';
 
-// FIX: Use aliased express Response type. The AuthRequest type is correctly typed from its source.
-export const generateAd = async (req: AuthRequest, res: ExpressResponse) => {
+// Use standard express Response type. The AuthRequest type is correctly typed from its source.
+export const generateAd = async (req: AuthRequest, res: express.Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     
     if (!prompt || !imageBase64 || !mimeType) {

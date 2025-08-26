@@ -1,96 +1,60 @@
-// import AdminJS from 'adminjs';
-// import AdminJSExpress from '@adminjs/express';
-// import { PrismaClient } from '@prisma/client';
-// import { Database, Resource } from '@adminjs/prisma';
-// import { AuthenticationOptions } from 'adminjs';
-// import bcrypt from 'bcryptjs';
-// import { DMMFClass } from '@prisma/client/runtime/library';
 
-// // Register Prisma Adapter
-// AdminJS.registerAdapter({ Database, Resource });
+import AdminJS from 'adminjs';
+import AdminJSExpress from '@adminjs/express';
+import { Database, Resource } from '@adminjs/sql';
+import pool from './db'; // Your configured pg Pool
+import bcrypt from 'bcryptjs';
 
-// const prisma = new PrismaClient();
+// Register the SQL adapter
+AdminJS.registerAdapter({ Database, Resource });
 
-// export const setupAdmin = async () => {
+if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
+  throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD must be set in environment variables');
+}
 
-//   const adminOptions = {
-//     // We can translate AdminJS locales to Ukrainian
-//     locale: {
-//         language: 'uk',
-//         translations: {
-//             labels: {
-//                 User: 'Користувачі',
-//                 Ad: 'Оголошення',
-//             }
-//         }
-//     },
-//     rootPath: '/admin',
-//     resources: [
-//         {
-//             resource: { model: (prisma as any)._dmmf.modelMap.User, client: prisma },
-//             options: {
-//                 properties: {
-//                     password: {
-//                         isVisible: false, // Don't show the hashed password
-//                     },
-//                     role: {
-//                         availableValues: [
-//                             { value: 'USER', label: 'Користувач' },
-//                             { value: 'ADMIN', label: 'Адміністратор' },
-//                         ]
-//                     }
-//                 },
-//                  actions: {
-//                     new: {
-//                         // We shouldn't create regular users from admin panel this way
-//                         // since password would not be hashed properly without a custom action
-//                         isAccessible: false, 
-//                     },
-//                     edit: { isAccessible: true },
-//                  }
-//             },
-//         },
-//         {
-//             resource: { model: (prisma as any)._dmmf.modelMap.Ad, client: prisma },
-//             options: {
-//                 properties: {
-//                     description: {
-//                         type: 'richtext'
-//                     }
-//                 }
-//             }
-//         },
-//     ],
-//     branding: {
-//       companyName: 'Taxa AI',
-//       softwareBrothers: false,
-//       logo: false,
-//     },
-//   };
+const admin = new AdminJS({
+  // Use the pool for the database connection
+  databases: [{
+    database: pool.options.database!,
+    user: pool.options.user!,
+    password: pool.options.password!,
+    host: pool.options.host!,
+    port: pool.options.port!,
+    dialect: 'postgres',
+    // ssl: process.env.NODE_ENV === 'production', // Enable SSL in production if needed
+  }],
+  rootPath: '/admin',
+  branding: {
+    companyName: 'Taxa AI',
+  },
+  resources: [
+    {
+      resource: { table: 'User', database: 0 },
+      options: {
+        properties: {
+          // Hide password from the UI
+          password: {
+            isVisible: { list: false, filter: false, show: false, edit: false },
+          },
+        },
+      },
+    },
+    {
+      resource: { table: 'Ad', database: 0 },
+      options: {},
+    },
+  ],
+});
 
-//   const authenticationOptions: AuthenticationOptions = {
-//     authenticate: async (email, password) => {
-//       const user = await prisma.user.findUnique({ where: { email } });
-      
-//       if (user && user.role === 'ADMIN') {
-//         const matched = await bcrypt.compare(password, user.password);
-//         if (matched) {
-//           return user;
-//         }
-//       }
-//       return false;
-//     },
-//     cookiePassword: process.env.COOKIE_PASSWORD || 'a-very-secret-cookie-password-change-it',
-//   };
-  
-//   const admin = new AdminJS(adminOptions);
-  
-//   // Need to use any because of how AdminJS and express-session types interact
-//   const adminRouter = AdminJSExpress.buildAuthenticatedRouter(admin, authenticationOptions, null, {
-//     resave: false,
-//     saveUninitialized: true,
-//     secret: process.env.SESSION_SECRET || 'a-very-secret-key-that-you-should-change',
-//   } as any);
+const adminRouter = AdminJSExpress.buildAuthenticatedRouter(admin, {
+    authenticate: async (email, password) => {
+        if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+            return { email: email, role: 'admin' };
+        }
+        return null;
+    },
+    cookiePassword: process.env.COOKIE_SECRET || 'a-very-secret-string-for-cookie-encryption',
+});
 
-//   return { admin, adminRouter };
-// };
+
+export { admin, adminRouter };

@@ -1,14 +1,13 @@
 
-// FIX: Aliased express types to avoid potential conflicts with global types.
-import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db';
 import cuid from 'cuid';
 import { User } from '../types';
 
-// FIX: Use aliased express types for req and res.
-export const register = async (req: ExpressRequest, res: ExpressResponse) => {
+// Use standard express types for req and res.
+export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -43,8 +42,8 @@ export const register = async (req: ExpressRequest, res: ExpressResponse) => {
   }
 };
 
-// FIX: Use aliased express types for req and res.
-export const login = async (req: ExpressRequest, res: ExpressResponse) => {
+// Use standard express types for req and res.
+export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {

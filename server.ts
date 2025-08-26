@@ -1,5 +1,5 @@
 
-import express, { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { initializeDatabase } from './src/db-init'; // Import the new function
@@ -7,6 +7,7 @@ import { initializeDatabase } from './src/db-init'; // Import the new function
 import authRoutes from './src/routes/auth';
 import adRoutes from './src/routes/ads';
 import geminiRoutes from './src/routes/gemini';
+import { admin, adminRouter } from './src/admin';
 
 
 dotenv.config();
@@ -23,8 +24,12 @@ const startServer = async () => {
   app.use(cors());
   app.use(express.json({ limit: '10mb' })); // Increase limit for base64 images
 
-  // FIX: Use aliased express types for proper typing of req and res to resolve handler errors.
-  app.get('/', (req: ExpressRequest, res: ExpressResponse) => {
+  // AdminJS Router
+  app.use(admin.options.rootPath, adminRouter);
+
+
+  // Use standard express types for req and res to resolve handler errors.
+  app.get('/', (req: express.Request, res: express.Response) => {
       res.send('Taxa AI Backend is running! (PostgreSQL mode)');
   });
 
@@ -35,6 +40,7 @@ const startServer = async () => {
 
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}, connected to PostgreSQL.`);
+    console.log(`AdminJS started on http://localhost:${PORT}${admin.options.rootPath}`);
   });
 };
 

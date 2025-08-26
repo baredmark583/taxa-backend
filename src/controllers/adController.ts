@@ -1,13 +1,12 @@
 
-// FIX: Aliased express Response type to avoid potential conflicts with global types.
-import { Response as ExpressResponse } from 'express';
+import express from 'express';
 import pool from '../db';
 import { type AuthRequest } from '../middleware/auth';
 import { type GeneratedAdData, type Ad, type User } from '../types';
 import cuid from 'cuid';
 
-// FIX: Use aliased express Response type. The AuthRequest type is correctly typed from its source.
-export const getAllAds = async (req: AuthRequest, res: ExpressResponse) => {
+// Use standard express Response type. The AuthRequest type is correctly typed from its source.
+export const getAllAds = async (req: AuthRequest, res: express.Response) => {
   try {
     // This query joins the Ad table with the User table to include seller details
     // It constructs a JSON object for the seller to match the frontend's expected structure
@@ -31,8 +30,8 @@ export const getAllAds = async (req: AuthRequest, res: ExpressResponse) => {
   }
 };
 
-// FIX: Use aliased express Response type.
-export const createAd = async (req: AuthRequest, res: ExpressResponse) => {
+// Use standard express Response type.
+export const createAd = async (req: AuthRequest, res: express.Response) => {
   const { adData, imageUrls }: { adData: GeneratedAdData, imageUrls: string[] } = req.body;
   const sellerId = req.user?.id;
 
