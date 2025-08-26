@@ -1,6 +1,39 @@
-
 // This file can be used for backend-specific types if needed.
-import { Ad as PrismaAd, User as PrismaUser } from '@prisma/client';
+
+// Previously from Prisma, now defined manually for our in-memory store.
+export interface User {
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+  role: 'USER' | 'ADMIN';
+  avatarUrl: string | null;
+  ads: Ad[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Ad {
+  id: string;
+  title: string;
+  description: string;
+  price: string;
+  category: string;
+  location: string;
+  tags: string[];
+  imageUrls: string[];
+  status: string; // 'active', 'reserved', 'sold', etc.
+  sellerId: string;
+  // This is added dynamically when fetching ads
+  seller?: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 
 export interface GeneratedAdData {
   title: string;
@@ -11,9 +44,6 @@ export interface GeneratedAdData {
   tags: string[];
 }
 
-// A simplified Ad type for use with the Gemini service, matching the Prisma model
-export type Ad = Pick<PrismaAd, 'id' | 'title' | 'description' | 'price' | 'category' | 'location'>;
-export type User = PrismaUser;
 
 export interface ImageSearchQuery {
     query: string;

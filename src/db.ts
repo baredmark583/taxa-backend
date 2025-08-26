@@ -1,5 +1,14 @@
-import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
+import dotenv from 'dotenv';
 
-const prisma = new PrismaClient();
+dotenv.config();
 
-export default prisma;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+pool.on('connect', () => {
+  console.log('Connected to the PostgreSQL database!');
+});
+
+export default pool;

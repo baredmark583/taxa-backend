@@ -1,10 +1,14 @@
 
-import { Request, Response } from 'express';
+// FIX: Aliased express types to avoid potential conflicts with global types.
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import prisma from '../db';
+import pool from '../db';
+import cuid from 'cuid';
+import { User } from '../types';
 
-export const register = async (req: Request, res: Response) => {
+// FIX: Use aliased express types for req and res.
+export const register = async (req: ExpressRequest, res: ExpressResponse) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -12,33 +16,35 @@ export const register = async (req: Request, res: Response) => {
   }
 
   try {
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
+    const existingUserResult = await pool.query('SELECT * FROM "User" WHERE email = $1', [email]);
+    if (existingUserResult.rows.length > 0) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-        avatarUrl: `https://i.pravatar.cc/150?u=${email}` // Simple default avatar
-      },
-    });
-
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+    const userId = cuid();
+    const avatarUrl = `https://i.pravatar.cc/150?u=${email}`;
     
-    const { password: _, ...userWithoutPassword } = user;
+    const newUserResult = await pool.query(
+      'INSERT INTO "User" (id, email, password, name, "avatarUrl", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [userId, email, hashedPassword, name, avatarUrl, new Date()]
+    );
+    
+    const newUser: User = newUserResult.rows[0];
+    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+    
+    // Omit password from the response
+    const { password: _password, ...userWithoutPassword } = newUser;
 
     res.status(201).json({ token, user: userWithoutPassword });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ message: 'Server error during registration' });
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+// FIX: Use aliased express types for req and res.
+export const login = async (req: ExpressRequest, res: ExpressResponse) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -46,11 +52,12 @@ export const login = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
+    const userResult = await pool.query('SELECT * FROM "User" WHERE email = $1', [email]);
+    if (userResult.rows.length === 0) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    const user: User = userResult.rows[0];
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -58,10 +65,12 @@ export const login = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
     
-    const { password: _, ...userWithoutPassword } = user;
+    // Omit password from the response
+    const { password: _password, ...userWithoutPassword } = user;
 
     res.status(200).json({ token, user: userWithoutPassword });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error during login' });
   }
 };

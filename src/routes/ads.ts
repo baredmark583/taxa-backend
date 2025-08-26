@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import express from 'express';
 import { getAllAds, createAd } from '../controllers/adController';
 import { authMiddleware } from '../middleware/auth';
 
-const router = Router();
+const router = express.Router();
 
 router.get('/', getAllAds);
 router.post('/', authMiddleware, createAd);

@@ -1,14 +1,15 @@
 
-import { Request, Response, NextFunction } from 'express';
+// FIX: Aliased express types to avoid potential conflicts with global types.
+import { Request as ExpressRequest, Response as ExpressResponse, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-// FIX: Changed from interface to type for better compatibility with extending Express's Request type.
-// This resolves errors where properties like 'headers' and 'body' were not found.
-export type AuthRequest = Request & {
+// FIX: Extend the aliased express Request type.
+export type AuthRequest = ExpressRequest & {
   user?: { id: string };
 }
 
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use aliased express types for middleware function signature.
+export const authMiddleware = (req: AuthRequest, res: ExpressResponse, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

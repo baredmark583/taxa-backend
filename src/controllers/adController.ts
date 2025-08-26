@@ -1,32 +1,38 @@
 
-import { Response } from 'express';
-import prisma from '../db';
+// FIX: Aliased express Response type to avoid potential conflicts with global types.
+import { Response as ExpressResponse } from 'express';
+import pool from '../db';
 import { type AuthRequest } from '../middleware/auth';
-import { type GeneratedAdData } from '../types';
+import { type GeneratedAdData, type Ad, type User } from '../types';
+import cuid from 'cuid';
 
-export const getAllAds = async (req: AuthRequest, res: Response) => {
+// FIX: Use aliased express Response type. The AuthRequest type is correctly typed from its source.
+export const getAllAds = async (req: AuthRequest, res: ExpressResponse) => {
   try {
-    const ads = await prisma.ad.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        seller: {
-          select: {
-            id: true,
-            name: true,
-            avatarUrl: true,
-          },
-        },
-      },
-    });
-    res.status(200).json(ads);
+    // This query joins the Ad table with the User table to include seller details
+    // It constructs a JSON object for the seller to match the frontend's expected structure
+    const query = `
+      SELECT 
+        a.*, 
+        json_build_object(
+          'id', u.id,
+          'name', u.name,
+          'avatarUrl', u."avatarUrl"
+        ) as seller
+      FROM "Ad" as a
+      JOIN "User" as u ON a."sellerId" = u.id
+      ORDER BY a."createdAt" DESC;
+    `;
+    const adsResult = await pool.query(query);
+    res.status(200).json(adsResult.rows);
   } catch (error) {
+    console.error('Get all ads error:', error);
     res.status(500).json({ message: 'Failed to fetch ads' });
   }
 };
 
-export const createAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use aliased express Response type.
+export const createAd = async (req: AuthRequest, res: ExpressResponse) => {
   const { adData, imageUrls }: { adData: GeneratedAdData, imageUrls: string[] } = req.body;
   const sellerId = req.user?.id;
 
@@ -35,32 +41,35 @@ export const createAd = async (req: AuthRequest, res: Response) => {
   }
 
   try {
-    const newAd = await prisma.ad.create({
-      data: {
-        title: adData.title,
-        description: adData.description,
-        price: adData.price,
-        category: adData.category,
-        location: adData.location,
-        tags: adData.tags,
-        imageUrls: imageUrls,
-        sellerId: sellerId,
-        // Default status for new ads
-        status: 'active',
-      },
-       include: {
-        seller: {
-          select: {
-            id: true,
-            name: true,
-            avatarUrl: true,
-          },
-        },
-      },
-    });
-    res.status(201).json(newAd);
+    const adId = cuid();
+    const newAdResult = await pool.query(
+      `INSERT INTO "Ad" (id, title, description, price, category, location, tags, "imageUrls", status, "sellerId", "updatedAt") 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
+       RETURNING *`,
+      [
+        adId,
+        adData.title,
+        adData.description,
+        adData.price,
+        adData.category,
+        adData.location,
+        adData.tags,
+        imageUrls,
+        'active',
+        sellerId,
+        new Date()
+      ]
+    );
+
+    const newAd: Ad = newAdResult.rows[0];
+
+    // Fetch seller details to attach to the response, as the frontend expects it
+    const sellerResult = await pool.query('SELECT id, name, "avatarUrl" FROM "User" WHERE id = $1', [sellerId]);
+    const seller = sellerResult.rows[0];
+
+    res.status(201).json({ ...newAd, seller });
   } catch (error) {
-    console.error(error);
+    console.error('Create ad error:', error);
     res.status(500).json({ message: 'Failed to create ad' });
   }
 };
