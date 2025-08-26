@@ -63,6 +63,9 @@ export const generateAdDetailsFromImage = async (userPrompt: string, imageBase64
       }
     });
 
+    if (!response.text) {
+        throw new Error("Відповідь від AI порожня. Можливо, зображення було заблоковано через політику безпеки.");
+    }
     const jsonText = response.text.trim();
     const generatedData = JSON.parse(jsonText) as GeneratedAdData;
     
