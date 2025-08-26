@@ -1,1 +1,43 @@
-ÿταΘ¬Κ‹«>Έ¬™«…ι~)^
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // ?????????? PostgreSQL, ??? ???????? ??? Render
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+
+  avatarUrl String?
+
+  ads       Ad[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ad {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       String
+  category    String
+  location    String
+  tags        String[]
+  imageUrls   String[]
+  status      String   @default("active") // active, reserved, sold, etc.
+
+  seller    User     @relation(fields: [sellerId], references: [id])
+  sellerId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
