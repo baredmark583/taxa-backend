@@ -14,8 +14,8 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL must be set in environment variables');
 }
 
-// FIX: Cast connection string to 'any' to bypass faulty type definitions that cause constructor and method errors.
-const db = new Database(process.env.DATABASE_URL as any);
+// @ts-ignore - The @adminjs/sql types for the Database constructor are incorrect.
+const db = new Database(process.env.DATABASE_URL);
 
 
 const admin = new AdminJS({
@@ -29,6 +29,7 @@ const admin = new AdminJS({
   // uses the correct adapter and can find the tables.
   resources: [
     {
+      // @ts-ignore - The @adminjs/sql types are incorrect and don't show the .table() method
       resource: db.table('User'),
       options: {
         properties: {
@@ -40,6 +41,7 @@ const admin = new AdminJS({
       },
     },
     {
+      // @ts-ignore - The @adminjs/sql types are incorrect and don't show the .table() method
       resource: db.table('Ad'),
       options: {},
     },

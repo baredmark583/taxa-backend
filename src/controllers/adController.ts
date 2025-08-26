@@ -1,7 +1,7 @@
 
 
 // FIX: Update express import to resolve type errors with handlers.
-import express, { Response } from 'express';
+import { Response } from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { type GeneratedAdData, type Ad, type User } from '../types.js';

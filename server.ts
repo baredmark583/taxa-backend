@@ -1,7 +1,11 @@
 
 
+// FIX: Fix process.exit type error by importing process module.
+import process from 'process';
 // FIX: Update express import to resolve type errors with handlers.
-import express, { Request, Response } from 'express';
+import express from 'express';
+// FIX: Use non-type-only import for Express Request and Response to resolve type errors.
+import { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // FIX: Added .js extension to local imports for ES module resolution.

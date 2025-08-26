@@ -1,7 +1,7 @@
 
 
 // FIX: Update express import to resolve type errors with middleware.
-import express, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.

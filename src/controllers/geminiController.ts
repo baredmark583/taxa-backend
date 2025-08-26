@@ -1,7 +1,7 @@
 
 
 // FIX: Update express import to resolve type errors with handlers.
-import express, { Response } from 'express';
+import { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 import { generateAdDetailsFromImage } from '../services/geminiService.js';
 
