@@ -1,17 +1,11 @@
-// FIX: To resolve type conflicts, using types directly from the express default import.
-// FIX: Changed to a default import of express to use namespaced types.
-// FIX: Use named import for Response to avoid global type conflicts.
-// FIX: Use default import for express to avoid global type conflicts with Response.
-import express from 'express';
+// FIX: Use named import for Response to avoid conflicts with global DOM types.
+import { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 import { generateAdDetailsFromImage } from '../services/geminiService.js';
 
 // Use Express's built-in types for request and response handlers.
-// FIX: Use express.Response for type consistency.
-// FIX: Use express.Response to avoid conflict with global types.
-// FIX: Use named Response type.
-// FIX: Use namespaced express types to avoid global type conflicts.
-export const generateAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express.
+export const generateAd = async (req: AuthRequest, res: Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     
     if (!prompt || !imageBase64 || !mimeType) {

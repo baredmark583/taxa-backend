@@ -1,9 +1,6 @@
 // Use the 'process' global from Node.js, do not import it.
-// FIX: To resolve type conflicts, using types directly from the express default import.
-// FIX: Changed to a default import of express to use namespaced types.
-// FIX: Import Request, Response, and NextFunction from express to resolve conflicts with global types.
-// FIX: Use default import for express to avoid global type conflicts with Request, Response, etc.
-import express from 'express';
+// FIX: Use named imports for Express types to avoid conflicts with global DOM types.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added .js extension to local imports for ES module resolution.
@@ -38,20 +35,14 @@ const startServer = async () => {
     app.use(admin.options.rootPath, adminRouter);
     
     // Basic welcome route
-    // FIX: Use express.Request and express.Response types for consistency.
-    // FIX: Use express.Request and express.Response to avoid conflict with global types.
-    // FIX: Use named Request and Response types.
-    // FIX: Use namespaced express types to avoid global type conflicts.
-    app.get('/', (req: express.Request, res: express.Response) => {
+    // FIX: Use Request and Response types from express.
+    app.get('/', (req: Request, res: Response) => {
       res.send(`Taxa AI Backend is running. Admin panel is at http://localhost:${PORT}${admin.options.rootPath}`);
     });
     
     // Global error handler
-    // FIX: Use express.Request, express.Response, and express.NextFunction types for consistency.
-    // FIX: Use express.Request, express.Response, and express.NextFunction to avoid conflict with global types.
-    // FIX: Use named Request, Response, and NextFunction types.
-    // FIX: Use namespaced express types to avoid global type conflicts.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Use Request, Response, and NextFunction types from express.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });

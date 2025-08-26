@@ -1,6 +1,3 @@
-
-
-
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
 import { Database, Resource } from '@adminjs/sql';
@@ -34,11 +31,10 @@ const admin = new AdminJS({
   branding: {
     companyName: 'Taxa AI',
   },
-  // FIX: Explicitly instantiate Resource objects for each table to resolve discovery issues.
+  // FIX: Explicitly instantiate Resource objects for each table. Cast db to any to access table method due to incorrect types in @adminjs/sql.
   resources: [
     {
-      // FIX: Corrected resource definition to use a resource object from the db adapter.
-      resource: db.table('User'),
+      resource: (db as any).table('User'),
       options: {
         properties: {
           // Hide password from the UI
@@ -49,16 +45,15 @@ const admin = new AdminJS({
       },
     },
     {
-      // FIX: Corrected resource definition to use a resource object from the db adapter.
-      resource: db.table('Ad'),
+      resource: (db as any).table('Ad'),
       options: {},
     },
-    { resource: db.table('Review'), options: {} },
-    { resource: db.table('ChatMessage'), options: {} },
-    { resource: db.table('SavedSearch'), options: {} },
-    { resource: db.table('Question'), options: {} },
-    { resource: db.table('Answer'), options: {} },
-    { resource: db.table('Follow'), options: {} },
+    { resource: (db as any).table('Review'), options: {} },
+    { resource: (db as any).table('ChatMessage'), options: {} },
+    { resource: (db as any).table('SavedSearch'), options: {} },
+    { resource: (db as any).table('Question'), options: {} },
+    { resource: (db as any).table('Answer'), options: {} },
+    { resource: (db as any).table('Follow'), options: {} },
   ],
 });
 

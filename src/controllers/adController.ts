@@ -1,19 +1,13 @@
-// FIX: To resolve type conflicts, using types directly from the express default import.
-// FIX: Changed to a default import of express to use namespaced types.
-// FIX: Use named imports for Request and Response to avoid global type conflicts.
-// FIX: Use default import for express to avoid global type conflicts with Request, Response, etc.
-import express from 'express';
+// FIX: Use named imports for Express types to avoid conflicts with global DOM types.
+import { Request, Response } from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { type GeneratedAdData, type Ad, type User } from '../types.js';
 import cuid from 'cuid';
 
 // Use Express's built-in types for request and response handlers.
-// FIX: Use express.Request and express.Response for type consistency.
-// FIX: Use express.Request and express.Response to avoid conflict with global types.
-// FIX: Use named Request and Response types.
-// FIX: Use namespaced express types to avoid global type conflicts.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express.
+export const getAllAds = async (req: Request, res: Response) => {
   try {
     // This query joins the Ad table with the User table to include seller details
     // It constructs a JSON object for the seller to match the frontend's expected structure
@@ -38,11 +32,8 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 };
 
 // Use Express's built-in types for request and response handlers.
-// FIX: Use express.Response for type consistency.
-// FIX: Use express.Response to avoid conflict with global types.
-// FIX: Use named Response type.
-// FIX: Use namespaced express types to avoid global type conflicts.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express.
+export const createAd = async (req: AuthRequest, res: Response) => {
   const { adData, imageUrls }: { adData: GeneratedAdData, imageUrls: string[] } = req.body;
   const sellerId = req.user?.id;
 

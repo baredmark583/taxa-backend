@@ -1,8 +1,5 @@
-// FIX: To resolve type conflicts, using types directly from the express default import.
-// FIX: Changed to a default import of express to use namespaced types.
-// FIX: Use named imports for Request and Response to avoid global type conflicts.
-// FIX: Use default import for express to avoid global type conflicts with Request, Response, etc.
-import express from 'express';
+// FIX: Use named imports for Express types to avoid conflicts with global DOM types.
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -10,11 +7,8 @@ import cuid from 'cuid';
 import { User } from '../types.js';
 
 // Use Express's built-in types for request and response handlers.
-// FIX: Use express.Request and express.Response for type consistency.
-// FIX: Use express.Request and express.Response to avoid conflict with global types.
-// FIX: Use named Request and Response types.
-// FIX: Use namespaced express types to avoid global type conflicts.
-export const register = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express.
+export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -50,11 +44,8 @@ export const register = async (req: express.Request, res: express.Response) => {
 };
 
 // Use Express's built-in types for request and response handlers.
-// FIX: Use express.Request and express.Response for type consistency.
-// FIX: Use express.Request and express.Response to avoid conflict with global types.
-// FIX: Use named Request and Response types.
-// FIX: Use namespaced express types to avoid global type conflicts.
-export const login = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express.
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
