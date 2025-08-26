@@ -1,3 +1,4 @@
+
 import { type Ad, type GeneratedAdData, type TelegramUser, type AdStatus, type Review, type ChatConversation, type ChatMessage, type SavedSearch, type NewReviewPayload, type Question, type Follow, type Answer } from '../types';
 import * as db from './db';
 

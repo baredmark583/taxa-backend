@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeneratedAdData, Ad, ImageSearchQuery, ChatMessage } from '../types';
 
