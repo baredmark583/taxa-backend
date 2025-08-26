@@ -1,4 +1,5 @@
 
+// FIX: Import the full Ad type to satisfy mock data shape.
 import { type Ad, type Review, type ChatMessage, type SavedSearch, type Question, type Follow } from '../types';
 
 // =================================================================
@@ -33,7 +34,8 @@ const initialMockAds: Ad[] = [
       createdAt: getDateAgo(1),
       location: 'Київ',
       tags: ['шкіряна куртка', 'вінтаж', 'розмір L', 'одяг'],
-      seller: { id: 101, name: 'Іван Петренко', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', telegramUsername: 'ivan_petrenko', rating: 4.8, reviewsCount: 12, isVerified: true },
+      // FIX: Changed seller ID to string.
+      seller: { id: '101', name: 'Іван Петренко', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', telegramUsername: 'ivan_petrenko', rating: 4.8, reviewsCount: 12, isVerified: true },
       status: 'active',
       isBoosted: true,
       stats: { views: 152, favorites: 18 },
@@ -49,7 +51,8 @@ const initialMockAds: Ad[] = [
       createdAt: getDateAgo(3),
       location: 'Львів',
       tags: ['шафа', 'меблі', 'дуб', 'зберігання'],
-      seller: { id: 102, name: 'Анна Сидоренко', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026705d', telegramUsername: 'anna_sidorenko', rating: 5.0, reviewsCount: 5, isVerified: false },
+      // FIX: Changed seller ID to string.
+      seller: { id: '102', name: 'Анна Сидоренко', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026705d', telegramUsername: 'anna_sidorenko', rating: 5.0, reviewsCount: 5, isVerified: false },
       status: 'reserved',
       stats: { views: 89, favorites: 5 },
       allowOffers: false,
@@ -64,7 +67,8 @@ const initialMockAds: Ad[] = [
       createdAt: getDateAgo(5),
       location: 'Одеса',
       tags: ['гітара', 'музика', 'yamaha', 'хобі'],
-      seller: { id: 101, name: 'Іван Петренко', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', telegramUsername: 'ivan_petrenko', rating: 4.8, reviewsCount: 12, isVerified: true },
+      // FIX: Changed seller ID to string.
+      seller: { id: '101', name: 'Іван Петренко', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', telegramUsername: 'ivan_petrenko', rating: 4.8, reviewsCount: 12, isVerified: true },
       status: 'sold',
       stats: { views: 210, favorites: 11 },
        allowOffers: true,
@@ -80,7 +84,8 @@ const initialMockAds: Ad[] = [
       createdAt: new Date().toISOString(),
       location: 'Київ',
       tags: ['навушники', 'нові', 'bluetooth', 'електроніка'],
-      seller: { id: 104, name: 'Олена Смирнова', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026707d', telegramUsername: 'olena_smyrnova', rating: 4.5, reviewsCount: 2, isVerified: true },
+      // FIX: Changed seller ID to string.
+      seller: { id: '104', name: 'Олена Смирнова', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026707d', telegramUsername: 'olena_smyrnova', rating: 4.5, reviewsCount: 2, isVerified: true },
       status: 'active',
       stats: { views: 45, favorites: 7 },
        allowOffers: true,
@@ -90,20 +95,21 @@ const initialMockAds: Ad[] = [
 const initialMockReviews: Review[] = [
     {
         id: 'review-1',
-        authorId: 102,
+        // FIX: Changed author and seller IDs to strings.
+        authorId: '102',
         authorName: 'Анна Сидоренко',
         authorAvatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
-        sellerId: 101,
+        sellerId: '101',
         rating: 5,
         text: 'Все чудово! Куртка відповідає опису, продавець дуже ввічливий.',
         createdAt: getDateAgo(2),
     },
     {
         id: 'review-2',
-        authorId: 104,
+        authorId: '104',
         authorName: 'Олена Смирнова',
         authorAvatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026707d',
-        sellerId: 102,
+        sellerId: '102',
         rating: 5,
         text: 'Угода пройшла швидко і гладко. Шафа просто чудова. Рекомендую!',
         createdAt: getDateAgo(4),

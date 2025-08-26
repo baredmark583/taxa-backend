@@ -1,4 +1,5 @@
 
+// FIX: Import all necessary types from the updated root types.ts file.
 import { type Ad, type GeneratedAdData, type TelegramUser, type AdStatus, type Review, type ChatConversation, type ChatMessage, type SavedSearch, type NewReviewPayload, type Question, type Follow, type Answer } from '../types';
 import * as db from './db';
 
@@ -36,7 +37,8 @@ export const publishAd = async (adData: GeneratedAdData, imageUrls: string[], cu
         imageUrls: imageUrls,
         createdAt: new Date().toISOString(),
         seller: { 
-            id: currentUser.id,
+            // FIX: Ensure seller ID is a string.
+            id: String(currentUser.id),
             name: [currentUser.first_name, currentUser.last_name].filter(Boolean).join(' '),
             avatarUrl: currentUser.photo_url || `https://i.pravatar.cc/150?u=${currentUser.id}`,
             telegramUsername: currentUser.username || 'unknown_user',
@@ -146,7 +148,7 @@ export const removeFavorite = async (adId: string): Promise<string[]> => {
 };
 
 // --- Reviews ---
-export const getReviewsForSeller = async (sellerId: number): Promise<Review[]> => {
+export const getReviewsForSeller = async (sellerId: string): Promise<Review[]> => {
     const allReviews = db.readFromStorage<Review[]>(db.REVIEWS_STORAGE_KEY, db.inMemoryReviews);
     const sellerReviews = allReviews
         .filter(r => r.sellerId === sellerId)
@@ -157,7 +159,7 @@ export const getReviewsForSeller = async (sellerId: number): Promise<Review[]> =
 export const addReview = async (payload: NewReviewPayload, author: TelegramUser): Promise<{ newReview: Review, updatedSeller: Ad['seller'] }> => {
     const newReview: Review = {
         id: `review-${Date.now()}`,
-        authorId: author.id,
+        authorId: String(author.id),
         authorName: [author.first_name, author.last_name].filter(Boolean).join(' '),
         authorAvatarUrl: author.photo_url || `https://i.pravatar.cc/150?u=${author.id}`,
         createdAt: new Date().toISOString(),
@@ -211,11 +213,12 @@ const getAllMessages = (): ChatMessage[] => {
 export const getConversations = async (userId: number): Promise<ChatConversation[]> => {
     const allMessages = getAllMessages();
     const conversationsMap = new Map<string, ChatConversation>();
+    const userIdStr = String(userId);
 
     allMessages.forEach(msg => {
-        if (msg.senderId === userId || msg.receiverId === userId) {
-            const otherParticipantId = msg.senderId === userId ? msg.receiverId : msg.senderId;
-            const conversationId = msg.adId ? `${msg.adId}_${Math.min(userId, otherParticipantId)}_${Math.max(userId, otherParticipantId)}` : `user_${otherParticipantId}`;
+        if (msg.senderId === userIdStr || msg.receiverId === userIdStr) {
+            const otherParticipantId = msg.senderId === userIdStr ? msg.receiverId : msg.senderId;
+            const conversationId = msg.adId ? `${msg.adId}_${userIdStr < otherParticipantId ? userIdStr : otherParticipantId}_${userIdStr >= otherParticipantId ? userIdStr : otherParticipantId}` : `user_${otherParticipantId}`;
             
             let conversation = conversationsMap.get(conversationId);
 
@@ -227,7 +230,7 @@ export const getConversations = async (userId: number): Promise<ChatConversation
                     avatarUrl: otherParticipantAd?.seller.avatarUrl || `https://i.pravatar.cc/150?u=${otherParticipantId}`,
                 };
                 
-                const unreadCount = allMessages.filter(m => m.senderId === otherParticipantId && m.receiverId === userId && (m.adId || null) === (msg.adId || null) && !m.isRead).length;
+                const unreadCount = allMessages.filter(m => m.senderId === otherParticipantId && m.receiverId === userIdStr && (m.adId || null) === (msg.adId || null) && !m.isRead).length;
 
                 conversationsMap.set(conversationId, {
                     id: conversationId,
@@ -246,18 +249,19 @@ export const getConversations = async (userId: number): Promise<ChatConversation
     return simulateApiCall(sortedConversations);
 };
 
-export const getMessagesForConversation = async (userId: number, otherParticipantId: number): Promise<ChatMessage[]> => {
+export const getMessagesForConversation = async (userId: number, otherParticipantId: string): Promise<ChatMessage[]> => {
     let allMessages = getAllMessages();
+    const userIdStr = String(userId);
     
     const conversationMessages = allMessages.filter(msg => 
-        (msg.senderId === userId && msg.receiverId === otherParticipantId) ||
-        (msg.senderId === otherParticipantId && msg.receiverId === userId)
+        (msg.senderId === userIdStr && msg.receiverId === otherParticipantId) ||
+        (msg.senderId === otherParticipantId && msg.receiverId === userIdStr)
     );
 
     // Mark messages as read
     let updated = false;
     conversationMessages.forEach(msg => {
-        if(msg.receiverId === userId && !msg.isRead) {
+        if(msg.receiverId === userIdStr && !msg.isRead) {
             msg.isRead = true;
             updated = true;
         }
@@ -270,11 +274,11 @@ export const getMessagesForConversation = async (userId: number, otherParticipan
     return simulateApiCall(conversationMessages);
 };
 
-export const sendMessage = async (senderId: number, receiverId: number, text: string, adId?: string): Promise<ChatMessage> => {
+export const sendMessage = async (senderId: number, receiverId: string, text: string, adId?: string): Promise<ChatMessage> => {
     const allMessages = getAllMessages();
     const newMessage: ChatMessage = {
         id: `msg-${Date.now()}`,
-        senderId,
+        senderId: String(senderId),
         receiverId,
         text,
         adId,
@@ -286,11 +290,11 @@ export const sendMessage = async (senderId: number, receiverId: number, text: st
     return simulateApiCall(newMessage);
 };
 
-export const sendMessageWithImage = async (senderId: number, receiverId: number, imageUrl: string, adId?: string): Promise<ChatMessage> => {
+export const sendMessageWithImage = async (senderId: number, receiverId: string, imageUrl: string, adId?: string): Promise<ChatMessage> => {
     const allMessages = getAllMessages();
     const newMessage: ChatMessage = {
         id: `msg-${Date.now()}`,
-        senderId,
+        senderId: String(senderId),
         receiverId,
         imageUrl,
         adId,
@@ -305,7 +309,7 @@ export const sendMessageWithImage = async (senderId: number, receiverId: number,
 
 export const getUnreadMessagesCount = async (userId: number): Promise<number> => {
     const allMessages = getAllMessages();
-    return allMessages.filter(m => m.receiverId === userId && !m.isRead).length;
+    return allMessages.filter(m => m.receiverId === String(userId) && !m.isRead).length;
 }
 
 // --- SAVED SEARCHES ---
@@ -395,7 +399,7 @@ export const postQuestion = async (adId: string, text: string, author: TelegramU
         id: `q-${Date.now()}`,
         adId,
         text,
-        authorId: author.id,
+        authorId: String(author.id),
         authorName: [author.first_name, author.last_name].filter(Boolean).join(' '),
         authorAvatarUrl: author.photo_url || `https://i.pravatar.cc/150?u=${author.id}`,
         createdAt: new Date().toISOString(),
@@ -415,7 +419,7 @@ export const postAnswer = async (questionId: string, text: string, author: Teleg
         id: `ans-${Date.now()}`,
         questionId,
         text,
-        authorId: author.id,
+        authorId: String(author.id),
         createdAt: new Date().toISOString(),
     };
     question.answer = newAnswer;
@@ -424,23 +428,25 @@ export const postAnswer = async (questionId: string, text: string, author: Teleg
 };
 
 // --- Following Sellers ---
-export const getFollowingIds = async (userId: number): Promise<number[]> => {
+export const getFollowingIds = async (userId: number): Promise<string[]> => {
     const follows = db.readFromStorage<Follow[]>(db.FOLLOWS_STORAGE_KEY, []);
-    return follows.filter(f => f.followerId === userId).map(f => f.sellerId);
+    return follows.filter(f => f.followerId === String(userId)).map(f => f.sellerId);
 }
 
-export const followSeller = async (followerId: number, sellerId: number): Promise<void> => {
+export const followSeller = async (followerId: number, sellerId: string): Promise<void> => {
     let follows = db.readFromStorage<Follow[]>(db.FOLLOWS_STORAGE_KEY, []);
-    if (!follows.some(f => f.followerId === followerId && f.sellerId === sellerId)) {
-        follows.push({ followerId, sellerId });
+    const followerIdStr = String(followerId);
+    if (!follows.some(f => f.followerId === followerIdStr && f.sellerId === sellerId)) {
+        follows.push({ followerId: followerIdStr, sellerId });
         db.writeToStorage(db.FOLLOWS_STORAGE_KEY, follows);
     }
     return simulateApiCall(undefined, 100);
 }
 
-export const unfollowSeller = async (followerId: number, sellerId: number): Promise<void> => {
+export const unfollowSeller = async (followerId: number, sellerId: string): Promise<void> => {
     let follows = db.readFromStorage<Follow[]>(db.FOLLOWS_STORAGE_KEY, []);
-    follows = follows.filter(f => !(f.followerId === followerId && f.sellerId === sellerId));
+    const followerIdStr = String(followerId);
+    follows = follows.filter(f => !(f.followerId === followerIdStr && f.sellerId === sellerId));
     db.writeToStorage(db.FOLLOWS_STORAGE_KEY, follows);
     return simulateApiCall(undefined, 100);
 }
@@ -452,7 +458,7 @@ export const makePriceOffer = async (ad: Ad, buyerId: number, price: string): Pr
     const allMessages = getAllMessages();
     const offerMessage: ChatMessage = {
         id: `sys-${Date.now()}`,
-        senderId: 0, // System
+        senderId: '0', // System
         receiverId: ad.seller.id,
         adId: ad.id,
         isSystemMessage: true,
@@ -482,12 +488,14 @@ export const respondToOffer = async (messageId: string, accepted: boolean): Prom
 export const startSecureDeal = async (adId: string, buyerId: number): Promise<void> => {
     const ad = db.inMemoryAds.find(ad => ad.id === adId);
     if (!ad) throw new Error("Ad not found");
-    if (ad.seller.id === buyerId) throw new Error("Cannot start a deal with yourself");
+    // FIX: Compare string IDs
+    if (ad.seller.id === String(buyerId)) throw new Error("Cannot start a deal with yourself");
 
     const allMessages = getAllMessages();
+    const buyerIdStr = String(buyerId);
     const dealMessage: ChatMessage = {
         id: `sys-${Date.now()}`,
-        senderId: 0,
+        senderId: '0',
         receiverId: ad.seller.id, // Notification for seller
         adId: ad.id,
         isSystemMessage: true,
@@ -497,12 +505,12 @@ export const startSecureDeal = async (adId: string, buyerId: number): Promise<vo
             status: 'payment_pending',
             adId: ad.id,
             sellerId: ad.seller.id,
-            buyerId: buyerId
+            buyerId: buyerIdStr
         }
     };
     allMessages.push(dealMessage);
     // Also send a copy to the buyer
-    allMessages.push({...dealMessage, id: `sys-${Date.now()}-2`, receiverId: buyerId});
+    allMessages.push({...dealMessage, id: `sys-${Date.now()}-2`, receiverId: buyerIdStr});
 
     db.writeToStorage(db.CHATS_STORAGE_KEY, allMessages);
     return simulateApiCall(undefined);

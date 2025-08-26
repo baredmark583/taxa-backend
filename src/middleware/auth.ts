@@ -2,7 +2,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-export interface AuthRequest extends Request {
+// FIX: Changed from interface to type for better compatibility with extending Express's Request type.
+// This resolves errors where properties like 'headers' and 'body' were not found.
+export type AuthRequest = Request & {
   user?: { id: string };
 }
 
