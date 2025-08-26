@@ -1,7 +1,8 @@
 
 
+
 // FIX: Import Request and Response types directly from express to avoid conflicts with global types.
-import { Request, Response } from 'express';
+import * as express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db';
@@ -10,7 +11,7 @@ import { User } from '../types';
 
 // Use standard express types for req and res.
 // FIX: Use imported Request and Response types directly.
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -47,7 +48,7 @@ export const register = async (req: Request, res: Response) => {
 
 // Use standard express types for req and res.
 // FIX: Use imported Request and Response types directly.
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
