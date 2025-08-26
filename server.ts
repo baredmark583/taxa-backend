@@ -1,11 +1,10 @@
 
 
+
 // FIX: Fix process.exit type error by importing process module.
 import process from 'process';
-// FIX: Update express import to resolve type errors with handlers.
+// FIX: Using a single default express import and qualified types (e.g., express.Request) to resolve handler type errors.
 import express from 'express';
-// FIX: Use non-type-only import for Express Request and Response to resolve type errors.
-import { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // FIX: Added .js extension to local imports for ES module resolution.
@@ -35,8 +34,8 @@ const startServer = async () => {
   app.use(admin.options.rootPath, adminRouter);
 
 
-  // Use standard express types for req and res to resolve handler errors.
-  app.get('/', (req: Request, res: Response) => {
+  // FIX: Use qualified express types to resolve errors with request handlers, such as 'send' not being found on the response object.
+  app.get('/', (req: express.Request, res: express.Response) => {
       res.send('Taxa AI Backend is running! (PostgreSQL mode)');
   });
 

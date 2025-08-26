@@ -1,5 +1,3 @@
-
-
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
 import { Database, Resource } from '@adminjs/sql';
@@ -19,18 +17,16 @@ const db = new Database(process.env.DATABASE_URL);
 
 
 const admin = new AdminJS({
-  // The databases array is not needed when resources are defined this way.
-  databases: [],
+  // Pass the database connection to AdminJS. It will be used to find the resources.
+  databases: [db],
   rootPath: '/admin',
   branding: {
     companyName: 'Taxa AI',
   },
-  // FIX: Define resources using the Database instance. This ensures that AdminJS
-  // uses the correct adapter and can find the tables.
+  // Define resources by their table name as strings. AdminJS will find them in the provided database.
   resources: [
     {
-      // @ts-ignore - The @adminjs/sql types are incorrect and don't show the .table() method
-      resource: db.table('User'),
+      resource: 'User',
       options: {
         properties: {
           // Hide password from the UI
@@ -41,8 +37,7 @@ const admin = new AdminJS({
       },
     },
     {
-      // @ts-ignore - The @adminjs/sql types are incorrect and don't show the .table() method
-      resource: db.table('Ad'),
+      resource: 'Ad',
       options: {},
     },
   ],
