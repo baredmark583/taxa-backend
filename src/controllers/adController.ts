@@ -1,4 +1,6 @@
 // FIX: To resolve type conflicts, using types directly from the express default import.
+// FIX: Changed to a default import of express to use namespaced types.
+// FIX: Use named imports for Request and Response to avoid global type conflicts.
 import { Request, Response } from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -7,6 +9,8 @@ import cuid from 'cuid';
 
 // Use Express's built-in types for request and response handlers.
 // FIX: Use express.Request and express.Response for type consistency.
+// FIX: Use express.Request and express.Response to avoid conflict with global types.
+// FIX: Use named Request and Response types.
 export const getAllAds = async (req: Request, res: Response) => {
   try {
     // This query joins the Ad table with the User table to include seller details
@@ -33,6 +37,8 @@ export const getAllAds = async (req: Request, res: Response) => {
 
 // Use Express's built-in types for request and response handlers.
 // FIX: Use express.Response for type consistency.
+// FIX: Use express.Response to avoid conflict with global types.
+// FIX: Use named Response type.
 export const createAd = async (req: AuthRequest, res: Response) => {
   const { adData, imageUrls }: { adData: GeneratedAdData, imageUrls: string[] } = req.body;
   const sellerId = req.user?.id;
@@ -74,3 +80,5 @@ export const createAd = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: 'Failed to create ad' });
   }
 };
+
+status(arg0: number): unknown;

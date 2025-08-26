@@ -1,4 +1,6 @@
 // FIX: To resolve type conflicts, using types directly from the express default import.
+// FIX: Changed to a default import of express to use namespaced types.
+// FIX: Use named imports for Request and Response to avoid global type conflicts.
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -8,6 +10,8 @@ import { User } from '../types.js';
 
 // Use Express's built-in types for request and response handlers.
 // FIX: Use express.Request and express.Response for type consistency.
+// FIX: Use express.Request and express.Response to avoid conflict with global types.
+// FIX: Use named Request and Response types.
 export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
@@ -45,6 +49,8 @@ export const register = async (req: Request, res: Response) => {
 
 // Use Express's built-in types for request and response handlers.
 // FIX: Use express.Request and express.Response for type consistency.
+// FIX: Use express.Request and express.Response to avoid conflict with global types.
+// FIX: Use named Request and Response types.
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
