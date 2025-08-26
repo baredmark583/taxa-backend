@@ -1,6 +1,6 @@
 import express from 'express';
-import { generateAd } from '../controllers/geminiController';
-import { authMiddleware } from '../middleware/auth';
+import { generateAd } from '../controllers/geminiController.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
 

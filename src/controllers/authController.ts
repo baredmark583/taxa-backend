@@ -1,19 +1,15 @@
-
-
-
-
-
-
-// FIX: Corrected express import to use require syntax for proper CJS module type resolution.
-import express = require('express');
+// FIX: Reverted express import to standard ES module syntax.
+// FIX: Import Request and Response types directly from express to resolve type errors.
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import pool from '../db';
+import pool from '../db.js';
 import cuid from 'cuid';
-import { User } from '../types';
+import { User } from '../types.js';
 
 // Use standard express types for req and res.
-export const register = async (req: express.Request, res: express.Response) => {
+// FIX: Use imported Request and Response types.
+export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -49,7 +45,8 @@ export const register = async (req: express.Request, res: express.Response) => {
 };
 
 // Use standard express types for req and res.
-export const login = async (req: express.Request, res: express.Response) => {
+// FIX: Use imported Request and Response types.
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {

@@ -1,6 +1,6 @@
 import express from 'express';
-import { getAllAds, createAd } from '../controllers/adController';
-import { authMiddleware } from '../middleware/auth';
+import { getAllAds, createAd } from '../controllers/adController.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
 

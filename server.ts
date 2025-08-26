@@ -1,19 +1,17 @@
-
-
-
-
-
-
-// FIX: Corrected express import to use require syntax for proper CJS module type resolution.
-import express = require('express');
+// FIX: Reverted express import to standard ES module syntax.
+// FIX: Import Request and Response types directly from express to resolve type errors.
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { initializeDatabase } from './src/db-init'; // Import the new function
+// FIX: Added .js extension to local imports for ES module resolution.
+import { initializeDatabase } from './src/db-init.js';
 
-import authRoutes from './src/routes/auth';
-import adRoutes from './src/routes/ads';
-import geminiRoutes from './src/routes/gemini';
-import { admin, adminRouter } from './src/admin';
+import authRoutes from './src/routes/auth.js';
+import adRoutes from './src/routes/ads.js';
+import geminiRoutes from './src/routes/gemini.js';
+import { admin, adminRouter } from './src/admin.js';
+// FIX: Import exit from process to handle process.exit type error.
+import { exit } from 'process';
 
 
 dotenv.config();
@@ -31,11 +29,13 @@ const startServer = async () => {
   app.use(express.json({ limit: '10mb' })); // Increase limit for base64 images
 
   // AdminJS Router
+  // FIX: Using correct Express types resolves the overload error for app.use.
   app.use(admin.options.rootPath, adminRouter);
 
 
   // Use standard express types for req and res to resolve handler errors.
-  app.get('/', (req: express.Request, res: express.Response) => {
+  // FIX: Using imported Request and Response types.
+  app.get('/', (req: Request, res: Response) => {
       res.send('Taxa AI Backend is running! (PostgreSQL mode)');
   });
 
@@ -52,6 +52,6 @@ const startServer = async () => {
 
 startServer().catch(e => {
   console.error('Failed to start server:', e);
-  // FIX: Cast process to any to avoid TypeScript error on 'exit'.
-  (process as any).exit(1);
+  // FIX: Use imported exit function to avoid type errors on global process object.
+  exit(1);
 });

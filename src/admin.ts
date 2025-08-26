@@ -2,7 +2,7 @@
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
 import { Database, Resource } from '@adminjs/sql';
-import pool from './db'; // Your configured pg Pool
+import pool from './db.js'; // Your configured pg Pool
 import bcrypt from 'bcryptjs';
 
 // Register the SQL adapter

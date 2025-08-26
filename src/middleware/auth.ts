@@ -1,20 +1,17 @@
-
-
-
-
-
-
-// FIX: Corrected express import to use require syntax for proper CJS module type resolution.
-import express = require('express');
+// FIX: Reverted express import to standard ES module syntax.
+// FIX: Import Request, Response, and NextFunction types directly from express to resolve type errors.
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.
-export type AuthRequest = express.Request & {
+// FIX: Use imported Request type.
+export type AuthRequest = Request & {
   user?: { id: string };
 }
 
 // Use standard express types for middleware function signature.
-export const authMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+// FIX: Use imported Response and NextFunction types.
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
