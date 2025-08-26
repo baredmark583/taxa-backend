@@ -1,8 +1,9 @@
 
 
 
-// FIX: Import Request and Response types directly from express to avoid conflicts with global types.
-import * as express from 'express';
+
+// FIX: Corrected express import to use default and named imports for proper type resolution. This resolves errors with request handlers and middleware.
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { initializeDatabase } from './src/db-init'; // Import the new function
@@ -32,8 +33,7 @@ const startServer = async () => {
 
 
   // Use standard express types for req and res to resolve handler errors.
-  // FIX: Use imported Request and Response types directly.
-  app.get('/', (req: express.Request, res: express.Response) => {
+  app.get('/', (req: Request, res: Response) => {
       res.send('Taxa AI Backend is running! (PostgreSQL mode)');
   });
 

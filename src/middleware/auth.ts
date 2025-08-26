@@ -1,19 +1,18 @@
 
 
 
-// FIX: Import Request, Response, and NextFunction types directly from express to avoid conflicts with global types.
-import * as express from 'express';
+
+// FIX: Corrected express import to use named imports for proper type resolution.
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.
-// FIX: Use imported Request type directly.
-export type AuthRequest = express.Request & {
+export type AuthRequest = Request & {
   user?: { id: string };
 }
 
 // Use standard express types for middleware function signature.
-// FIX: Use imported Response and NextFunction types directly.
-export const authMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

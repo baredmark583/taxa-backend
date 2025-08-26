@@ -1,8 +1,9 @@
 
 
 
-// FIX: Import Request and Response types directly from express to avoid conflicts with global types.
-import * as express from 'express';
+
+// FIX: Corrected express import to use named imports for proper type resolution.
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db';
@@ -10,8 +11,7 @@ import cuid from 'cuid';
 import { User } from '../types';
 
 // Use standard express types for req and res.
-// FIX: Use imported Request and Response types directly.
-export const register = async (req: express.Request, res: express.Response) => {
+export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -47,8 +47,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 };
 
 // Use standard express types for req and res.
-// FIX: Use imported Request and Response types directly.
-export const login = async (req: express.Request, res: express.Response) => {
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
