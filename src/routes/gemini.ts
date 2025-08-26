@@ -5,6 +5,7 @@ import { authMiddleware } from '../middleware/auth.js';
 const router = express.Router();
 
 // All Gemini routes should be protected to prevent abuse
+// FIX: Type mismatches in authMiddleware were resolved, fixing this call.
 router.use(authMiddleware);
 
 router.post('/generate-ad', generateAd);

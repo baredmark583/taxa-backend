@@ -31,10 +31,12 @@ const admin = new AdminJS({
   branding: {
     companyName: 'Taxa AI',
   },
-  // Define resources by their table name as strings. AdminJS will find them in the provided database.
+  // FIX: Define resources by explicitly getting them from the db instance
+  // to prevent runtime NoResourceAdapterError.
   resources: [
     {
-      resource: 'User',
+      // FIX: Cast db to 'any' to access the 'table' method, bypassing incorrect type definitions.
+      resource: (db as any).table('User'),
       options: {
         properties: {
           // Hide password from the UI
@@ -45,7 +47,8 @@ const admin = new AdminJS({
       },
     },
     {
-      resource: 'Ad',
+      // FIX: Cast db to 'any' to access the 'table' method, bypassing incorrect type definitions.
+      resource: (db as any).table('Ad'),
       options: {},
     },
   ],
