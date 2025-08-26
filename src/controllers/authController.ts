@@ -2,8 +2,10 @@
 
 
 
-// FIX: Corrected express import to use named imports for proper type resolution.
-import { Request, Response } from 'express';
+
+
+// FIX: Corrected express import to use require syntax for proper CJS module type resolution.
+import express = require('express');
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db';
@@ -11,7 +13,7 @@ import cuid from 'cuid';
 import { User } from '../types';
 
 // Use standard express types for req and res.
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -47,7 +49,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 // Use standard express types for req and res.
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {

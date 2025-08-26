@@ -2,13 +2,15 @@
 
 
 
-// FIX: Corrected express import to use named import for proper type resolution.
-import { Response } from 'express';
+
+
+// FIX: Corrected express import to use require syntax for proper CJS module type resolution.
+import express = require('express');
 import { type AuthRequest } from '../middleware/auth';
 import { generateAdDetailsFromImage } from '../services/geminiService';
 
 // Use standard express Response type. The AuthRequest type is correctly typed from its source.
-export const generateAd = async (req: AuthRequest, res: Response) => {
+export const generateAd = async (req: AuthRequest, res: express.Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     
     if (!prompt || !imageBase64 || !mimeType) {

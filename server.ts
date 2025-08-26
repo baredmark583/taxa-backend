@@ -2,8 +2,10 @@
 
 
 
-// FIX: Corrected express import to use default and named imports for proper type resolution. This resolves errors with request handlers and middleware.
-import express, { Request, Response } from 'express';
+
+
+// FIX: Corrected express import to use require syntax for proper CJS module type resolution.
+import express = require('express');
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { initializeDatabase } from './src/db-init'; // Import the new function
@@ -33,7 +35,7 @@ const startServer = async () => {
 
 
   // Use standard express types for req and res to resolve handler errors.
-  app.get('/', (req: Request, res: Response) => {
+  app.get('/', (req: express.Request, res: express.Response) => {
       res.send('Taxa AI Backend is running! (PostgreSQL mode)');
   });
 
