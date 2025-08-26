@@ -1,10 +1,11 @@
 
 
 
-// FIX: Fix process.exit type error by importing process module.
-import process from 'process';
-// FIX: Using a single default express import and qualified types (e.g., express.Request) to resolve handler type errors.
-import express from 'express';
+
+// FIX: Use the 'process' global from Node.js, do not import it.
+// import process from 'process';
+// FIX: Using 'import * as express' to resolve handler type errors.
+import * as express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // FIX: Added .js extension to local imports for ES module resolution.

@@ -1,8 +1,9 @@
 
 
 
-// FIX: Switched to default express import and qualified types to resolve type errors in middleware.
-import express from 'express';
+
+// FIX: Switched to 'import * as express' to resolve type errors in middleware.
+import * as express from 'express';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.

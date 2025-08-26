@@ -12,8 +12,16 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL must be set in environment variables');
 }
 
-// @ts-ignore - The @adminjs/sql types for the Database constructor are incorrect.
-const db = new Database(process.env.DATABASE_URL);
+// FIX: Explicitly pass SSL config to the database connection for AdminJS.
+// This is necessary for cloud environments like Render.
+// FIX: Cast config to 'any' to bypass incorrect @adminjs/sql types.
+const db = new Database({
+  client: 'pg',
+  connection: {
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+  },
+} as any);
 
 
 const admin = new AdminJS({

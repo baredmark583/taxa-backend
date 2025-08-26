@@ -1,8 +1,9 @@
 
 
 
-// FIX: Switched to default express import and qualified types to resolve type errors in controllers.
-import express from 'express';
+
+// FIX: Switched to 'import * as express' to resolve type errors in controllers.
+import * as express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';

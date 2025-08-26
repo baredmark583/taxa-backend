@@ -1,8 +1,9 @@
 
 
 
-// FIX: Switched to default express import and qualified types to resolve type errors.
-import express from 'express';
+
+// FIX: Switched to 'import * as express' to resolve type errors.
+import * as express from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 import { generateAdDetailsFromImage } from '../services/geminiService.js';
 
