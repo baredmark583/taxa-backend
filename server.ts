@@ -1,14 +1,10 @@
 
-
-
-
-// FIX: Use the 'process' global from Node.js, do not import it.
-// import process from 'process';
-// FIX: Using 'import * as express' to resolve handler type errors.
-import * as express from 'express';
+// Use the 'process' global from Node.js, do not import it.
+// FIX: Standardized express type imports to resolve conflicts.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-// FIX: Added .js extension to local imports for ES module resolution.
+// Added .js extension to local imports for ES module resolution.
 import { initializeDatabase } from './src/db-init.js';
 
 import authRoutes from './src/routes/auth.js';
@@ -24,34 +20,41 @@ const PORT = process.env.PORT || 3001;
 
 
 const startServer = async () => {
+  try {
+    // Initialize the database schema before starting the server
+    await initializeDatabase();
+      
+    app.use(cors());
+    app.use(express.json({ limit: '10mb' })); // Increase limit for base64 images
 
-  // Initialize the database schema before starting the server
-  await initializeDatabase();
+    // API routes
+    app.use('/api/auth', authRoutes);
+    app.use('/api/ads', adRoutes);
+    app.use('/api/gemini', geminiRoutes);
     
-  app.use(cors());
-  app.use(express.json({ limit: '10mb' })); // Increase limit for base64 images
+    // AdminJS dashboard
+    app.use(admin.options.rootPath, adminRouter);
+    
+    // Basic welcome route
+    app.get('/', (req: Request, res: Response) => {
+      res.send(`Taxa AI Backend is running. Admin panel is at http://localhost:${PORT}${admin.options.rootPath}`);
+    });
+    
+    // Global error handler
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    });
 
-  // AdminJS Router
-  app.use(admin.options.rootPath, adminRouter);
-
-
-  // FIX: Use qualified express types to resolve errors with request handlers, such as 'send' not being found on the response object.
-  app.get('/', (req: express.Request, res: express.Response) => {
-      res.send('Taxa AI Backend is running! (PostgreSQL mode)');
-  });
-
-  app.use('/api/auth', authRoutes);
-  app.use('/api/ads', adRoutes);
-  app.use('/api/gemini', geminiRoutes);
-
-
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}, connected to PostgreSQL.`);
-    console.log(`AdminJS started on http://localhost:${PORT}${admin.options.rootPath}`);
-  });
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(`AdminJS dashboard available at http://localhost:${PORT}${admin.options.rootPath}`);
+    });
+  } catch(error) {
+    console.error("Failed to start server:", error);
+    // FIX: Cast process to any to access exit method, avoiding a type error.
+    (process as any).exit(1);
+  }
 };
 
-startServer().catch(e => {
-  console.error('Failed to start server:', e);
-  process.exit(1);
-});
+startServer();

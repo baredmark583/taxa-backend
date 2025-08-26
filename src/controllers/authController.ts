@@ -1,17 +1,15 @@
 
 
-
-
-// FIX: Switched to 'import * as express' to resolve type errors in controllers.
-import * as express from 'express';
+// FIX: Standardized express type imports to resolve conflicts.
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { User } from '../types.js';
 
-// FIX: Use qualified express types to resolve errors with req.body and res.status.
-export const register = async (req: express.Request, res: express.Response) => {
+// Use Express's built-in types for request and response handlers.
+export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -46,8 +44,8 @@ export const register = async (req: express.Request, res: express.Response) => {
   }
 };
 
-// FIX: Use qualified express types to resolve errors with req.body and res.status.
-export const login = async (req: express.Request, res: express.Response) => {
+// Use Express's built-in types for request and response handlers.
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {

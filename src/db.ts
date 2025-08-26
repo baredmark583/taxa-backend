@@ -1,3 +1,4 @@
+
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
@@ -18,7 +19,8 @@ pool.on('connect', () => {
 // FIX: Added an error handler to the pool for better debugging.
 pool.on('error', (err) => {
     console.error('Unexpected error on idle client', err);
-    process.exit(-1);
+    // FIX: Cast process to any to access exit method, avoiding a type error.
+    (process as any).exit(-1);
 });
 
 export default pool;

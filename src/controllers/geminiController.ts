@@ -1,14 +1,12 @@
 
 
-
-
-// FIX: Switched to 'import * as express' to resolve type errors.
-import * as express from 'express';
+// FIX: Standardized express type imports to resolve conflicts.
+import { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 import { generateAdDetailsFromImage } from '../services/geminiService.js';
 
-// FIX: Use qualified express.Response type to resolve errors with req.body and res.status.
-export const generateAd = async (req: AuthRequest, res: express.Response) => {
+// Use Express's built-in types for request and response handlers.
+export const generateAd = async (req: AuthRequest, res: Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     
     if (!prompt || !imageBase64 || !mimeType) {
