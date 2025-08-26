@@ -1,4 +1,6 @@
 
+
+
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
 import { Database, Resource } from '@adminjs/sql';
@@ -35,8 +37,8 @@ const admin = new AdminJS({
   // FIX: Explicitly instantiate Resource objects for each table to resolve discovery issues.
   resources: [
     {
-      // FIX: Corrected resource definition to use the table name as a string.
-      resource: 'User',
+      // FIX: Corrected resource definition to use a resource object from the db adapter.
+      resource: db.table('User'),
       options: {
         properties: {
           // Hide password from the UI
@@ -47,10 +49,16 @@ const admin = new AdminJS({
       },
     },
     {
-      // FIX: Corrected resource definition to use the table name as a string.
-      resource: 'Ad',
+      // FIX: Corrected resource definition to use a resource object from the db adapter.
+      resource: db.table('Ad'),
       options: {},
     },
+    { resource: db.table('Review'), options: {} },
+    { resource: db.table('ChatMessage'), options: {} },
+    { resource: db.table('SavedSearch'), options: {} },
+    { resource: db.table('Question'), options: {} },
+    { resource: db.table('Answer'), options: {} },
+    { resource: db.table('Follow'), options: {} },
   ],
 });
 

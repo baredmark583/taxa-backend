@@ -31,6 +31,85 @@ const createAdTableQuery = `
   );
 `;
 
+const createReviewTableQuery = `
+  CREATE TABLE "Review" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "rating" INTEGER NOT NULL CHECK ("rating" >= 1 AND "rating" <= 5),
+      "text" TEXT NOT NULL,
+      "authorId" TEXT NOT NULL,
+      "sellerId" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL,
+      CONSTRAINT "Review_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+      CONSTRAINT "Review_sellerId_fkey" FOREIGN KEY ("sellerId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+  );
+`;
+
+const createChatMessageTableQuery = `
+  CREATE TABLE "ChatMessage" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "text" TEXT,
+      "imageUrl" TEXT,
+      "isRead" BOOLEAN NOT NULL DEFAULT false,
+      "senderId" TEXT NOT NULL,
+      "receiverId" TEXT NOT NULL,
+      "adId" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "ChatMessage_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+      CONSTRAINT "ChatMessage_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+      CONSTRAINT "ChatMessage_adId_fkey" FOREIGN KEY ("adId") REFERENCES "Ad" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`;
+
+const createSavedSearchTableQuery = `
+  CREATE TABLE "SavedSearch" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "query" TEXT NOT NULL,
+      "category" TEXT,
+      "filters" JSONB,
+      "userId" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "SavedSearch_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`;
+
+const createQuestionTableQuery = `
+  CREATE TABLE "Question" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "text" TEXT NOT NULL,
+      "adId" TEXT NOT NULL,
+      "authorId" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL,
+      CONSTRAINT "Question_adId_fkey" FOREIGN KEY ("adId") REFERENCES "Ad" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+      CONSTRAINT "Question_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`;
+
+const createAnswerTableQuery = `
+  CREATE TABLE "Answer" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "text" TEXT NOT NULL,
+      "questionId" TEXT NOT NULL UNIQUE,
+      "authorId" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL,
+      CONSTRAINT "Answer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+      CONSTRAINT "Answer_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+  );
+`;
+
+const createFollowTableQuery = `
+  CREATE TABLE "Follow" (
+      "followerId" TEXT NOT NULL,
+      "sellerId" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY ("followerId", "sellerId"),
+      CONSTRAINT "Follow_followerId_fkey" FOREIGN KEY ("followerId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+      CONSTRAINT "Follow_sellerId_fkey" FOREIGN KEY ("sellerId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`;
+
 const checkTableExists = async (tableName: string): Promise<boolean> => {
   const res = await pool.query(
     "SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = $1)",
@@ -39,26 +118,34 @@ const checkTableExists = async (tableName: string): Promise<boolean> => {
   return res.rows[0].exists;
 };
 
+const createTableIfNotExists = async (name: string, query: string) => {
+    const tableExists = await checkTableExists(name);
+    if (!tableExists) {
+        console.log(`"${name}" table not found. Creating...`);
+        await pool.query(query);
+        console.log(`"${name}" table created successfully.`);
+    } else {
+        console.log(`"${name}" table already exists.`);
+    }
+};
+
 export const initializeDatabase = async () => {
   console.log('Checking database schema...');
 
-  const userTableExists = await checkTableExists('User');
-  if (!userTableExists) {
-    console.log('"User" table not found. Creating...');
-    await pool.query(createUserTableQuery);
-    console.log('"User" table created successfully.');
-  } else {
-    console.log('"User" table already exists.');
-  }
+  // Core tables
+  await createTableIfNotExists('User', createUserTableQuery);
+  await createTableIfNotExists('Ad', createAdTableQuery);
 
-  const adTableExists = await checkTableExists('Ad');
-  if (!adTableExists) {
-    console.log('"Ad" table not found. Creating...');
-    await pool.query(createAdTableQuery);
-    console.log('"Ad" table created successfully.');
-  } else {
-    console.log('"Ad" table already exists.');
-  }
+  // Feature tables (with dependencies in mind)
+  await createTableIfNotExists('Review', createReviewTableQuery);
+  await createTableIfNotExists('ChatMessage', createChatMessageTableQuery);
+  await createTableIfNotExists('SavedSearch', createSavedSearchTableQuery);
+  await createTableIfNotExists('Follow', createFollowTableQuery);
+  
+  // Question/Answer pair (Question must exist before Answer)
+  await createTableIfNotExists('Question', createQuestionTableQuery);
+  await createTableIfNotExists('Answer', createAnswerTableQuery);
+
 
   console.log('Database schema check complete.');
 };
