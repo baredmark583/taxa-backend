@@ -1,6 +1,7 @@
 
-// FIX: Use default import for express to resolve type errors.
-import express from 'express';
+
+// FIX: Update express import to resolve type errors with handlers.
+import express, { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -8,8 +9,7 @@ import cuid from 'cuid';
 import { User } from '../types.js';
 
 // Use standard express types for req and res.
-// FIX: Use express.Request and express.Response types.
-export const register = async (req: express.Request, res: express.Response) => {
+export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -45,8 +45,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 };
 
 // Use standard express types for req and res.
-// FIX: Use express.Request and express.Response types.
-export const login = async (req: express.Request, res: express.Response) => {
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {

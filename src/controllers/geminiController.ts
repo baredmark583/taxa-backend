@@ -1,12 +1,12 @@
 
-// FIX: Use default import for express to resolve type errors.
-import express from 'express';
+
+// FIX: Update express import to resolve type errors with handlers.
+import express, { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 import { generateAdDetailsFromImage } from '../services/geminiService.js';
 
 // Use standard express Response type. The AuthRequest type is correctly typed from its source.
-// FIX: Use express.Response type.
-export const generateAd = async (req: AuthRequest, res: express.Response) => {
+export const generateAd = async (req: AuthRequest, res: Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     
     if (!prompt || !imageBase64 || !mimeType) {

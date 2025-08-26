@@ -1,14 +1,14 @@
 
-// FIX: Use default import for express to resolve type errors.
-import express from 'express';
+
+// FIX: Update express import to resolve type errors with handlers.
+import express, { Response } from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { type GeneratedAdData, type Ad, type User } from '../types.js';
 import cuid from 'cuid';
 
 // Use standard express Response type. The AuthRequest type is correctly typed from its source.
-// FIX: Use express.Response type.
-export const getAllAds = async (req: AuthRequest, res: express.Response) => {
+export const getAllAds = async (req: AuthRequest, res: Response) => {
   try {
     // This query joins the Ad table with the User table to include seller details
     // It constructs a JSON object for the seller to match the frontend's expected structure
@@ -33,8 +33,7 @@ export const getAllAds = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Use standard express Response type.
-// FIX: Use express.Response type.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+export const createAd = async (req: AuthRequest, res: Response) => {
   const { adData, imageUrls }: { adData: GeneratedAdData, imageUrls: string[] } = req.body;
   const sellerId = req.user?.id;
 

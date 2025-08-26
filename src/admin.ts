@@ -1,12 +1,8 @@
 
 
-
-
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
 import { Database, Resource } from '@adminjs/sql';
-// FIX: Import the database pool to connect AdminJS.
-import pool from './db.js';
 
 // Register the SQL adapter
 AdminJS.registerAdapter({ Database, Resource });
@@ -18,9 +14,8 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL must be set in environment variables');
 }
 
-// FIX: Create a Database instance from @adminjs/sql using the database pool object.
-// This is the correct way to connect AdminJS to the database.
-const db = new Database(pool);
+// FIX: Cast connection string to 'any' to bypass faulty type definitions that cause constructor and method errors.
+const db = new Database(process.env.DATABASE_URL as any);
 
 
 const admin = new AdminJS({

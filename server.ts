@@ -1,6 +1,7 @@
 
-// FIX: Use default import for express to resolve type errors.
-import express from 'express';
+
+// FIX: Update express import to resolve type errors with handlers.
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // FIX: Added .js extension to local imports for ES module resolution.
@@ -31,8 +32,7 @@ const startServer = async () => {
 
 
   // Use standard express types for req and res to resolve handler errors.
-  // FIX: Using express.Request and express.Response to fix handler errors.
-  app.get('/', (req: express.Request, res: express.Response) => {
+  app.get('/', (req: Request, res: Response) => {
       res.send('Taxa AI Backend is running! (PostgreSQL mode)');
   });
 
@@ -49,6 +49,5 @@ const startServer = async () => {
 
 startServer().catch(e => {
   console.error('Failed to start server:', e);
-  // FIX: Use process.exit directly as it's a global in Node.js.
   process.exit(1);
 });

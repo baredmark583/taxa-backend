@@ -1,17 +1,16 @@
 
-// FIX: Use default import for express to resolve type errors.
-import express from 'express';
+
+// FIX: Update express import to resolve type errors with middleware.
+import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.
-// FIX: Use express.Request for the extended type.
-export type AuthRequest = express.Request & {
+export type AuthRequest = Request & {
   user?: { id: string };
 }
 
 // Use standard express types for middleware function signature.
-// FIX: Use express.Response and express.NextFunction for correct types.
-export const authMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
