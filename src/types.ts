@@ -1,0 +1,25 @@
+// This file can be used for backend-specific types if needed.
+import { Ad as PrismaAd } from '@prisma/client';
+
+export interface GeneratedAdData {
+  title: string;
+  description: string;
+  category: string;
+  price: string;
+  location: string;
+  tags: string[];
+}
+
+
+// A simplified Ad type for use with the Gemini service
+export type Ad = Pick<PrismaAd, 'id' | 'title' | 'description' | 'price' | 'category' | 'location'>;
+
+export interface ImageSearchQuery {
+    query: string;
+    category: string;
+}
+
+export interface ChatMessage {
+    senderId: string;
+    text?: string | null;
+}
