@@ -1,7 +1,8 @@
 // Use the 'process' global from Node.js, do not import it.
 // FIX: Import 'express' and its types to use explicit types like Request, avoiding conflicts with global DOM types.
 // FIX: Using explicit Request, Response, NextFunction types from express to resolve type conflicts.
-import express from 'express';
+// FIX: Corrected Express types for the global error handler to resolve property access errors.
+import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added .js extension to local imports for ES module resolution.
@@ -44,7 +45,7 @@ const startServer = async () => {
     // FIX: Use explicit Request, Response, and NextFunction types from express import
     // FIX: Using explicit Request, Response, NextFunction types from express to resolve type conflicts.
     // FIX: Switched to explicit express.Request, express.Response, and express.NextFunction to resolve type conflicts.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
