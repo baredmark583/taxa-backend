@@ -1,7 +1,8 @@
 // Use the 'process' global from Node.js, do not import it.
 // FIX: Switched to a default express import to avoid conflicts with global DOM types.
 // FIX: Use fully-qualified types like express.Request and express.Response to resolve conflicts.
-import express from 'express';
+// FIX: Use named imports for Request, Response, and NextFunction to resolve type conflicts with global DOM types.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -20,6 +21,9 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Enable trusting proxy headers for accurate IP address detection in production
+app.set('trust proxy', true);
 
 // Helper constants for file paths
 const __filename = fileURLToPath(import.meta.url);
@@ -54,7 +58,7 @@ const startServer = async () => {
     // FIX: Add a catch-all route to serve index.html for client-side routing.
     // This allows direct navigation to routes like /profile in the browser.
     // FIX: Use explicit express types to resolve overload errors.
-    app.get('*', (req: express.Request, res: express.Response) => {
+    app.get('*', (req: Request, res: Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api')) {
             return res.status(404).send('API route not found');
@@ -64,7 +68,7 @@ const startServer = async () => {
     
     // Global error handler
     // FIX: Used explicit express types to avoid conflicts with global DOM types and resolve property errors.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });

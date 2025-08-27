@@ -10,6 +10,9 @@ export interface User {
   name: string;
   role: 'USER' | 'ADMIN';
   avatarUrl: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  city?: string | null;
   ads: Ad[];
   createdAt: Date;
   updatedAt: Date;

@@ -1,15 +1,17 @@
 // FIX: Use a default import for express and explicit types (e.g., express.Request) to avoid conflicts with global DOM types.
 // FIX: Use fully-qualified express types to resolve conflicts.
-import express from 'express';
+// FIX: Use named imports for Request and Response to resolve type conflicts with global DOM types.
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { User } from '../types.js';
 import crypto from 'crypto';
+import { updateLocationFromIp } from '../services/locationService.js';
 
 // FIX: Use explicit express types for request and response handlers to resolve property errors.
-export const register = async (req: express.Request, res: express.Response) => {
+export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -37,6 +39,9 @@ export const register = async (req: express.Request, res: express.Response) => {
     // Omit password from the response
     const { password: _password, ...userWithoutPassword } = newUser;
 
+    // Asynchronously update user location based on IP, non-blocking
+    updateLocationFromIp(req.ip, newUser.id).catch(err => console.error("Failed to update location for new user:", err));
+
     res.status(201).json({ token, user: userWithoutPassword });
   } catch (error) {
     console.error('Registration error:', error);
@@ -45,7 +50,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 };
 
 // FIX: Use explicit express types for request and response handlers to resolve property errors.
-export const login = async (req: express.Request, res: express.Response) => {
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -72,6 +77,9 @@ export const login = async (req: express.Request, res: express.Response) => {
     // Omit password from the response
     const { password: _password, ...userWithoutPassword } = user;
 
+    // Asynchronously update user location based on IP, non-blocking
+    updateLocationFromIp(req.ip, user.id).catch(err => console.error("Failed to update location for user:", err));
+
     res.status(200).json({ token, user: userWithoutPassword });
   } catch (error) {
     console.error('Login error:', error);
@@ -80,7 +88,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 };
 
 // FIX: Use explicit express types for request and response handlers to resolve property errors.
-export const telegramLogin = async (req: express.Request, res: express.Response) => {
+export const telegramLogin = async (req: Request, res: Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -144,6 +152,9 @@ export const telegramLogin = async (req: express.Request, res: express.Response)
 
         const token = jwt.sign({ userId: dbUser.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
         const { password: _password, ...userWithoutPassword } = dbUser;
+
+        // Asynchronously update user location based on IP, non-blocking
+        updateLocationFromIp(req.ip, dbUser.id).catch(err => console.error("Failed to update location for telegram user:", err));
 
         res.status(200).json({ token, user: userWithoutPassword });
 

@@ -12,6 +12,9 @@ const createUserTableQuery = `
       "name" TEXT NOT NULL,
       "role" TEXT NOT NULL DEFAULT 'USER',
       "avatarUrl" TEXT,
+      "latitude" DECIMAL(9, 6),
+      "longitude" DECIMAL(9, 6),
+      "city" TEXT,
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       "updatedAt" TIMESTAMP(3) NOT NULL
   );
@@ -224,6 +227,9 @@ export const initializeDatabase = async () => {
   // Simple migrations to ensure columns exist on existing User tables
   await addColumnIfNotExists('User', 'telegramId', 'BIGINT UNIQUE');
   await addColumnIfNotExists('User', 'username', 'TEXT');
+  await addColumnIfNotExists('User', 'latitude', 'DECIMAL(9, 6)');
+  await addColumnIfNotExists('User', 'longitude', 'DECIMAL(9, 6)');
+  await addColumnIfNotExists('User', 'city', 'TEXT');
 
   // FIX: Migration to fix email NOT NULL constraint for Telegram users
   await makeColumnNullable('User', 'email');
