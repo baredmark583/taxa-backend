@@ -189,8 +189,10 @@ export const initializeDatabase = async () => {
   await createTableIfNotExists('User', createUserTableQuery);
   await createTableIfNotExists('Ad', createAdTableQuery);
 
-  // Simple migration to ensure telegramId column exists on existing User tables
+  // Simple migrations to ensure columns exist on existing User tables
   await addColumnIfNotExists('User', 'telegramId', 'BIGINT UNIQUE');
+  await addColumnIfNotExists('User', 'username', 'TEXT');
+
 
   // Feature tables (with dependencies in mind)
   await createTableIfNotExists('Review', createReviewTableQuery);

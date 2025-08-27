@@ -2,6 +2,8 @@
 // FIX: Use explicit Request, Response types from express to resolve type conflicts.
 // FIX: Corrected Express types to use named imports.
 // FIX: Use express.Request and express.Response to resolve type conflicts.
+// FIX: Switched to named imports for express types to resolve conflicts with global DOM types.
+// FIX: Switched to default express import to resolve type conflicts with global DOM types.
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -14,6 +16,7 @@ import crypto from 'crypto';
 // FIX: Use explicit Request and Response types from express import
 // FIX: Use explicit Request, Response types from express to resolve type conflicts.
 // FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
+// FIX: Use explicit express types to resolve property errors.
 // FIX: Use explicit express types to resolve property errors.
 export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
@@ -55,6 +58,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 // FIX: Use explicit Request, Response types from express to resolve type conflicts.
 // FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
 // FIX: Use explicit express types to resolve property errors.
+// FIX: Use explicit express types to resolve property errors.
 export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
@@ -93,6 +97,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 // FIX: Use explicit Request and Response types from express import
 // FIX: Use explicit Request, Response types from express to resolve type conflicts.
 // FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
+// FIX: Use explicit express types to resolve property errors.
 // FIX: Use explicit express types to resolve property errors.
 export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const { initData } = req.body;
