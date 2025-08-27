@@ -11,6 +11,7 @@ const createUserTableQuery = `
       "username" TEXT,
       "name" TEXT NOT NULL,
       "role" TEXT NOT NULL DEFAULT 'USER',
+      "status" TEXT NOT NULL DEFAULT 'active',
       "avatarUrl" TEXT,
       "latitude" DECIMAL(9, 6),
       "longitude" DECIMAL(9, 6),
@@ -31,6 +32,7 @@ const createAdTableQuery = `
       "tags" TEXT[] NOT NULL,
       "imageUrls" TEXT[] NOT NULL,
       "status" TEXT NOT NULL DEFAULT 'active',
+      "isBoosted" BOOLEAN NOT NULL DEFAULT false,
       "sellerId" TEXT NOT NULL,
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -230,6 +232,11 @@ export const initializeDatabase = async () => {
   await addColumnIfNotExists('User', 'latitude', 'DECIMAL(9, 6)');
   await addColumnIfNotExists('User', 'longitude', 'DECIMAL(9, 6)');
   await addColumnIfNotExists('User', 'city', 'TEXT');
+  await addColumnIfNotExists('User', 'status', 'TEXT NOT NULL DEFAULT \'active\'');
+
+  // Simple migrations for Ad table
+  await addColumnIfNotExists('Ad', 'isBoosted', 'BOOLEAN NOT NULL DEFAULT false');
+
 
   // FIX: Migration to fix email NOT NULL constraint for Telegram users
   await makeColumnNullable('User', 'email');

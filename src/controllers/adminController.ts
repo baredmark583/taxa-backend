@@ -1,15 +1,86 @@
 // FIX: Use a default import for express and explicit types (e.g., express.Response) to avoid conflicts with global DOM types.
 // FIX: Use fully-qualified express.Response to resolve conflicts.
-// FIX: Use named import for Response to resolve type conflicts with global DOM types.
+// FIX: Import Request and Response types explicitly from express.
 import express from 'express';
 import pool from '../db.js';
 import { AuthRequest } from '../middleware/auth.js';
 
+// Get dashboard statistics
+// FIX: Use explicit express.Response type to resolve property errors.
+// FIX: Use fully-qualified express.Response type.
+// FIX: Use explicit AuthRequest and Response types.
+export const getStats = async (req: AuthRequest, res: express.Response) => {
+    try {
+        const userCountPromise = pool.query('SELECT COUNT(*) FROM "User"');
+        const adCountPromise = pool.query('SELECT COUNT(*) FROM "Ad"');
+        const adsByCategoryPromise = pool.query('SELECT category, COUNT(*) as count FROM "Ad" GROUP BY category');
+        const soldAdsCountPromise = pool.query('SELECT COUNT(*) FROM "Ad" WHERE status = \'sold\'');
+        const bannedUsersCountPromise = pool.query('SELECT COUNT(*) FROM "User" WHERE status = \'banned\'');
+
+
+        const [userResult, adResult, adsByCategoryResult, soldAdsResult, bannedUsersResult] = await Promise.all([
+            userCountPromise,
+            adCountPromise,
+            adsByCategoryPromise,
+            soldAdsCountPromise,
+            bannedUsersCountPromise
+        ]);
+
+        const stats = {
+            totalUsers: parseInt(userResult.rows[0].count, 10),
+            totalAds: parseInt(adResult.rows[0].count, 10),
+            adsByCategory: adsByCategoryResult.rows,
+            soldAds: parseInt(soldAdsResult.rows[0].count, 10),
+            bannedUsers: parseInt(bannedUsersResult.rows[0].count, 10),
+        };
+
+        res.status(200).json(stats);
+    } catch (error) {
+        console.error('Admin get stats error:', error);
+        res.status(500).json({ message: 'Failed to fetch stats' });
+    }
+};
+
+// Get analytics data for charts
+// FIX: Use explicit AuthRequest and Response types from express.
+export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
+    try {
+        const userAnalyticsPromise = pool.query(`
+            SELECT DATE_TRUNC('day', "createdAt")::DATE AS date, COUNT(*) AS count
+            FROM "User"
+            WHERE "createdAt" >= NOW() - INTERVAL '30 days'
+            GROUP BY date
+            ORDER BY date;
+        `);
+        const adAnalyticsPromise = pool.query(`
+            SELECT DATE_TRUNC('day', "createdAt")::DATE AS date, COUNT(*) AS count
+            FROM "Ad"
+            WHERE "createdAt" >= NOW() - INTERVAL '30 days'
+            GROUP BY date
+            ORDER BY date;
+        `);
+
+        const [userAnalyticsResult, adAnalyticsResult] = await Promise.all([userAnalyticsPromise, adAnalyticsPromise]);
+
+        res.status(200).json({
+            userRegistrations: userAnalyticsResult.rows.map(r => ({ ...r, date: new Date(r.date).toISOString().split('T')[0], count: parseInt(r.count, 10) })),
+            adPostings: adAnalyticsResult.rows.map(r => ({...r, date: new Date(r.date).toISOString().split('T')[0], count: parseInt(r.count, 10) })),
+        });
+
+    } catch (error) {
+        console.error('Admin get analytics error:', error);
+        res.status(500).json({ message: 'Failed to fetch analytics' });
+    }
+};
+
+
 // Get all users
 // FIX: Use explicit express.Response type to resolve property errors.
+// FIX: Use fully-qualified express.Response type.
+// FIX: Use explicit AuthRequest and Response types.
 export const getUsers = async (req: AuthRequest, res: express.Response) => {
   try {
-    const result = await pool.query('SELECT id, name, email, role, "createdAt", latitude, longitude, city FROM "User" ORDER BY "createdAt" DESC');
+    const result = await pool.query('SELECT id, name, email, role, status, "createdAt", latitude, longitude, city FROM "User" ORDER BY "createdAt" DESC');
     res.status(200).json(result.rows);
   } catch (error) {
     console.error('Admin get users error:', error);
@@ -17,17 +88,46 @@ export const getUsers = async (req: AuthRequest, res: express.Response) => {
   }
 };
 
-// Delete a user
-// FIX: Use explicit express.Response type to resolve property errors.
-export const deleteUser = async (req: AuthRequest, res: express.Response) => {
-  try {
-    const { id } = req.params;
-    // Prevent admin from deleting themselves
-    if (id === req.user?.id) {
-        return res.status(400).json({ message: 'Cannot delete your own admin account.' });
+// Update a user
+// FIX: Use explicit AuthRequest and Response types.
+export const updateUser = async (req: express.Request, res: express.Response) => {
+    try {
+        const { id } = req.params;
+        const { name, role, status } = req.body;
+
+        if (!name || !role || !status) {
+            return res.status(400).json({ message: 'Name, role, and status are required.' });
+        }
+
+        const result = await pool.query(
+            'UPDATE "User" SET name = $1, role = $2, status = $3, "updatedAt" = $4 WHERE id = $5 RETURNING id, name, email, role, status, "createdAt", latitude, longitude, city',
+            [name, role, status, new Date(), id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Admin update user error:', error);
+        res.status(500).json({ message: 'Failed to update user' });
     }
-    await pool.query('DELETE FROM "User" WHERE id = $1', [id]);
-    res.status(200).json({ message: 'User deleted successfully' });
+};
+
+
+// Delete a user
+// FIX: Use explicit AuthRequest and Response types.
+export const deleteUser = async (req: express.Request, res: express.Response) => {
+  const { id } = req.params;
+  try {
+    // Optional: First, handle related data, e.g., delete user's ads
+    // await pool.query('DELETE FROM "Ad" WHERE "sellerId" = $1', [id]);
+    const result = await pool.query('DELETE FROM "User" WHERE id = $1', [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(204).send();
   } catch (error) {
     console.error('Admin delete user error:', error);
     res.status(500).json({ message: 'Failed to delete user' });
@@ -35,13 +135,13 @@ export const deleteUser = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Get all ads
-// FIX: Use explicit express.Response type to resolve property errors.
+// FIX: Use explicit AuthRequest and Response types.
 export const getAds = async (req: AuthRequest, res: express.Response) => {
   try {
     const result = await pool.query(`
-        SELECT a.*, u.name as "sellerName" 
-        FROM "Ad" as a 
-        JOIN "User" as u ON a."sellerId" = u.id 
+        SELECT a.*, u.name as "sellerName"
+        FROM "Ad" as a
+        JOIN "User" as u ON a."sellerId" = u.id
         ORDER BY a."createdAt" DESC
     `);
     res.status(200).json(result.rows);
@@ -51,13 +151,52 @@ export const getAds = async (req: AuthRequest, res: express.Response) => {
   }
 };
 
+
+// Update an ad
+// FIX: Use explicit Request and Response types from express.
+export const updateAd = async (req: express.Request, res: express.Response) => {
+    try {
+        const { id } = req.params;
+        const { title, description, price, status, isBoosted } = req.body;
+
+        const result = await pool.query(
+            `UPDATE "Ad" 
+             SET title = $1, description = $2, price = $3, status = $4, "isBoosted" = $5, "updatedAt" = $6 
+             WHERE id = $7 
+             RETURNING *`,
+            [title, description, price, status, isBoosted, new Date(), id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Ad not found' });
+        }
+        
+        // Refetch with seller name to match the getAds format
+        const finalAdResult = await pool.query(`
+            SELECT a.*, u.name as "sellerName"
+            FROM "Ad" as a
+            JOIN "User" as u ON a."sellerId" = u.id
+            WHERE a.id = $1
+        `, [result.rows[0].id]);
+
+
+        res.status(200).json(finalAdResult.rows[0]);
+    } catch (error) {
+        console.error('Admin update ad error:', error);
+        res.status(500).json({ message: 'Failed to update ad' });
+    }
+};
+
 // Delete an ad
-// FIX: Use explicit express.Response type to resolve property errors.
-export const deleteAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use explicit Request and Response types from express.
+export const deleteAd = async (req: express.Request, res: express.Response) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    await pool.query('DELETE FROM "Ad" WHERE id = $1', [id]);
-    res.status(200).json({ message: 'Ad deleted successfully' });
+    const result = await pool.query('DELETE FROM "Ad" WHERE id = $1', [id]);
+    if (result.rowCount === 0) {
+        return res.status(404).json({ message: 'Ad not found' });
+    }
+    res.status(204).send();
   } catch (error) {
     console.error('Admin delete ad error:', error);
     res.status(500).json({ message: 'Failed to delete ad' });

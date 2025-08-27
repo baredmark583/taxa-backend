@@ -9,6 +9,7 @@ export interface User {
   username?: string | null;
   name: string;
   role: 'USER' | 'ADMIN';
+  status: 'active' | 'banned';
   avatarUrl: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -27,7 +28,8 @@ export interface Ad {
   location: string;
   tags: string[];
   imageUrls: string[];
-  status: string; // 'active', 'reserved', 'sold', etc.
+  status: 'active' | 'reserved' | 'sold' | 'archived'; 
+  isBoosted: boolean;
   sellerId: string;
   // This is added dynamically when fetching ads
   seller?: {

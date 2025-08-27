@@ -1,7 +1,7 @@
 // Use the 'process' global from Node.js, do not import it.
 // FIX: Switched to a default express import to avoid conflicts with global DOM types.
 // FIX: Use fully-qualified types like express.Request and express.Response to resolve conflicts.
-// FIX: Use named imports for Request, Response, and NextFunction to resolve type conflicts with global DOM types.
+// FIX: Import Request, Response, and NextFunction types explicitly from express to resolve type conflicts.
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -59,6 +59,8 @@ const startServer = async () => {
     // This allows direct navigation to routes like /profile in the browser.
     // FIX: Use explicit express types to resolve overload errors.
     // FIX: Use explicit express types to resolve overload errors.
+    // FIX: Use fully-qualified express types to resolve overload errors.
+    // FIX: Use explicit Request and Response types from express.
     app.get('*', (req: express.Request, res: express.Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api')) {
@@ -70,6 +72,8 @@ const startServer = async () => {
     // Global error handler
     // FIX: Used explicit express types to avoid conflicts with global DOM types and resolve property errors.
     // FIX: Used explicit express types to avoid conflicts with global DOM types and resolve property errors.
+    // FIX: Use fully-qualified express types to avoid conflicts with global DOM types.
+    // FIX: Use explicit Error, Request, Response, and NextFunction types.
     app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
