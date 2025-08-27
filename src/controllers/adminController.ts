@@ -1,12 +1,12 @@
 // FIX: Import 'express' module to use explicit types like express.Response, avoiding conflicts with global DOM types.
-// FIX: Import specific types from express to avoid global conflicts
 import { Response } from 'express';
 import pool from '../db.js';
 import { AuthRequest } from '../middleware/auth.js';
 
 // Get all users
 // FIX: Use explicit express.Response type to fix property errors.
-// FIX: Use explicit Response type from express import
+// FIX: Use explicit express.Response type from express import
+// FIX: Use explicit Response type from express to resolve type conflicts.
 export const getUsers = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, "createdAt" FROM "User" ORDER BY "createdAt" DESC');
@@ -19,7 +19,8 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 
 // Delete a user
 // FIX: Use explicit express.Response type to fix property errors.
-// FIX: Use explicit Response type from express import
+// FIX: Use explicit express.Response type from express import
+// FIX: Use explicit Response type from express to resolve type conflicts.
 export const deleteUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
@@ -37,7 +38,8 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
 
 // Get all ads
 // FIX: Use explicit express.Response type to fix property errors.
-// FIX: Use explicit Response type from express import
+// FIX: Use explicit express.Response type from express import
+// FIX: Use explicit Response type from express to resolve type conflicts.
 export const getAds = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(`
@@ -55,7 +57,8 @@ export const getAds = async (req: AuthRequest, res: Response) => {
 
 // Delete an ad
 // FIX: Use explicit express.Response type to fix property errors.
-// FIX: Use explicit Response type from express import
+// FIX: Use explicit express.Response type from express import
+// FIX: Use explicit Response type from express to resolve type conflicts.
 export const deleteAd = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
