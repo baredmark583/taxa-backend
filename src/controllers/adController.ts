@@ -1,6 +1,6 @@
 // FIX: Use a default import for express and explicit types (e.g., express.Request) to avoid conflicts with global DOM types.
-// FIX: Import Request and Response types from express to resolve conflicts.
-import express, { Request, Response } from 'express';
+// FIX: Use fully-qualified express types to resolve conflicts.
+import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad } from '../types.js';
@@ -8,7 +8,7 @@ import { type AuthRequest } from '../middleware/auth.js';
 
 // Get all ads
 // FIX: Use explicit express types for request and response handlers to resolve property errors.
-export const getAllAds = async (req: Request, res: Response) => {
+export const getAllAds = async (req: express.Request, res: express.Response) => {
     try {
         const result = await pool.query(`
             SELECT a.*,
@@ -30,7 +30,7 @@ export const getAllAds = async (req: Request, res: Response) => {
 
 // Get a single ad by ID
 // FIX: Use explicit express types for request and response handlers to resolve property errors.
-export const getAdById = async (req: Request, res: Response) => {
+export const getAdById = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -57,7 +57,7 @@ export const getAdById = async (req: Request, res: Response) => {
 
 // Create a new ad
 // FIX: Use explicit express.Response type. AuthRequest is correctly typed from its definition.
-export const createAd = async (req: AuthRequest, res: Response) => {
+export const createAd = async (req: AuthRequest, res: express.Response) => {
     const { adData, imageUrls } = req.body;
     const sellerId = req.user?.id;
 
