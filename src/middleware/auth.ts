@@ -1,20 +1,22 @@
 // FIX: Import 'express' and its types to use explicit types like Request, avoiding conflicts with global DOM types.
 // FIX: Use explicit Request, Response, NextFunction types from express to resolve type conflicts.
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.
 // FIX: Extend Request to ensure type consistency.
 // FIX: Extend Request type to ensure type consistency
 // FIX: Extending the base Request type from express.
-export interface AuthRequest extends Request {
+// FIX: Explicitly extend express.Request to resolve type conflicts.
+export interface AuthRequest extends express.Request {
   user?: { id: string };
 }
 
 // FIX: Use explicit express types for request and response handlers.
 // FIX: Use explicit Response and NextFunction types from express import
 // FIX: Use explicit Request, Response, NextFunction types from express to resolve type conflicts.
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Switched to explicit express.Response and express.NextFunction to resolve type conflicts.
+export const authMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

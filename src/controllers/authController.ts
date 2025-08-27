@@ -1,6 +1,6 @@
 // FIX: Import 'express' and its types to use explicit types like Request, avoiding conflicts with global DOM types.
 // FIX: Use explicit Request, Response types from express to resolve type conflicts.
-import { Request, Response } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -11,7 +11,8 @@ import crypto from 'crypto';
 // FIX: Use explicit express types for request and response handlers.
 // FIX: Use explicit Request and Response types from express import
 // FIX: Use explicit Request, Response types from express to resolve type conflicts.
-export const register = async (req: Request, res: Response) => {
+// FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
+export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -49,7 +50,8 @@ export const register = async (req: Request, res: Response) => {
 // FIX: Use explicit express types for request and response handlers.
 // FIX: Use explicit Request and Response types from express import
 // FIX: Use explicit Request, Response types from express to resolve type conflicts.
-export const login = async (req: Request, res: Response) => {
+// FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
+export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -86,7 +88,8 @@ export const login = async (req: Request, res: Response) => {
 // FIX: Updated function signature to use explicit express types.
 // FIX: Use explicit Request and Response types from express import
 // FIX: Use explicit Request, Response types from express to resolve type conflicts.
-export const telegramLogin = async (req: Request, res: Response) => {
+// FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
+export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -108,6 +111,10 @@ export const telegramLogin = async (req: Request, res: Response) => {
         const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
 
         if (calculatedHash !== hash) {
+            console.error('Telegram hash validation failed!');
+            console.error('Received hash:', hash);
+            console.error('Calculated hash:', calculatedHash);
+            console.error('Data check string:', JSON.stringify(dataCheckString));
             return res.status(401).json({ message: 'Invalid Telegram data' });
         }
 
