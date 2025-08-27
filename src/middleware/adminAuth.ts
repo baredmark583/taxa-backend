@@ -1,11 +1,12 @@
 // FIX: Use a default import for express and explicit types (e.g., express.Response) to avoid conflicts with global DOM types.
-import express from 'express';
+// FIX: Import Response and NextFunction types from express to resolve conflicts.
+import express, { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import pool from '../db.js';
 
 // FIX: Use explicit express types for middleware signature to resolve property errors.
-export const adminAuthMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

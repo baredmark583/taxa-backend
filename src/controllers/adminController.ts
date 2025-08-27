@@ -1,11 +1,12 @@
 // FIX: Use a default import for express and explicit types (e.g., express.Response) to avoid conflicts with global DOM types.
-import express from 'express';
+// FIX: Import Response type from express to resolve conflicts.
+import express, { Response } from 'express';
 import pool from '../db.js';
 import { AuthRequest } from '../middleware/auth.js';
 
 // Get all users
 // FIX: Use explicit express.Response type to resolve property errors.
-export const getUsers = async (req: AuthRequest, res: express.Response) => {
+export const getUsers = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, "createdAt" FROM "User" ORDER BY "createdAt" DESC');
     res.status(200).json(result.rows);
@@ -17,7 +18,7 @@ export const getUsers = async (req: AuthRequest, res: express.Response) => {
 
 // Delete a user
 // FIX: Use explicit express.Response type to resolve property errors.
-export const deleteUser = async (req: AuthRequest, res: express.Response) => {
+export const deleteUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     // Prevent admin from deleting themselves
@@ -34,7 +35,7 @@ export const deleteUser = async (req: AuthRequest, res: express.Response) => {
 
 // Get all ads
 // FIX: Use explicit express.Response type to resolve property errors.
-export const getAds = async (req: AuthRequest, res: express.Response) => {
+export const getAds = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(`
         SELECT a.*, u.name as "sellerName" 
@@ -51,7 +52,7 @@ export const getAds = async (req: AuthRequest, res: express.Response) => {
 
 // Delete an ad
 // FIX: Use explicit express.Response type to resolve property errors.
-export const deleteAd = async (req: AuthRequest, res: express.Response) => {
+export const deleteAd = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     await pool.query('DELETE FROM "Ad" WHERE id = $1', [id]);

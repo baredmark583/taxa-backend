@@ -1,6 +1,7 @@
 // Use the 'process' global from Node.js, do not import it.
-// FIX: Use a default import for express and explicit types (e.g., express.Request) to avoid conflicts with global DOM types.
-import express from 'express';
+// FIX: Switched to a default express import to avoid conflicts with global DOM types.
+// FIX: Import Request, Response, NextFunction types from express to resolve conflicts.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added .js extension to local imports for ES module resolution.
@@ -38,8 +39,8 @@ const startServer = async () => {
     app.use('/api/admin', adminRoutes);
     
     // Global error handler
-    // FIX: Use explicit express types (e.g., express.Response) to avoid conflicts with global DOM types and resolve property errors.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Used explicit express types to avoid conflicts with global DOM types and resolve property errors.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
