@@ -1,13 +1,14 @@
-// FIX: Use explicit type imports from express to avoid conflicts with global DOM types.
-import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+// FIX: Use explicit express types to avoid conflicts with global DOM types.
+// FIX: Import Request and Response explicitly to avoid conflicts with DOM types.
+import { Request, Response } from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { type GeneratedAdData, type Ad, type User } from '../types.js';
 import cuid from 'cuid';
 
-// Use Express's built-in types for request and response handlers.
-// FIX: Use aliased Request and Response from express for correct types.
-export const getAllAds = async (req: ExpressRequest, res: ExpressResponse) => {
+// FIX: Use explicit express types for request and response handlers.
+// FIX: Use explicit Request and Response types from express to fix property errors.
+export const getAllAds = async (req: Request, res: Response) => {
   try {
     // This query joins the Ad table with the User table to include seller details
     // It constructs a JSON object for the seller to match the frontend's expected structure
@@ -31,9 +32,9 @@ export const getAllAds = async (req: ExpressRequest, res: ExpressResponse) => {
   }
 };
 
-// Use Express's built-in types for request and response handlers.
-// FIX: Use aliased Response from express for correct types. AuthRequest is correctly typed from its definition.
-export const createAd = async (req: AuthRequest, res: ExpressResponse) => {
+// FIX: Use explicit express types for request and response handlers. AuthRequest is correctly typed from its definition.
+// FIX: Use explicit Response type from express to fix property errors.
+export const createAd = async (req: AuthRequest, res: Response) => {
   const { adData, imageUrls }: { adData: GeneratedAdData, imageUrls: string[] } = req.body;
   const sellerId = req.user?.id;
 

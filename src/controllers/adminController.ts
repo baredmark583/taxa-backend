@@ -1,10 +1,12 @@
-// FIX: Use explicit type imports from express to avoid conflicts with global DOM types.
-import { Response as ExpressResponse } from 'express';
+// FIX: Use explicit express types to avoid conflicts with global DOM types.
+// FIX: Import Response explicitly to avoid conflicts with DOM types.
+import { Response } from 'express';
 import pool from '../db.js';
 import { AuthRequest } from '../middleware/auth.js';
 
 // Get all users
-export const getUsers = async (req: AuthRequest, res: ExpressResponse) => {
+// FIX: Use explicit Response type from express to fix property errors.
+export const getUsers = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, "createdAt" FROM "User" ORDER BY "createdAt" DESC');
     res.status(200).json(result.rows);
@@ -15,7 +17,8 @@ export const getUsers = async (req: AuthRequest, res: ExpressResponse) => {
 };
 
 // Delete a user
-export const deleteUser = async (req: AuthRequest, res: ExpressResponse) => {
+// FIX: Use explicit Response type from express to fix property errors.
+export const deleteUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     // Prevent admin from deleting themselves
@@ -31,7 +34,8 @@ export const deleteUser = async (req: AuthRequest, res: ExpressResponse) => {
 };
 
 // Get all ads
-export const getAds = async (req: AuthRequest, res: ExpressResponse) => {
+// FIX: Use explicit Response type from express to fix property errors.
+export const getAds = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(`
         SELECT a.*, u.name as "sellerName" 
@@ -47,7 +51,8 @@ export const getAds = async (req: AuthRequest, res: ExpressResponse) => {
 };
 
 // Delete an ad
-export const deleteAd = async (req: AuthRequest, res: ExpressResponse) => {
+// FIX: Use explicit Response type from express to fix property errors.
+export const deleteAd = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     await pool.query('DELETE FROM "Ad" WHERE id = $1', [id]);

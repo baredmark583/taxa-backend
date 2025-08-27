@@ -1,8 +1,11 @@
 // Use the 'process' global from Node.js, do not import it.
 // FIX: Use explicit type imports from express to avoid conflicts with global DOM types.
-import express, { Request as ExpressRequest, Response as ExpressResponse, NextFunction as ExpressNextFunction } from 'express';
+// FIX: Import Request, Response, NextFunction explicitly to avoid conflicts with DOM types.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 // Added .js extension to local imports for ES module resolution.
 import { initializeDatabase } from './src/db-init.js';
 
@@ -16,6 +19,10 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDistPath = path.join(__dirname, '..', '..', 'dist');
 
 
 const startServer = async () => {
@@ -32,15 +39,20 @@ const startServer = async () => {
     app.use('/api/gemini', geminiRoutes);
     app.use('/api/admin', adminRoutes);
     
-    // Basic welcome route
-    // FIX: Use aliased Request and Response from express to ensure correct types.
-    app.get('/', (req: ExpressRequest, res: ExpressResponse) => {
-      res.send(`Taxa AI Backend is running.`);
+    // Serve static files from the React app
+    app.use(express.static(frontendDistPath));
+
+    // The "catchall" handler: for any request that doesn't match one above,
+    // send back React's index.html file.
+    // FIX: Use explicit Request and Response types from express to fix property errors.
+    app.get('*', (req: Request, res: Response) => {
+        res.sendFile(path.join(frontendDistPath, 'index.html'));
     });
     
     // Global error handler
-    // FIX: Use aliased Request, Response, and NextFunction from express for correct types.
-    app.use((err: Error, req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
+    // FIX: Use explicit express types to avoid conflicts with global DOM types.
+    // FIX: Use explicit Request, Response, and NextFunction types from express to fix property errors.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
