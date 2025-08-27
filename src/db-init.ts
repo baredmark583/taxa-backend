@@ -133,6 +133,30 @@ const createTableIfNotExists = async (name: string, query: string) => {
     }
 };
 
+const checkColumnExists = async (tableName: string, columnName: string): Promise<boolean> => {
+    const res = await pool.query(
+        `SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = $1 AND column_name = $2
+        )`,
+        [tableName, columnName]
+    );
+    return res.rows[0].exists;
+};
+
+const addColumnIfNotExists = async (tableName: string, columnName: string, columnDefinition: string) => {
+    const tableExists = await checkTableExists(tableName);
+    if (!tableExists) return;
+
+    const columnExists = await checkColumnExists(tableName, columnName);
+    if (!columnExists) {
+        console.log(`Column "${columnName}" not found in "${tableName}". Adding...`);
+        await pool.query(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnDefinition}`);
+        console.log(`Column "${columnName}" added successfully to "${tableName}".`);
+    }
+};
+
 const createAdminUserIfNotExists = async () => {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
@@ -164,6 +188,9 @@ export const initializeDatabase = async () => {
   // Core tables
   await createTableIfNotExists('User', createUserTableQuery);
   await createTableIfNotExists('Ad', createAdTableQuery);
+
+  // Simple migration to ensure telegramId column exists on existing User tables
+  await addColumnIfNotExists('User', 'telegramId', 'BIGINT UNIQUE');
 
   // Feature tables (with dependencies in mind)
   await createTableIfNotExists('Review', createReviewTableQuery);
