@@ -157,6 +157,38 @@ const addColumnIfNotExists = async (tableName: string, columnName: string, colum
     }
 };
 
+const checkColumnIsNullable = async (tableName: string, columnName: string): Promise<boolean> => {
+    const res = await pool.query(
+        `SELECT is_nullable
+         FROM information_schema.columns
+         WHERE table_schema = 'public' AND table_name = $1 AND column_name = $2`,
+        [tableName, columnName]
+    );
+    if (res.rows.length === 0) {
+        return false; 
+    }
+    return res.rows[0].is_nullable === 'YES';
+};
+
+const makeColumnNullable = async (tableName: string, columnName: string) => {
+    const tableExists = await checkTableExists(tableName);
+    if (!tableExists) return;
+
+    const columnExists = await checkColumnExists(tableName, columnName);
+    if (!columnExists) return;
+
+    const isNullable = await checkColumnIsNullable(tableName, columnName);
+    if (!isNullable) {
+        console.log(`Column "${columnName}" in "${tableName}" is NOT NULL. Altering to allow NULLs...`);
+        try {
+            await pool.query(`ALTER TABLE "${tableName}" ALTER COLUMN "${columnName}" DROP NOT NULL`);
+            console.log(`Column "${columnName}" in "${tableName}" now allows NULLs.`);
+        } catch (error) {
+            console.error(`Failed to make column "${columnName}" nullable:`, error);
+        }
+    }
+};
+
 const createAdminUserIfNotExists = async () => {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
@@ -193,6 +225,8 @@ export const initializeDatabase = async () => {
   await addColumnIfNotExists('User', 'telegramId', 'BIGINT UNIQUE');
   await addColumnIfNotExists('User', 'username', 'TEXT');
 
+  // FIX: Migration to fix email NOT NULL constraint for Telegram users
+  await makeColumnNullable('User', 'email');
 
   // Feature tables (with dependencies in mind)
   await createTableIfNotExists('Review', createReviewTableQuery);

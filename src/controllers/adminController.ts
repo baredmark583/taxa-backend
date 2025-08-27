@@ -1,7 +1,8 @@
 // FIX: Import 'express' module to use explicit types like express.Response, avoiding conflicts with global DOM types.
 // FIX: Corrected Express types to use named imports.
 // FIX: Use express.Response to resolve type conflicts.
-import express from 'express';
+// FIX: Use named import for Express Response type to resolve conflicts with global DOM types.
+import { Response } from 'express';
 import pool from '../db.js';
 import { AuthRequest } from '../middleware/auth.js';
 
@@ -11,7 +12,7 @@ import { AuthRequest } from '../middleware/auth.js';
 // FIX: Use explicit Response type from express to resolve type conflicts.
 // FIX: Switched to explicit express.Response to resolve type conflicts.
 // FIX: Use explicit express.Response type to resolve property errors.
-export const getUsers = async (req: AuthRequest, res: express.Response) => {
+export const getUsers = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, "createdAt" FROM "User" ORDER BY "createdAt" DESC');
     res.status(200).json(result.rows);
@@ -27,7 +28,7 @@ export const getUsers = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit Response type from express to resolve type conflicts.
 // FIX: Switched to explicit express.Response to resolve type conflicts.
 // FIX: Use explicit express.Response type to resolve property errors.
-export const deleteUser = async (req: AuthRequest, res: express.Response) => {
+export const deleteUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     // Prevent admin from deleting themselves
@@ -48,7 +49,7 @@ export const deleteUser = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit Response type from express to resolve type conflicts.
 // FIX: Switched to explicit express.Response to resolve type conflicts.
 // FIX: Use explicit express.Response type to resolve property errors.
-export const getAds = async (req: AuthRequest, res: express.Response) => {
+export const getAds = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(`
         SELECT a.*, u.name as "sellerName" 
@@ -69,7 +70,7 @@ export const getAds = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit Response type from express to resolve type conflicts.
 // FIX: Switched to explicit express.Response to resolve type conflicts.
 // FIX: Use explicit express.Response type to resolve property errors.
-export const deleteAd = async (req: AuthRequest, res: express.Response) => {
+export const deleteAd = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     await pool.query('DELETE FROM "Ad" WHERE id = $1', [id]);

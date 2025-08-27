@@ -5,7 +5,8 @@
 // FIX: Using express.Request, express.Response, and express.NextFunction to resolve type conflicts.
 // FIX: Changed express import to use named types (Request, Response, NextFunction) to avoid conflicts with global DOM types.
 // FIX: Switched to default express import to resolve type conflicts.
-import express from 'express';
+// FIX: Use named imports for Express types (Request, Response, NextFunction) to resolve conflicts with global DOM types.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added .js extension to local imports for ES module resolution.
@@ -50,7 +51,8 @@ const startServer = async () => {
     // FIX: Switched to explicit express.Request, express.Response, and express.NextFunction to resolve type conflicts.
     // FIX: Use explicit express types to resolve property errors.
     // FIX: Use explicit express types to resolve property errors.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Using named imports for Express types to resolve conflicts with global DOM types.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });

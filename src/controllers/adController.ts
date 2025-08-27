@@ -4,7 +4,8 @@
 // FIX: Use express.Request and express.Response to resolve type conflicts.
 // FIX: Switched to named imports for express types to resolve conflicts with global DOM types.
 // FIX: Switched to default express import to resolve type conflicts with global DOM types.
-import express from 'express';
+// FIX: Use named imports for Express types (Request, Response) to resolve conflicts with global DOM types.
+import { Request, Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad } from '../types.js';
@@ -17,7 +18,7 @@ import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
 // FIX: Use explicit express types to resolve property errors.
 // FIX: Use explicit express types to resolve property errors.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+export const getAllAds = async (req: Request, res: Response) => {
     try {
         const result = await pool.query(`
             SELECT a.*,
@@ -44,7 +45,7 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 // FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
 // FIX: Use explicit express types to resolve property errors.
 // FIX: Use explicit express types to resolve property errors.
-export const getAdById = async (req: express.Request, res: express.Response) => {
+export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -76,7 +77,7 @@ export const getAdById = async (req: express.Request, res: express.Response) => 
 // FIX: Switched to explicit express.Response to resolve type conflicts.
 // FIX: Use explicit express.Response type to resolve property errors.
 // FIX: Use explicit express.Response type to resolve property errors.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+export const createAd = async (req: AuthRequest, res: Response) => {
     const { adData, imageUrls } = req.body;
     const sellerId = req.user?.id;
 

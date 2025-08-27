@@ -4,7 +4,8 @@
 // FIX: Use express.Request and express.Response to resolve type conflicts.
 // FIX: Switched to named imports for express types to resolve conflicts with global DOM types.
 // FIX: Switched to default express import to resolve type conflicts with global DOM types.
-import express from 'express';
+// FIX: Use named imports for Express types (Request, Response) to resolve conflicts with global DOM types.
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -18,7 +19,7 @@ import crypto from 'crypto';
 // FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
 // FIX: Use explicit express types to resolve property errors.
 // FIX: Use explicit express types to resolve property errors.
-export const register = async (req: express.Request, res: express.Response) => {
+export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -59,7 +60,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 // FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
 // FIX: Use explicit express types to resolve property errors.
 // FIX: Use explicit express types to resolve property errors.
-export const login = async (req: express.Request, res: express.Response) => {
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -99,7 +100,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 // FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
 // FIX: Use explicit express types to resolve property errors.
 // FIX: Use explicit express types to resolve property errors.
-export const telegramLogin = async (req: express.Request, res: express.Response) => {
+export const telegramLogin = async (req: Request, res: Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
