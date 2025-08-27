@@ -2,7 +2,8 @@
 // FIX: Use fully-qualified express types to resolve conflicts.
 // FIX: Import Request and Response types explicitly from express.
 // FIX: Import Request and Response types from express to resolve property access errors.
-import { Request, Response } from 'express';
+// FIX: Using default express import and qualified types to resolve type conflicts.
+import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad } from '../types.js';
@@ -13,7 +14,8 @@ import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Use fully-qualified express types.
 // FIX: Use explicit Request and Response types from express.
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
-export const getAllAds = async (req: Request, res: Response) => {
+// FIX: Using fully qualified express types to resolve property access errors.
+export const getAllAds = async (req: express.Request, res: express.Response) => {
     try {
         const result = await pool.query(`
             SELECT a.*,
@@ -38,7 +40,8 @@ export const getAllAds = async (req: Request, res: Response) => {
 // FIX: Use fully-qualified express types.
 // FIX: Use explicit Request and Response types from express.
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
-export const getAdById = async (req: Request, res: Response) => {
+// FIX: Using fully qualified express types to resolve property access errors.
+export const getAdById = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -68,7 +71,8 @@ export const getAdById = async (req: Request, res: Response) => {
 // FIX: Use fully-qualified express.Response type.
 // FIX: Use explicit AuthRequest and Response types.
 // FIX: Use explicit Response type from express to resolve property access errors.
-export const createAd = async (req: AuthRequest, res: Response) => {
+// FIX: Using fully qualified express types to resolve property access errors.
+export const createAd = async (req: AuthRequest, res: express.Response) => {
     const { adData, imageUrls } = req.body;
     const sellerId = req.user?.id;
 
