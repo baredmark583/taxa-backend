@@ -1,5 +1,6 @@
 import pool from './db.js';
 import bcrypt from 'bcryptjs';
+import cuid from 'cuid';
 
 const createUserTableQuery = `
   CREATE TABLE "User" (
@@ -143,10 +144,11 @@ const createAdminUserIfNotExists = async () => {
     if (res.rows.length === 0) {
         console.log(`Admin user with email ${adminEmail} not found. Creating...`);
         const hashedPassword = await bcrypt.hash(adminPassword, 12);
+        const adminId = cuid(); // Generate ID in the application code
         await pool.query(
             `INSERT INTO "User" (id, email, password, name, role, "updatedAt") 
-             VALUES (cuid(), $1, $2, $3, 'ADMIN', $4)`,
-            [adminEmail, hashedPassword, 'Admin', new Date()]
+             VALUES ($1, $2, $3, $4, 'ADMIN', $5)`,
+            [adminId, adminEmail, hashedPassword, 'Admin', new Date()] // Pass the generated ID as a parameter
         );
         console.log('Admin user created successfully.');
     } else {

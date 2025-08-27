@@ -1,5 +1,5 @@
 // FIX: Use explicit type imports from express to avoid conflicts with global DOM types.
-import { Request, Response } from 'express';
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -7,8 +7,8 @@ import cuid from 'cuid';
 import { User } from '../types.js';
 
 // Use Express's built-in types for request and response handlers.
-// FIX: Use Request and Response from express for correct types.
-export const register = async (req: Request, res: Response) => {
+// FIX: Use aliased Request and Response from express for correct types.
+export const register = async (req: ExpressRequest, res: ExpressResponse) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -44,8 +44,8 @@ export const register = async (req: Request, res: Response) => {
 };
 
 // Use Express's built-in types for request and response handlers.
-// FIX: Use Request and Response from express for correct types.
-export const login = async (req: Request, res: Response) => {
+// FIX: Use aliased Request and Response from express for correct types.
+export const login = async (req: ExpressRequest, res: ExpressResponse) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
