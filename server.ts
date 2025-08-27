@@ -1,12 +1,6 @@
 // Use the 'process' global from Node.js, do not import it.
-// FIX: Import 'express' and its types to use explicit types like Request, avoiding conflicts with global DOM types.
-// FIX: Using explicit Request, Response, NextFunction types from express to resolve type conflicts.
-// FIX: Corrected Express types for the global error handler to resolve property access errors.
-// FIX: Using express.Request, express.Response, and express.NextFunction to resolve type conflicts.
-// FIX: Changed express import to use named types (Request, Response, NextFunction) to avoid conflicts with global DOM types.
-// FIX: Switched to default express import to resolve type conflicts.
-// FIX: Use named imports for Express types (Request, Response, NextFunction) to resolve conflicts with global DOM types.
-import express, { Request, Response, NextFunction } from 'express';
+// FIX: Use a default import for express and explicit types (e.g., express.Request) to avoid conflicts with global DOM types.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added .js extension to local imports for ES module resolution.
@@ -44,15 +38,8 @@ const startServer = async () => {
     app.use('/api/admin', adminRoutes);
     
     // Global error handler
-    // FIX: Use explicit express types to avoid conflicts with global DOM types.
-    // FIX: Use explicit express.Request, express.Response, and express.NextFunction types to fix property errors.
-    // FIX: Use explicit Request, Response, and NextFunction types from express import
-    // FIX: Using explicit Request, Response, NextFunction types from express to resolve type conflicts.
-    // FIX: Switched to explicit express.Request, express.Response, and express.NextFunction to resolve type conflicts.
-    // FIX: Use explicit express types to resolve property errors.
-    // FIX: Use explicit express types to resolve property errors.
-    // FIX: Using named imports for Express types to resolve conflicts with global DOM types.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use explicit express types (e.g., express.Response) to avoid conflicts with global DOM types and resolve property errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });

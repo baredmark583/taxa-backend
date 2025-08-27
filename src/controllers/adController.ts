@@ -1,24 +1,13 @@
-// FIX: Import 'express' and its types to use explicit types like Request, avoiding conflicts with global DOM types.
-// FIX: Use explicit Request, Response types from express to resolve type conflicts.
-// FIX: Corrected Express types to use named imports.
-// FIX: Use express.Request and express.Response to resolve type conflicts.
-// FIX: Switched to named imports for express types to resolve conflicts with global DOM types.
-// FIX: Switched to default express import to resolve type conflicts with global DOM types.
-// FIX: Use named imports for Express types (Request, Response) to resolve conflicts with global DOM types.
-import { Request, Response } from 'express';
+// FIX: Use a default import for express and explicit types (e.g., express.Request) to avoid conflicts with global DOM types.
+import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad } from '../types.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
 // Get all ads
-// FIX: Use explicit express types for request and response handlers.
-// FIX: Use explicit Request and Response types from express import
-// FIX: Use explicit Request, Response types from express to resolve type conflicts.
-// FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
-// FIX: Use explicit express types to resolve property errors.
-// FIX: Use explicit express types to resolve property errors.
-export const getAllAds = async (req: Request, res: Response) => {
+// FIX: Use explicit express types for request and response handlers to resolve property errors.
+export const getAllAds = async (req: express.Request, res: express.Response) => {
     try {
         const result = await pool.query(`
             SELECT a.*,
@@ -39,13 +28,8 @@ export const getAllAds = async (req: Request, res: Response) => {
 };
 
 // Get a single ad by ID
-// FIX: Use explicit express types for request and response handlers.
-// FIX: Use explicit Request and Response types from express import
-// FIX: Use explicit Request, Response types from express to resolve type conflicts.
-// FIX: Switched to explicit express.Request and express.Response to resolve type conflicts.
-// FIX: Use explicit express types to resolve property errors.
-// FIX: Use explicit express types to resolve property errors.
-export const getAdById = async (req: Request, res: Response) => {
+// FIX: Use explicit express types for request and response handlers to resolve property errors.
+export const getAdById = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -71,13 +55,8 @@ export const getAdById = async (req: Request, res: Response) => {
 };
 
 // Create a new ad
-// FIX: Use explicit express types for request and response handlers. AuthRequest is correctly typed from its definition.
-// FIX: Use explicit Response type from express import
-// FIX: Use explicit Response type from express to resolve type conflicts.
-// FIX: Switched to explicit express.Response to resolve type conflicts.
-// FIX: Use explicit express.Response type to resolve property errors.
-// FIX: Use explicit express.Response type to resolve property errors.
-export const createAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use explicit express.Response type. AuthRequest is correctly typed from its definition.
+export const createAd = async (req: AuthRequest, res: express.Response) => {
     const { adData, imageUrls } = req.body;
     const sellerId = req.user?.id;
 

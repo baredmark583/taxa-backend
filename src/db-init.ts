@@ -227,6 +227,8 @@ export const initializeDatabase = async () => {
 
   // FIX: Migration to fix email NOT NULL constraint for Telegram users
   await makeColumnNullable('User', 'email');
+  // FIX: Migration to fix password NOT NULL constraint for Telegram users
+  await makeColumnNullable('User', 'password');
 
   // Feature tables (with dependencies in mind)
   await createTableIfNotExists('Review', createReviewTableQuery);
