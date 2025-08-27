@@ -1,13 +1,12 @@
-// FIX: Use explicit express types to avoid conflicts with global DOM types.
-// FIX: Import Response and NextFunction explicitly to avoid conflicts with DOM types.
-// FIX: Changed import to explicitly bring in Response and NextFunction types from express.
+// FIX: Import 'express' module to use explicit types like express.Response, avoiding conflicts with global DOM types.
+// FIX: Import specific types from express to avoid global conflicts
 import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import pool from '../db.js';
 
-// FIX: Use explicit Response and NextFunction types from express to fix property errors.
-// FIX: Updated function signature to use explicit express types.
+// FIX: Use explicit express.Response and express.NextFunction types to fix property errors.
+// FIX: Use explicit Response and NextFunction types from express import
 export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 

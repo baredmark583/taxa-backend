@@ -1,6 +1,5 @@
-// FIX: Use explicit express types to avoid conflicts with global DOM types.
-// FIX: Import Request and Response explicitly to avoid conflicts with DOM types.
-// FIX: Changed import to explicitly bring in Request and Response types from express.
+// FIX: Import 'express' module to use explicit types like express.Request, avoiding conflicts with global DOM types.
+// FIX: Import specific types from express to avoid global conflicts
 import { Request, Response } from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -8,8 +7,7 @@ import { type GeneratedAdData, type Ad, type User } from '../types.js';
 import cuid from 'cuid';
 
 // FIX: Use explicit express types for request and response handlers.
-// FIX: Use explicit Request and Response types from express to fix property errors.
-// FIX: Updated function signature to use explicit express types.
+// FIX: Use explicit Request and Response types from express import
 export const getAllAds = async (req: Request, res: Response) => {
   try {
     // This query joins the Ad table with the User table to include seller details
@@ -35,8 +33,7 @@ export const getAllAds = async (req: Request, res: Response) => {
 };
 
 // FIX: Use explicit express types for request and response handlers. AuthRequest is correctly typed from its definition.
-// FIX: Use explicit Response type from express to fix property errors.
-// FIX: Updated function signature to use explicit express types.
+// FIX: Use explicit Response type from express import
 export const createAd = async (req: AuthRequest, res: Response) => {
   const { adData, imageUrls }: { adData: GeneratedAdData, imageUrls: string[] } = req.body;
   const sellerId = req.user?.id;
@@ -73,8 +70,39 @@ export const createAd = async (req: AuthRequest, res: Response) => {
     const seller = sellerResult.rows[0];
 
     res.status(201).json({ ...newAd, seller });
-  } catch (error) {
+  } catch (error)
+    {
     console.error('Create ad error:', error);
     res.status(500).json({ message: 'Failed to create ad' });
+  }
+};
+
+// New function to get a single ad by its ID
+// FIX: Use explicit Request and Response types from express import
+export const getAdById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const query = `
+      SELECT 
+        a.*, 
+        json_build_object(
+          'id', u.id,
+          'name', u.name,
+          'avatarUrl', u."avatarUrl"
+        ) as seller
+      FROM "Ad" as a
+      JOIN "User" as u ON a."sellerId" = u.id
+      WHERE a.id = $1;
+    `;
+    const adResult = await pool.query(query, [id]);
+
+    if (adResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Ad not found' });
+    }
+
+    res.status(200).json(adResult.rows[0]);
+  } catch (error) {
+    console.error('Get ad by ID error:', error);
+    res.status(500).json({ message: 'Failed to fetch ad' });
   }
 };

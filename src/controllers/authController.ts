@@ -1,6 +1,5 @@
-// FIX: Use explicit express types to avoid conflicts with global DOM types.
-// FIX: Import Request and Response explicitly to avoid conflicts with DOM types.
-// FIX: Changed import to explicitly bring in Request and Response types from express.
+// FIX: Import 'express' module to use explicit types like express.Request, avoiding conflicts with global DOM types.
+// FIX: Import specific types from express to avoid global conflicts
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -10,8 +9,7 @@ import { User } from '../types.js';
 import crypto from 'crypto';
 
 // FIX: Use explicit express types for request and response handlers.
-// FIX: Use explicit Request and Response types from express to fix property errors.
-// FIX: Updated function signature to use explicit express types.
+// FIX: Use explicit Request and Response types from express import
 export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
@@ -48,8 +46,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 // FIX: Use explicit express types for request and response handlers.
-// FIX: Use explicit Request and Response types from express to fix property errors.
-// FIX: Updated function signature to use explicit express types.
+// FIX: Use explicit Request and Response types from express import
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -85,6 +82,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // FIX: Updated function signature to use explicit express types.
+// FIX: Use explicit Request and Response types from express import
 export const telegramLogin = async (req: Request, res: Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
