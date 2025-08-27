@@ -1,6 +1,6 @@
 // Use the 'process' global from Node.js, do not import it.
-// FIX: Use the default express import to namespace its types and avoid conflicts with global DOM types.
-import express from 'express';
+// FIX: Use explicit type imports from express to avoid conflicts with global DOM types.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added .js extension to local imports for ES module resolution.
@@ -9,7 +9,7 @@ import { initializeDatabase } from './src/db-init.js';
 import authRoutes from './src/routes/auth.js';
 import adRoutes from './src/routes/ads.js';
 import geminiRoutes from './src/routes/gemini.js';
-import { admin, adminRouter } from './src/admin.js';
+import adminRoutes from './src/routes/admin.js';
 
 
 dotenv.config();
@@ -30,26 +30,23 @@ const startServer = async () => {
     app.use('/api/auth', authRoutes);
     app.use('/api/ads', adRoutes);
     app.use('/api/gemini', geminiRoutes);
-    
-    // AdminJS dashboard
-    app.use(admin.options.rootPath, adminRouter);
+    app.use('/api/admin', adminRoutes);
     
     // Basic welcome route
-    // FIX: Use express.Request and express.Response to ensure correct types.
-    app.get('/', (req: express.Request, res: express.Response) => {
-      res.send(`Taxa AI Backend is running. Admin panel is at http://localhost:${PORT}${admin.options.rootPath}`);
+    // FIX: Use Request and Response from express to ensure correct types.
+    app.get('/', (req: Request, res: Response) => {
+      res.send(`Taxa AI Backend is running.`);
     });
     
     // Global error handler
-    // FIX: Use express.Request, express.Response, and express.NextFunction for correct types.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Use Request, Response, and NextFunction from express for correct types.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
 
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
-      console.log(`AdminJS dashboard available at http://localhost:${PORT}${admin.options.rootPath}`);
     });
   } catch(error) {
     console.error("Failed to start server:", error);

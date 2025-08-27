@@ -1,4 +1,5 @@
 import pool from './db.js';
+import bcrypt from 'bcryptjs';
 
 const createUserTableQuery = `
   CREATE TABLE "User" (
@@ -129,6 +130,30 @@ const createTableIfNotExists = async (name: string, query: string) => {
     }
 };
 
+const createAdminUserIfNotExists = async () => {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+        console.warn('ADMIN_EMAIL or ADMIN_PASSWORD not set. Skipping admin user creation.');
+        return;
+    }
+
+    const res = await pool.query('SELECT * FROM "User" WHERE email = $1', [adminEmail]);
+    if (res.rows.length === 0) {
+        console.log(`Admin user with email ${adminEmail} not found. Creating...`);
+        const hashedPassword = await bcrypt.hash(adminPassword, 12);
+        await pool.query(
+            `INSERT INTO "User" (id, email, password, name, role, "updatedAt") 
+             VALUES (cuid(), $1, $2, $3, 'ADMIN', $4)`,
+            [adminEmail, hashedPassword, 'Admin', new Date()]
+        );
+        console.log('Admin user created successfully.');
+    } else {
+        console.log('Admin user already exists.');
+    }
+};
+
 export const initializeDatabase = async () => {
   console.log('Checking database schema...');
 
@@ -146,6 +171,8 @@ export const initializeDatabase = async () => {
   await createTableIfNotExists('Question', createQuestionTableQuery);
   await createTableIfNotExists('Answer', createAnswerTableQuery);
 
+  // Ensure admin user exists
+  await createAdminUserIfNotExists();
 
   console.log('Database schema check complete.');
 };
