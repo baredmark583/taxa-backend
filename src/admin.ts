@@ -31,10 +31,11 @@ const admin = new AdminJS({
   branding: {
     companyName: 'Taxa AI',
   },
-  // FIX: Explicitly instantiate Resource objects for each table. Cast db to any to access table method due to incorrect types in @adminjs/sql.
+  // FIX: Use table names as strings to avoid runtime errors with `db.table()`.
+  // The SQL adapter will find the table in the provided database.
   resources: [
     {
-      resource: (db as any).table('User'),
+      resource: 'User',
       options: {
         properties: {
           // Hide password from the UI
@@ -45,15 +46,15 @@ const admin = new AdminJS({
       },
     },
     {
-      resource: (db as any).table('Ad'),
+      resource: 'Ad',
       options: {},
     },
-    { resource: (db as any).table('Review'), options: {} },
-    { resource: (db as any).table('ChatMessage'), options: {} },
-    { resource: (db as any).table('SavedSearch'), options: {} },
-    { resource: (db as any).table('Question'), options: {} },
-    { resource: (db as any).table('Answer'), options: {} },
-    { resource: (db as any).table('Follow'), options: {} },
+    { resource: 'Review', options: {} },
+    { resource: 'ChatMessage', options: {} },
+    { resource: 'SavedSearch', options: {} },
+    { resource: 'Question', options: {} },
+    { resource: 'Answer', options: {} },
+    { resource: 'Follow', options: {} },
   ],
 });
 

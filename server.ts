@@ -1,6 +1,6 @@
 // Use the 'process' global from Node.js, do not import it.
-// FIX: Use named imports for Express types to avoid conflicts with global DOM types.
-import express, { Request, Response, NextFunction } from 'express';
+// FIX: Use the default express import to namespace its types and avoid conflicts with global DOM types.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added .js extension to local imports for ES module resolution.
@@ -35,14 +35,14 @@ const startServer = async () => {
     app.use(admin.options.rootPath, adminRouter);
     
     // Basic welcome route
-    // FIX: Use Request and Response types from express.
-    app.get('/', (req: Request, res: Response) => {
+    // FIX: Use express.Request and express.Response to ensure correct types.
+    app.get('/', (req: express.Request, res: express.Response) => {
       res.send(`Taxa AI Backend is running. Admin panel is at http://localhost:${PORT}${admin.options.rootPath}`);
     });
     
     // Global error handler
-    // FIX: Use Request, Response, and NextFunction types from express.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use express.Request, express.Response, and express.NextFunction for correct types.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
