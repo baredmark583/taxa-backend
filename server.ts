@@ -1,7 +1,7 @@
 // Use the 'process' global from Node.js, do not import it.
 // FIX: Use explicit type imports from express to avoid conflicts with global DOM types.
 // FIX: Import Request, Response, NextFunction explicitly to avoid conflicts with DOM types.
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -45,14 +45,14 @@ const startServer = async () => {
     // The "catchall" handler: for any request that doesn't match one above,
     // send back React's index.html file.
     // FIX: Use explicit Request and Response types from express to fix property errors.
-    app.get('*', (req: Request, res: Response) => {
+    app.get('*', (req: express.Request, res: express.Response) => {
         res.sendFile(path.join(frontendDistPath, 'index.html'));
     });
     
     // Global error handler
     // FIX: Use explicit express types to avoid conflicts with global DOM types.
     // FIX: Use explicit Request, Response, and NextFunction types from express to fix property errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });

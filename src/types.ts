@@ -3,8 +3,10 @@
 // Previously from Prisma, now defined manually for our database.
 export interface User {
   id: string;
-  email: string;
-  password: string; // Note: This should not be sent to the client.
+  email: string | null;
+  password: string | null; // Note: This should not be sent to the client.
+  telegramId?: number | null;
+  username?: string | null;
   name: string;
   role: 'USER' | 'ADMIN';
   avatarUrl: string | null;

@@ -5,8 +5,10 @@ import cuid from 'cuid';
 const createUserTableQuery = `
   CREATE TABLE "User" (
       "id" TEXT NOT NULL PRIMARY KEY,
-      "email" TEXT NOT NULL UNIQUE,
-      "password" TEXT NOT NULL,
+      "email" TEXT UNIQUE,
+      "password" TEXT,
+      "telegramId" BIGINT UNIQUE,
+      "username" TEXT,
       "name" TEXT NOT NULL,
       "role" TEXT NOT NULL DEFAULT 'USER',
       "avatarUrl" TEXT,

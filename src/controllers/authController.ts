@@ -1,15 +1,16 @@
 // FIX: Use explicit express types to avoid conflicts with global DOM types.
 // FIX: Import Request and Response explicitly to avoid conflicts with DOM types.
-import { Request, Response } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { User } from '../types.js';
+import crypto from 'crypto';
 
 // FIX: Use explicit express types for request and response handlers.
 // FIX: Use explicit Request and Response types from express to fix property errors.
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -46,7 +47,7 @@ export const register = async (req: Request, res: Response) => {
 
 // FIX: Use explicit express types for request and response handlers.
 // FIX: Use explicit Request and Response types from express to fix property errors.
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -60,6 +61,9 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const user: User = userResult.rows[0];
+    if (!user.password) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -75,4 +79,73 @@ export const login = async (req: Request, res: Response) => {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error during login' });
   }
+};
+
+export const telegramLogin = async (req: express.Request, res: express.Response) => {
+    const { initData } = req.body;
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+
+    if (!initData || !botToken) {
+        return res.status(400).json({ message: 'initData and bot token are required' });
+    }
+
+    try {
+        const urlParams = new URLSearchParams(initData);
+        const hash = urlParams.get('hash');
+        urlParams.delete('hash');
+
+        const dataCheckString = Array.from(urlParams.entries())
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([key, value]) => `${key}=${value}`)
+            .join('\n');
+
+        const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
+        const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+
+        if (calculatedHash !== hash) {
+            return res.status(401).json({ message: 'Invalid Telegram data' });
+        }
+
+        const tgUser = JSON.parse(urlParams.get('user') || '{}');
+        const telegramId = tgUser.id;
+
+        if (!telegramId) {
+            return res.status(400).json({ message: 'User data not found in initData' });
+        }
+
+        let dbUser: User;
+        const existingUserResult = await pool.query('SELECT * FROM "User" WHERE "telegramId" = $1', [telegramId]);
+
+        if (existingUserResult.rows.length > 0) {
+            const currentDbUser = existingUserResult.rows[0];
+            const updatedName = `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || currentDbUser.name;
+            const updatedUsername = tgUser.username || currentDbUser.username;
+            
+            await pool.query(
+                'UPDATE "User" SET name = $1, username = $2, "updatedAt" = $3 WHERE id = $4',
+                [updatedName, updatedUsername, new Date(), currentDbUser.id]
+            );
+            const updatedUserResult = await pool.query('SELECT * FROM "User" WHERE id = $1', [currentDbUser.id]);
+            dbUser = updatedUserResult.rows[0];
+        } else {
+            const userId = cuid();
+            const name = `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || tgUser.username || 'Telegram User';
+            const avatarUrl = `https://i.pravatar.cc/150?u=${telegramId}`;
+
+            const newUserResult = await pool.query(
+                'INSERT INTO "User" (id, name, "telegramId", username, "avatarUrl", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+                [userId, name, telegramId, tgUser.username, avatarUrl, new Date()]
+            );
+            dbUser = newUserResult.rows[0];
+        }
+
+        const token = jwt.sign({ userId: dbUser.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+        const { password: _password, ...userWithoutPassword } = dbUser;
+
+        res.status(200).json({ token, user: userWithoutPassword });
+
+    } catch (error) {
+        console.error('Telegram login error:', error);
+        res.status(500).json({ message: 'Server error during Telegram login' });
+    }
 };
