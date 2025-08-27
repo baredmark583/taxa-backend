@@ -13,7 +13,7 @@ interface GeoLocationResponse {
  * @param ip The user's IP address.
  * @param userId The ID of the user to update.
  */
-export const updateLocationFromIp = async (ip: string, userId: string): Promise<void> => {
+export const updateLocationFromIp = async (ip: string | undefined, userId: string): Promise<void> => {
     // Skip for local/internal IPs
     if (!ip || ip === '::1' || ip === '127.0.0.1') {
         return;

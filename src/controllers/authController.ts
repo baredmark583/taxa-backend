@@ -1,7 +1,7 @@
 // FIX: Use a default import for express and explicit types (e.g., express.Request) to avoid conflicts with global DOM types.
 // FIX: Use fully-qualified express types to resolve conflicts.
 // FIX: Use named imports for Request and Response to resolve type conflicts with global DOM types.
-import { Request, Response } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -11,7 +11,7 @@ import crypto from 'crypto';
 import { updateLocationFromIp } from '../services/locationService.js';
 
 // FIX: Use explicit express types for request and response handlers to resolve property errors.
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -50,7 +50,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 // FIX: Use explicit express types for request and response handlers to resolve property errors.
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -88,7 +88,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // FIX: Use explicit express types for request and response handlers to resolve property errors.
-export const telegramLogin = async (req: Request, res: Response) => {
+export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 

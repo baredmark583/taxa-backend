@@ -2,7 +2,7 @@
 // FIX: Switched to a default express import to avoid conflicts with global DOM types.
 // FIX: Use fully-qualified types like express.Request and express.Response to resolve conflicts.
 // FIX: Use named imports for Request, Response, and NextFunction to resolve type conflicts with global DOM types.
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -58,7 +58,8 @@ const startServer = async () => {
     // FIX: Add a catch-all route to serve index.html for client-side routing.
     // This allows direct navigation to routes like /profile in the browser.
     // FIX: Use explicit express types to resolve overload errors.
-    app.get('*', (req: Request, res: Response) => {
+    // FIX: Use explicit express types to resolve overload errors.
+    app.get('*', (req: express.Request, res: express.Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api')) {
             return res.status(404).send('API route not found');
@@ -68,7 +69,8 @@ const startServer = async () => {
     
     // Global error handler
     // FIX: Used explicit express types to avoid conflicts with global DOM types and resolve property errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Used explicit express types to avoid conflicts with global DOM types and resolve property errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
