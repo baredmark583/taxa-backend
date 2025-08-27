@@ -2,7 +2,8 @@
 // FIX: Switched to a default express import to avoid conflicts with global DOM types.
 // FIX: Use fully-qualified types like express.Request and express.Response to resolve conflicts.
 // FIX: Import Request, Response, and NextFunction types explicitly from express to resolve type conflicts.
-import express from 'express';
+// FIX: Correctly import Request, Response, and NextFunction types from express to fix handler type issues.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -61,11 +62,21 @@ const startServer = async () => {
     // FIX: Use explicit express types to resolve overload errors.
     // FIX: Use fully-qualified express types to resolve overload errors.
     // FIX: Use explicit Request and Response types from express.
-    app.get('*', (req: express.Request, res: express.Response) => {
+    // FIX: Use explicit Request and Response types from express to resolve property access errors.
+    app.get('*', (req: Request, res: Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api')) {
             return res.status(404).send('API route not found');
         }
+        
+        // If the request has a file extension, it's likely for a static asset
+        // that was not found by express.static. In this case, send a 404.
+        // This prevents the client-side router's index.html from being sent
+        // for missing assets, which causes MIME type errors.
+        if (path.extname(req.path)) {
+            return res.status(404).send('Resource not found');
+        }
+
         res.sendFile(path.join(frontendBuildPath, 'index.html'));
     });
     
@@ -74,7 +85,8 @@ const startServer = async () => {
     // FIX: Used explicit express types to avoid conflicts with global DOM types and resolve property errors.
     // FIX: Use fully-qualified express types to avoid conflicts with global DOM types.
     // FIX: Use explicit Error, Request, Response, and NextFunction types.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Use explicit Request, Response, and NextFunction types from express to resolve property access errors.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });

@@ -1,14 +1,16 @@
 // FIX: Use a default import for express and explicit types (e.g., express.Response) to avoid conflicts with global DOM types.
 // FIX: Use fully-qualified express.Response to resolve conflicts.
 // FIX: Import Response type explicitly from express.
-import express from 'express';
+// FIX: Import Response type from express to resolve property access errors.
+import { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 import { generateAdDetailsFromImage } from '../services/geminiService.js';
 
 // FIX: Use explicit express types for request and response handlers. AuthRequest is correctly typed from its definition.
 // FIX: Use fully-qualified express.Response type.
 // FIX: Use explicit AuthRequest and Response types.
-export const generateAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use explicit Response type from express to resolve property access errors.
+export const generateAd = async (req: AuthRequest, res: Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     
     if (!prompt || !imageBase64 || !mimeType) {
