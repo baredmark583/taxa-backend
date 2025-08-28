@@ -1,5 +1,5 @@
-// FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Request`) and resolve type conflicts.
-import express from 'express';
+// FIX: Switched to named, type-only imports to resolve type conflicts.
+import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -8,8 +8,8 @@ import { User } from '../types.js';
 import crypto from 'crypto';
 import { updateLocationFromIp } from '../services/locationService.js';
 
-// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.body`, `req.ip`, and `res.status`.
-export const register = async (req: express.Request, res: express.Response) => {
+// FIX: Use named Express types for request and response handlers.
+export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -47,8 +47,8 @@ export const register = async (req: express.Request, res: express.Response) => {
   }
 };
 
-// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.body`, `req.ip`, and `res.status`.
-export const login = async (req: express.Request, res: express.Response) => {
+// FIX: Use named Express types for request and response handlers.
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -85,8 +85,8 @@ export const login = async (req: express.Request, res: express.Response) => {
   }
 };
 
-// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.body`, `req.ip`, and `res.status`.
-export const telegramLogin = async (req: express.Request, res: express.Response) => {
+// FIX: Use named Express types for request and response handlers.
+export const telegramLogin = async (req: Request, res: Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 

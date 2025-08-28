@@ -57,4 +57,64 @@ const startServer = async () => {
         'https://taxa-5ky4.onrender.com', // The production frontend URL from the logs
         process.env.FRONTEND_URL,       // The configured frontend URL from environment variables
         'http://localhost:5173',        // For local development (Vite)
-        'http://127.0.0.1
+        'http://127.0.0.1:5173'         // For local development (Vite)
+    ].filter(Boolean); // Filter out undefined/null values from process.env
+
+    app.use(cors({
+        origin: (origin, callback) => {
+            // Allow requests with no origin (like mobile apps or curl requests)
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                console.warn(`CORS blocked for origin: ${origin}`);
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true,
+    }));
+
+    // Increase payload size limit for base64 image uploads in JSON bodies
+    app.use(express.json({ limit: '10mb' }));
+    app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+    // API routes
+    app.use('/api/auth', authRoutes);
+    app.use('/api/ads', adRoutes);
+    app.use('/api/gemini', geminiRoutes);
+    app.use('/api/admin', adminRoutes);
+    app.use('/api/user', userRoutes);
+    app.use('/api/chat', chatRoutes);
+
+    // Serve static files from the React app build directory in production
+    const frontendBuildPath = path.join(__dirname, '../../../dist');
+
+    // Check if the build directory exists
+    if (fs.existsSync(frontendBuildPath)) {
+        app.use(express.static(frontendBuildPath));
+        
+        // The "catchall" handler: for any request that doesn't match an API route,
+        // send back the main index.html file from the React build.
+        app.get('*', (req, res) => {
+            res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
+        });
+    } else {
+        console.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        console.warn("!!! Frontend build directory not found at:", frontendBuildPath);
+        console.warn("!!! Make sure you have built the frontend part of the application.");
+        console.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    }
+
+
+    // Use the http server to listen, not the express app, to support WebSockets.
+    server.listen(PORT, () => {
+      console.log(`Server listening on port ${PORT}`);
+    });
+    
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
