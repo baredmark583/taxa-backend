@@ -5,7 +5,10 @@
 // FIX: Using default express import and qualified types to resolve type conflicts.
 // FIX: Using explicit named imports for Request and Response to resolve persistent type conflicts.
 // FIX: Switched to named imports for express types to resolve property access errors.
-import { Request, Response } from 'express';
+// FIX: Use a default import for express and qualified types (e.g., express.Request) to resolve type errors.
+// FIX: Use explicit named imports for Request and Response to resolve type conflicts with global DOM types.
+// FIX: Switched to a default express import and used qualified types (e.g., express.Request) to resolve type conflicts with global DOM types and fix property access errors.
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -20,8 +23,8 @@ import { updateLocationFromIp } from '../services/locationService.js';
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-// FIX: Use named Request and Response imports to fix property access errors.
-export const register = async (req: Request, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -65,8 +68,8 @@ export const register = async (req: Request, res: Response) => {
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-// FIX: Use named Request and Response imports to fix property access errors.
-export const login = async (req: Request, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -109,8 +112,8 @@ export const login = async (req: Request, res: Response) => {
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-// FIX: Use named Request and Response imports to fix property access errors.
-export const telegramLogin = async (req: Request, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 

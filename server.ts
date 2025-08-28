@@ -6,7 +6,10 @@
 // FIX: Reverting to a default express import and using fully qualified types like express.Request to resolve persistent type conflicts.
 // FIX: Using explicit named imports for Request, Response, and NextFunction to resolve persistent type conflicts.
 // FIX: Switched to combined default and named imports for express types to resolve type resolution issues.
-import express, { Request, Response, NextFunction } from 'express';
+// FIX: Use a default import for express and qualified types (e.g., express.Request) to resolve type errors.
+// FIX: Use both default and named imports to resolve global type conflicts and fix property access errors.
+// FIX: Switched to a default express import and used qualified types (e.g., express.Request) to resolve type conflicts with global DOM types and fix property access errors.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -20,6 +23,7 @@ import adRoutes from './src/routes/ads.js';
 import geminiRoutes from './src/routes/gemini.js';
 import adminRoutes from './src/routes/admin.js';
 import userRoutes from './src/routes/user.js';
+import chatRoutes from './src/routes/chat.js';
 
 
 dotenv.config();
@@ -55,11 +59,11 @@ const startServer = async () => {
     app.use('/api/gemini', geminiRoutes);
     app.use('/api/admin', adminRoutes);
     app.use('/api/user', userRoutes);
+    app.use('/api/chat', chatRoutes);
     
     // FIX: Serve static files from the frontend build directory
-    // This is crucial for a single-server deployment model.
-    // It assumes the frontend is built into a 'public' folder relative to the backend.
-    const frontendBuildPath = path.join(__dirname, '..', 'public');
+    // It assumes the frontend is built into a 'dist' folder at the project root.
+    const frontendBuildPath = path.join(__dirname, '..', '..', 'dist');
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
     app.use(express.static(frontendBuildPath));
 
@@ -72,8 +76,8 @@ const startServer = async () => {
     // FIX: Use explicit Request and Response types from express to resolve property access errors.
     // FIX: Using fully qualified express types to resolve property access and overload errors.
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-    // FIX: Use named Request and Response imports to fix property access errors.
-    app.get('*', (req: Request, res: Response) => {
+    // FIX: Use qualified express types to resolve property access errors.
+    app.get('*', (req: express.Request, res: express.Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api')) {
             return res.status(404).send('API route not found');
@@ -98,8 +102,8 @@ const startServer = async () => {
     // FIX: Use explicit Request, Response, and NextFunction types from express to resolve property access errors.
     // FIX: Using fully qualified express types to resolve property access errors.
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-    // FIX: Use named Request, Response, and NextFunction imports to fix property access errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use qualified express types to resolve property access errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });

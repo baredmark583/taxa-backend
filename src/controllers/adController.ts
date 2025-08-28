@@ -5,7 +5,10 @@
 // FIX: Using default express import and qualified types to resolve type conflicts.
 // FIX: Using explicit named imports for Request and Response to resolve persistent type conflicts.
 // FIX: Switched to named imports for express types to resolve property access errors.
-import { Request, Response } from 'express';
+// FIX: Use a default import for express and qualified types (e.g., express.Request) to resolve type errors.
+// FIX: Use explicit named imports for Request and Response to resolve type conflicts with global DOM types.
+// FIX: Switched to a default express import and used qualified types (e.g., express.Request) to resolve type conflicts with global DOM types and fix property access errors.
+import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad, type AdStatus } from '../types.js';
@@ -18,9 +21,9 @@ import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-// FIX: Use named Request and Response imports to fix property access errors.
-export const getAllAds = async (req: Request, res: Response) => {
-    const { search, category, sortBy } = req.query;
+// FIX: Use qualified express types to resolve property access errors.
+export const getAllAds = async (req: express.Request, res: express.Response) => {
+    const { search, category, sortBy, sellerId } = req.query;
 
     let query = `
         SELECT a.*,
@@ -43,6 +46,11 @@ export const getAllAds = async (req: Request, res: Response) => {
     if (category && typeof category === 'string' && category !== 'Все') {
         params.push(category);
         whereClauses.push(`a.category = $${params.length}`);
+    }
+
+    if (sellerId && typeof sellerId === 'string') {
+        params.push(sellerId);
+        whereClauses.push(`a."sellerId" = $${params.length}`);
     }
 
     if (whereClauses.length > 0) {
@@ -75,8 +83,8 @@ export const getAllAds = async (req: Request, res: Response) => {
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-// FIX: Use named Request and Response imports to fix property access errors.
-export const getAdById = async (req: Request, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const getAdById = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -108,8 +116,8 @@ export const getAdById = async (req: Request, res: Response) => {
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-// FIX: Use named Response import to fix property access errors.
-export const createAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const createAd = async (req: AuthRequest, res: express.Response) => {
     const { adData, imageUrls } = req.body;
     const sellerId = req.user?.id;
 
@@ -159,8 +167,8 @@ export const createAd = async (req: AuthRequest, res: Response) => {
 
 // Update ad status
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-// FIX: Use named Response import to fix property access errors.
-export const updateAdStatus = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;
