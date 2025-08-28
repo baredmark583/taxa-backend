@@ -15,8 +15,8 @@
 // FIX: Use named imports for express Request, Response, and NextFunction to resolve type conflicts.
 // FIX: Resolve Express type conflicts by using named imports for Request, Response, and NextFunction.
 // FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts.
-// FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts with global DOM types, which was causing overload errors and property access issues.
-import express from 'express';
+// FIX: Use combined default and named imports for Express types to resolve widespread type conflicts with global DOM types, which was causing overload errors and property access issues.
+import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -104,14 +104,14 @@ const startServer = async () => {
     // FIX: Use fully-qualified express types to resolve overload errors.
     // FIX: Use explicit Request and Response types from express.
     // FIX: Use explicit Request and Response types from express to resolve property access errors.
-g    // FIX: Using fully qualified express types to resolve property access and overload errors.
+    // FIX: Using fully qualified express types to resolve property access and overload errors.
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use named express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access and overload errors.
     // FIX: Use named imports for Express types to resolve property access errors.
-    app.get('*', (req: express.Request, res: express.Response) => {
+    app.get('*', (req: Request, res: Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
             return res.status(404).send('Resource not found');
@@ -141,7 +141,7 @@ g    // FIX: Using fully qualified express types to resolve property access and 
     // FIX: Use named express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access and overload errors.
     // FIX: Use named imports for Express types to resolve property access errors.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });

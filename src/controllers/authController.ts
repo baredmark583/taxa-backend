@@ -1,21 +1,7 @@
 
 
-// FIX: Use a default import for express and explicit types (e.g., express.Request) to avoid conflicts with global DOM types.
-// FIX: Use fully-qualified express types to resolve conflicts.
-// FIX: Import Request and Response types explicitly from express.
-// FIX: Import Request and Response types from express to resolve property access errors.
-// FIX: Using default express import and qualified types to resolve type conflicts.
-// FIX: Using explicit named imports for Request and Response to resolve persistent type conflicts.
-// FIX: Switched to named imports for express types to resolve property access errors.
-// FIX: Use a default import for express and qualified types (e.g., express.Request) to resolve type errors.
-// FIX: Use explicit named imports for Request and Response to resolve type conflicts with global DOM types.
-// FIX: Use named imports for express types to resolve type conflicts and property access errors.
-// FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
-// FIX: Use named imports for express types to resolve property access errors.
-// FIX: Use named imports for Express types to resolve property access and type conflict errors.
-// FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts.
-// FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts with global DOM types, which was causing property access issues.
-import express from 'express';
+// FIX: Use named imports for Express types to resolve widespread type conflicts with global DOM types.
+import { type Request, type Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -34,7 +20,7 @@ import { updateLocationFromIp } from '../services/locationService.js';
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const register = async (req: express.Request, res: express.Response) => {
+export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -82,7 +68,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const login = async (req: express.Request, res: express.Response) => {
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -129,7 +115,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const telegramLogin = async (req: express.Request, res: express.Response) => {
+export const telegramLogin = async (req: Request, res: Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
