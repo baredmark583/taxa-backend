@@ -11,7 +11,7 @@
 // FIX: Use named imports for express types to resolve type conflicts and property access errors.
 // FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
 // FIX: Use named imports for express Request, Response, and NextFunction to resolve type conflicts.
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -101,7 +101,8 @@ const startServer = async () => {
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use named express types to resolve property access errors.
-    app.get('*', (req: Request, res: Response) => {
+    // FIX: Use qualified express types to resolve property access and overload errors.
+    app.get('*', (req: express.Request, res: express.Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
             return res.status(404).send('Resource not found');
@@ -129,7 +130,8 @@ const startServer = async () => {
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use named express types to resolve property access errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use qualified express types to resolve property access and overload errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
