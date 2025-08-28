@@ -1,6 +1,7 @@
 
-// FIX: Resolve Express type conflicts by using named import for Response.
-import { Response } from 'express';
+
+// FIX: Replaced named express imports with a default import to resolve type conflicts.
+import express from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
@@ -10,7 +11,8 @@ import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
-export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
+// FIX: Switched to qualified express types to prevent conflicts with global DOM types.
+export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     try {
         const result = await pool.query('SELECT "adId" FROM "Favorite" WHERE "userId" = $1', [userId]);
@@ -27,7 +29,8 @@ export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
-export const addFavorite = async (req: AuthRequest, res: Response) => {
+// FIX: Switched to qualified express types to prevent conflicts with global DOM types.
+export const addFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     try {
@@ -48,7 +51,8 @@ export const addFavorite = async (req: AuthRequest, res: Response) => {
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
-export const removeFavorite = async (req: AuthRequest, res: Response) => {
+// FIX: Switched to qualified express types to prevent conflicts with global DOM types.
+export const removeFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     try {
@@ -69,7 +73,8 @@ export const removeFavorite = async (req: AuthRequest, res: Response) => {
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
-export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
+// FIX: Switched to qualified express types to prevent conflicts with global DOM types.
+export const getFavoriteAds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     try {
         const result = await pool.query(`

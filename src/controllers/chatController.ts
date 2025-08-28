@@ -1,7 +1,8 @@
 
+
 // controllers/chatController.ts
-// FIX: Resolve Express type conflicts by using named import for Response.
-import { Response } from 'express';
+// FIX: Replaced named express imports with a default import to resolve type conflicts.
+import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -13,7 +14,8 @@ import { sendMessageToUser } from '../services/websocketService.js';
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
-export const getConversations = async (req: AuthRequest, res: Response) => {
+// FIX: Switched to qualified express types to prevent conflicts with global DOM types.
+export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
 
     const query = `
@@ -62,7 +64,8 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
-export const getMessages = async (req: AuthRequest, res: Response) => {
+// FIX: Switched to qualified express types to prevent conflicts with global DOM types.
+export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
 
@@ -90,7 +93,8 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
-export const sendMessage = async (req: AuthRequest, res: Response) => {
+// FIX: Switched to qualified express types to prevent conflicts with global DOM types.
+export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
 

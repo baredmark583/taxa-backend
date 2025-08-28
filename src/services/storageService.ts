@@ -1,3 +1,4 @@
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -37,8 +38,18 @@ async function uploadToLocal(file: any): Promise<string> {
     // formidable puts files in a temp directory which should be on the same partition.
     fs.renameSync(file.path, newPath);
     
-    // Return the public URL to be stored in the DB
-    return `/uploads/${newFileName}`;
+    // The backend URL must be set in the environment for images to be accessible.
+    // e.g., BACKEND_URL=https://taxa-backend.onrender.com
+    const backendUrl = process.env.BACKEND_URL;
+    const publicPath = `/uploads/${newFileName}`;
+    
+    if (!backendUrl) {
+        console.warn('BACKEND_URL environment variable is not set. Image URLs will be relative, which may not work if frontend and backend are on different domains.');
+        return publicPath;
+    }
+    
+    // Return the full, absolute URL for the client.
+    return `${backendUrl}${publicPath}`;
 }
 
 async function uploadToS3(file: any, settings: Record<string, string>): Promise<string> {
