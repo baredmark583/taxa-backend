@@ -1,5 +1,5 @@
 // FIX: Switched to named, type-only imports to resolve type conflicts.
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';

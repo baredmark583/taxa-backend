@@ -1,5 +1,5 @@
 // FIX: Switched to named, type-only imports to resolve type conflicts.
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 

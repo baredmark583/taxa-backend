@@ -1,5 +1,5 @@
 // FIX: Use type-only named imports for Express types to resolve conflicts.
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import jwt from 'jsonwebtoken';

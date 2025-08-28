@@ -1,5 +1,5 @@
 // FIX: Switched to named, type-only imports for Express types to resolve conflicts.
-import { Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import pool from '../db.js';

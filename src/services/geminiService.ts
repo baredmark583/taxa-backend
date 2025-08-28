@@ -108,13 +108,12 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
             },
         });
         
-        // FIX: Added optional chaining `?.` before `.find()` to prevent calling it on a potentially undefined array.
-        // This resolves the TS2532 error.
         const imageResponsePart = response.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
-        
-        // FIX: This check now correctly narrows the type for TypeScript, resolving subsequent errors about potentially
-        // undefined `data` and `mimeType` properties (TS2322). It also checks for a text-based error from the API.
-        if (!imageResponsePart?.inlineData) {
+        // FIX: Extract inlineData to a separate variable. This provides a stronger type guard for TypeScript's
+        // control flow analysis, guaranteeing that `inlineData` is not undefined in the return statement.
+        const inlineData = imageResponsePart?.inlineData;
+
+        if (!inlineData) {
             const textResponse = response.text; // Check for a text-based error from Gemini
             if (textResponse) {
                 throw new Error(`AI did not return an image. Reason: ${textResponse}`);
@@ -123,8 +122,8 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
         }
 
         return {
-            imageBase64: imageResponsePart.inlineData.data,
-            mimeType: imageResponsePart.inlineData.mimeType,
+            imageBase64: inlineData.data,
+            mimeType: inlineData.mimeType,
         };
     } catch (error) {
         console.error("Error calling Gemini Image Editing API:", error);
