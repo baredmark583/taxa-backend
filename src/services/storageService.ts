@@ -30,7 +30,8 @@ async function getSettings(): Promise<Record<string, string>> {
 
 async function uploadToLocal(file: any): Promise<string> {
     const newFileName = `${cuid()}${path.extname(file.name)}`;
-    const newPath = path.join(__dirname, '..', '..', 'public', 'uploads', newFileName);
+    // The compiled file is in dist/src/services, so we need to go up three levels to reach the 'backend' root.
+    const newPath = path.join(__dirname, '..', '..', '..', 'public', 'uploads', newFileName);
     
     // renameSync is faster as it's a metadata change on the same filesystem.
     // formidable puts files in a temp directory which should be on the same partition.
