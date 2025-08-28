@@ -7,8 +7,8 @@
 // FIX: Switched to named imports for express types to resolve property access errors.
 // FIX: Use a default import for express and qualified types (e.g., express.Request) to resolve type errors.
 // FIX: Use explicit named imports for Request and Response to resolve type conflicts with global DOM types.
-// FIX: Switched to a default express import and used qualified types (e.g., express.Request) to resolve type conflicts with global DOM types and fix property access errors.
-import express from 'express';
+// FIX: Use named imports for express types to resolve type conflicts and property access errors.
+import { Request, Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad, type AdStatus } from '../types.js';
@@ -22,7 +22,7 @@ import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 // FIX: Use qualified express types to resolve property access errors.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+export const getAllAds = async (req: Request, res: Response) => {
     const { search, category, sortBy, sellerId } = req.query;
 
     let query = `
@@ -84,7 +84,7 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 // FIX: Use qualified express types to resolve property access errors.
-export const getAdById = async (req: express.Request, res: express.Response) => {
+export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -117,7 +117,7 @@ export const getAdById = async (req: express.Request, res: express.Response) => 
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 // FIX: Use qualified express.Response type to fix property access errors.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+export const createAd = async (req: AuthRequest, res: Response) => {
     const { adData, imageUrls } = req.body;
     const sellerId = req.user?.id;
 
@@ -165,10 +165,61 @@ export const createAd = async (req: AuthRequest, res: express.Response) => {
     }
 };
 
+// Update an existing ad
+// FIX: Use qualified express.Response type to fix property access errors.
+export const updateAd = async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { title, description, price, category, location, tags, imageUrls } = req.body;
+    const userId = req.user?.id;
+
+    try {
+        const adResult = await pool.query('SELECT "sellerId" FROM "Ad" WHERE id = $1', [id]);
+        if (adResult.rows.length === 0) {
+            return res.status(404).json({ message: 'Ad not found.' });
+        }
+        if (adResult.rows[0].sellerId !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to update this ad.' });
+        }
+
+        const updateResult = await pool.query(
+            `UPDATE "Ad" SET 
+                title = $1, 
+                description = $2, 
+                price = $3, 
+                category = $4, 
+                location = $5, 
+                tags = $6, 
+                "imageUrls" = $7, 
+                "updatedAt" = $8 
+             WHERE id = $9 RETURNING *`,
+            [title, description, price, category, location, tags, imageUrls, new Date(), id]
+        );
+
+        const finalAdResult = await pool.query(`
+            SELECT a.*,
+                   json_build_object(
+                       'id', u.id,
+                       'name', u.name,
+                       'avatarUrl', u."avatarUrl"
+                   ) as seller
+            FROM "Ad" as a
+            JOIN "User" as u ON a."sellerId" = u.id
+            WHERE a.id = $1
+        `, [updateResult.rows[0].id]);
+
+
+        res.status(200).json(finalAdResult.rows[0]);
+    } catch (error) {
+        console.error(`Update ad error (id: ${id}):`, error);
+        res.status(500).json({ message: 'Failed to update ad.' });
+    }
+};
+
+
 // Update ad status
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 // FIX: Use qualified express.Response type to fix property access errors.
-export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
+export const updateAdStatus = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;

@@ -1,14 +1,14 @@
 // controllers/chatController.ts
 // FIX: Use explicit named import for Response to resolve type conflicts with global DOM types.
-// FIX: Switched to a default express import and used qualified types (e.g., express.Request) to resolve type conflicts with global DOM types and fix property access errors.
-import express from 'express';
+// FIX: Use named import for express Response type to resolve type conflicts and fix property access errors.
+import { Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
 import { sendTelegramNotification } from '../services/notificationService.js';
 
 // Get all conversations for the current user
-export const getConversations = async (req: AuthRequest, res: express.Response) => {
+export const getConversations = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
 
     const query = `
@@ -53,7 +53,7 @@ export const getConversations = async (req: AuthRequest, res: express.Response) 
 };
 
 // Get all messages for a specific conversation (ad + other user)
-export const getMessages = async (req: AuthRequest, res: express.Response) => {
+export const getMessages = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
 
@@ -77,7 +77,7 @@ export const getMessages = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Send a new message
-export const sendMessage = async (req: AuthRequest, res: express.Response) => {
+export const sendMessage = async (req: AuthRequest, res: Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
 
