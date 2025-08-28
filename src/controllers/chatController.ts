@@ -1,14 +1,16 @@
 // controllers/chatController.ts
 // FIX: Use explicit named import for Response to resolve type conflicts with global DOM types.
 // FIX: Use named import for express Response type to resolve type conflicts and fix property access errors.
-import { Response } from 'express';
+// FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
+import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
 import { sendTelegramNotification } from '../services/notificationService.js';
+import { sendMessageToUser } from '../services/websocketService.js';
 
 // Get all conversations for the current user
-export const getConversations = async (req: AuthRequest, res: Response) => {
+export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
 
     const query = `
@@ -53,7 +55,7 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 };
 
 // Get all messages for a specific conversation (ad + other user)
-export const getMessages = async (req: AuthRequest, res: Response) => {
+export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
 
@@ -77,7 +79,7 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 };
 
 // Send a new message
-export const sendMessage = async (req: AuthRequest, res: Response) => {
+export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
 
@@ -95,10 +97,25 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
         );
         
         const newMessage = result.rows[0];
+        
+        // Immediately respond to the sender
+        res.status(201).json(newMessage);
 
-        // Asynchronously send notification without blocking the response
+        // Asynchronously push updates without blocking the response
         (async () => {
             try {
+                // Fetch sender info for a richer payload in WebSocket
+                const senderResult = await pool.query('SELECT name, "avatarUrl" FROM "User" WHERE id = $1', [senderId]);
+                const fullMessagePayload = {
+                    ...newMessage,
+                    senderName: senderResult.rows[0].name,
+                    senderAvatar: senderResult.rows[0].avatarUrl
+                };
+
+                // Send real-time message via WebSocket
+                sendMessageToUser(receiverId, fullMessagePayload);
+
+                // Send Telegram notification as a fallback
                 const receiverResult = await pool.query('SELECT "telegramId" FROM "User" WHERE id = $1', [receiverId]);
                 const adResult = await pool.query('SELECT title FROM "Ad" WHERE id = $1', [adId]);
 
@@ -107,17 +124,13 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
                     const adTitle = adResult.rows[0].title;
                     const notificationMessage = `У вас нове повідомлення по оголошенню "${adTitle}"! 📬`;
                     
-                    // This function is already designed to not throw and just log errors.
                     await sendTelegramNotification(receiverTelegramId, notificationMessage, adId);
                 }
             } catch (notificationError) {
-                // Log this error but don't fail the main request
-                console.error('Failed to prepare and send Telegram notification:', notificationError);
+                console.error('Failed to send notifications:', notificationError);
             }
         })();
 
-
-        res.status(201).json(newMessage);
     } catch (error) {
         console.error('Send message error:', error);
         res.status(500).json({ message: 'Failed to send message' });

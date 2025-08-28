@@ -9,14 +9,20 @@
 // FIX: Use a default import for express and qualified types (e.g., express.Request) to resolve type errors.
 // FIX: Use both default and named imports to resolve global type conflicts and fix property access errors.
 // FIX: Use named imports for express types to resolve type conflicts and property access errors.
-import express, { Request, Response, NextFunction } from 'express';
+// FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
 import path from 'path';
 import { fileURLToPath } from 'url';
+// Added http and ws imports for WebSocket server setup.
+import http from 'http';
+import { WebSocketServer } from 'ws';
 // Added .js extension to local imports for ES module resolution.
 import { initializeDatabase } from './src/db-init.js';
+import { handleConnection } from './src/services/websocketService.js';
+
 
 import authRoutes from './src/routes/auth.js';
 import adRoutes from './src/routes/ads.js';
@@ -37,6 +43,14 @@ app.set('trust proxy', true);
 // Helper constants for file paths
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Create an HTTP server from the Express app to share with the WebSocket server.
+const server = http.createServer(app);
+// Create a WebSocket server and attach it to the HTTP server.
+const wss = new WebSocketServer({ server });
+
+// Set up a listener for new WebSocket connections.
+wss.on('connection', handleConnection);
 
 const startServer = async () => {
   try {
@@ -77,7 +91,8 @@ const startServer = async () => {
     // FIX: Using fully qualified express types to resolve property access and overload errors.
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
     // FIX: Use qualified express types to resolve property access errors.
-    app.get('*', (req: Request, res: Response) => {
+    // FIX: Use qualified express types to resolve property access errors.
+    app.get('*', (req: express.Request, res: express.Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api')) {
             return res.status(404).send('API route not found');
@@ -103,13 +118,15 @@ const startServer = async () => {
     // FIX: Using fully qualified express types to resolve property access errors.
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
     // FIX: Use qualified express types to resolve property access errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use qualified express types to resolve property access errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
 
     // FIX: Listen on '0.0.0.0' to be accessible in containerized environments like Render.
-    app.listen(Number(PORT), '0.0.0.0', () => {
+    // Use the http server to listen, which handles both HTTP and WebSocket traffic.
+    server.listen(Number(PORT), '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch(error) {
