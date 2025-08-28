@@ -1,4 +1,5 @@
 
+
 // FIX: Use a default import for express and explicit types (e.g., express.Response) to avoid conflicts with global DOM types.
 // FIX: Use fully-qualified express.Response to resolve conflicts.
 // FIX: Import Request and Response types explicitly from express.
@@ -13,8 +14,8 @@
 // FIX: Use named imports for express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access and type conflict errors.
 // FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts.
-// FIX: Switching to named imports for express types to resolve conflicts with global DOM types.
-import { Request, Response } from 'express';
+// FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts with global DOM types, which was causing property access issues.
+import express from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
@@ -29,7 +30,7 @@ import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const getStats = async (req: AuthRequest, res: Response) => {
+export const getStats = async (req: AuthRequest, res: express.Response) => {
     try {
         const userCountPromise = pool.query('SELECT COUNT(*) FROM "User"');
         const adCountPromise = pool.query('SELECT COUNT(*) FROM "Ad"');
@@ -70,7 +71,7 @@ export const getStats = async (req: AuthRequest, res: Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const getAnalytics = async (req: AuthRequest, res: Response) => {
+export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
     try {
         const userAnalyticsPromise = pool.query(`
             SELECT DATE_TRUNC('day', "createdAt")::DATE AS date, COUNT(*) AS count
@@ -112,7 +113,7 @@ export const getAnalytics = async (req: AuthRequest, res: Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const getUsers = async (req: AuthRequest, res: Response) => {
+export const getUsers = async (req: AuthRequest, res: express.Response) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, status, "createdAt", latitude, longitude, city FROM "User" ORDER BY "createdAt" DESC');
     res.status(200).json(result.rows);
@@ -131,7 +132,7 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (req: express.Request, res: express.Response) => {
     try {
         const { id } = req.params;
         const { name, role, status } = req.body;
@@ -166,7 +167,7 @@ export const updateUser = async (req: Request, res: Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   try {
     // Optional: First, handle related data, e.g., delete user's ads
@@ -191,7 +192,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const getAds = async (req: AuthRequest, res: Response) => {
+export const getAds = async (req: AuthRequest, res: express.Response) => {
   try {
     const result = await pool.query(`
         SELECT a.*, u.name as "sellerName"
@@ -216,7 +217,7 @@ export const getAds = async (req: AuthRequest, res: Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const updateAd = async (req: Request, res: Response) => {
+export const updateAd = async (req: express.Request, res: express.Response) => {
     try {
         const { id } = req.params;
         const { title, description, price, status, isBoosted } = req.body;
@@ -258,7 +259,7 @@ export const updateAd = async (req: Request, res: Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
-export const deleteAd = async (req: Request, res: Response) => {
+export const deleteAd = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   try {
     const result = await pool.query('DELETE FROM "Ad" WHERE id = $1', [id]);
@@ -274,7 +275,7 @@ export const deleteAd = async (req: Request, res: Response) => {
 
 
 // Get storage settings
-export const getSettings = async (req: AuthRequest, res: Response) => {
+export const getSettings = async (req: AuthRequest, res: express.Response) => {
     try {
         const result = await pool.query('SELECT key, value FROM "Configuration"');
         const settings = result.rows.reduce((acc, row) => {
@@ -298,7 +299,7 @@ export const getSettings = async (req: AuthRequest, res: Response) => {
 };
 
 // Update storage settings
-export const updateSettings = async (req: AuthRequest, res: Response) => {
+export const updateSettings = async (req: AuthRequest, res: express.Response) => {
     const newSettings = req.body;
     const client = await pool.connect();
     try {
