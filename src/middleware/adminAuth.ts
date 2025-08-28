@@ -1,13 +1,12 @@
-// FIX: Use default express import to resolve type conflicts.
-import express from 'express';
+
 // FIX: Switched to named, type-only imports for Express types to resolve conflicts.
-import type { Response, NextFunction } from 'express';
+import { type Response, type NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import pool from '../db.js';
 
 // FIX: Use named Express types for middleware signature to resolve property errors.
-export const adminAuthMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

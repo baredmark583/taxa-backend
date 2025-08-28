@@ -111,9 +111,16 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
         const imageResponsePart = response.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
         const inlineData = imageResponsePart?.inlineData;
 
-        // FIX: Added explicit type checks for `inlineData.data` and `inlineData.mimeType`. This provides a more robust type guard,
-        // guaranteeing to the TypeScript compiler that these properties are strings before they are accessed, resolving persistent TS2322 errors.
-        if (!inlineData || typeof inlineData.data !== 'string' || typeof inlineData.mimeType !== 'string') {
+        // FIX: Reworked the type guard to check for the success case first. This provides a more robust signal
+        // to the TypeScript compiler, ensuring that inside the `if` block, `inlineData` and its properties are
+        // correctly typed as strings, which resolves the persistent TS2322 build error.
+        if (inlineData && typeof inlineData.data === 'string' && typeof inlineData.mimeType === 'string') {
+            return {
+                imageBase64: inlineData.data,
+                mimeType: inlineData.mimeType,
+            };
+        } else {
+            // Failure path
             const textResponse = response.text; // Check for a text-based error from Gemini
             if (textResponse) {
                 throw new Error(`AI did not return an image. Reason: ${textResponse}`);
@@ -121,10 +128,6 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
             throw new Error('AI did not return an edited image. The image may have been blocked by safety policies.');
         }
 
-        return {
-            imageBase64: inlineData.data,
-            mimeType: inlineData.mimeType,
-        };
     } catch (error) {
         console.error("Error calling Gemini Image Editing API:", error);
         // Re-throw custom errors to the controller, otherwise throw a generic one.

@@ -1,7 +1,6 @@
-// FIX: Use default express import to resolve type conflicts.
-import express from 'express';
+
 // FIX: Use type-only named imports for Express types to resolve conflicts.
-import type { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import jwt from 'jsonwebtoken';
@@ -10,12 +9,12 @@ import jwt from 'jsonwebtoken';
 // FIX: Changed from an interface to a type intersection to prevent issues with
 // property inheritance. The `body` and `files` properties are now
 // correctly inherited from `Request` and augmented by middleware types.
-export type AuthRequest = express.Request & {
+export type AuthRequest = Request & {
   user?: { id: string };
 };
 
 // FIX: Use named Express types for middleware signature.
-export const authMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
