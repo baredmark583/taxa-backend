@@ -1,3 +1,5 @@
+// FIX: Use default express import to resolve type conflicts.
+import express from 'express';
 // FIX: Switched to named, type-only imports to resolve type conflicts.
 import type { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -5,7 +7,7 @@ import { type AuthRequest } from '../middleware/auth.js';
 import { generateAdDetailsFromImage, editImageWithGemini } from '../services/geminiService.js';
 
 // FIX: Use named Express types for request and response handlers.
-export const generateAd = async (req: AuthRequest, res: Response) => {
+export const generateAd = async (req: AuthRequest, res: express.Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     
     if (!prompt || !imageBase64 || !mimeType) {
@@ -22,7 +24,7 @@ export const generateAd = async (req: AuthRequest, res: Response) => {
 };
 
 // Add a new controller for image editing.
-export const editImage = async (req: AuthRequest, res: Response) => {
+export const editImage = async (req: AuthRequest, res: express.Response) => {
     const { imageBase64, mimeType, editType } = req.body as { imageBase64: string, mimeType: string, editType: 'background' | 'enhance' };
 
     if (!imageBase64 || !mimeType || !editType) {

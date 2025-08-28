@@ -109,11 +109,11 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
         });
         
         const imageResponsePart = response.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
-        // FIX: Extract inlineData to a separate variable. This provides a stronger type guard for TypeScript's
-        // control flow analysis, guaranteeing that `inlineData` is not undefined in the return statement.
         const inlineData = imageResponsePart?.inlineData;
 
-        if (!inlineData) {
+        // FIX: Added explicit type checks for `inlineData.data` and `inlineData.mimeType`. This provides a more robust type guard,
+        // guaranteeing to the TypeScript compiler that these properties are strings before they are accessed, resolving persistent TS2322 errors.
+        if (!inlineData || typeof inlineData.data !== 'string' || typeof inlineData.mimeType !== 'string') {
             const textResponse = response.text; // Check for a text-based error from Gemini
             if (textResponse) {
                 throw new Error(`AI did not return an image. Reason: ${textResponse}`);

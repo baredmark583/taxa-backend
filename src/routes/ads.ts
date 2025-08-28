@@ -20,7 +20,7 @@ router.put('/:id/status', authMiddleware, updateAdStatus);
 // Custom error handler for multer/cloudinary errors on this router.
 // This will catch errors from the `upload.array()` middleware.
 // FIX: Use named Express types for middleware signature.
-router.use((err: Error, req: AuthRequest, res: Response, next: NextFunction) => {
+router.use((err: Error, req: AuthRequest, res: express.Response, next: express.NextFunction) => {
     if (err) {
         console.error('File Upload Error:', err.message);
         // Provide a more specific error message if possible.

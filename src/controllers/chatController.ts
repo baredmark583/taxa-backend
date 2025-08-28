@@ -1,4 +1,6 @@
 // controllers/chatController.ts
+// FIX: Use default express import to resolve type conflicts.
+import express from 'express';
 // FIX: Switched to named, type-only imports for Express types to resolve conflicts.
 import type { Response } from 'express';
 import pool from '../db.js';
@@ -9,7 +11,7 @@ import { sendMessageToUser } from '../services/websocketService.js';
 
 // Get all conversations for the current user
 // FIX: Use named Express types for request and response handlers.
-export const getConversations = async (req: AuthRequest, res: Response) => {
+export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
 
     const query = `
@@ -55,7 +57,7 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 
 // Get all messages for a specific conversation (ad + other user)
 // FIX: Use named Express types for request and response handlers.
-export const getMessages = async (req: AuthRequest, res: Response) => {
+export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
 
@@ -80,7 +82,7 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 
 // Send a new message
 // FIX: Use named Express types for request and response handlers.
-export const sendMessage = async (req: AuthRequest, res: Response) => {
+export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
 
