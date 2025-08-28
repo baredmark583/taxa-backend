@@ -51,12 +51,30 @@ const startServer = async () => {
     // Initialize the database schema before starting the server
     await initializeDatabase();
       
-    // The frontend URL must be set in the .env file or environment variables.
+    // A more flexible CORS configuration to handle different environments.
+    const allowedOrigins = [
+        'https://taxa-5ky4.onrender.com', // The production frontend URL from the logs
+        process.env.FRONTEND_URL,       // The configured frontend URL from environment variables
+        'http://localhost:5173',        // For local development (Vite)
+        'http://127.0.0.1:5173',
+    ].filter(Boolean) as string[]; // Removes any falsy values (like undefined process.env.FRONTEND_URL)
+
     const corsOptions = {
-      origin: process.env.FRONTEND_URL, // e.g., 'https://your-frontend-domain.vercel.app'
-      credentials: true,
+        origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+            // Allow requests with no origin (like mobile apps, curl, Postman)
+            // or if the origin is in our whitelist.
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                console.error(`CORS Blocked: Origin ${origin} not in allowedOrigins`);
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true,
     };
+
     app.use(cors(corsOptions));
+
     // FIX: This call is now correctly typed, resolving the overload error on line 59.
     app.use(express.json({ limit: '10mb' })); // Keep for JSON routes, but file uploads will be handled separately.
 
