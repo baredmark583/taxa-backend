@@ -1,4 +1,5 @@
 
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeneratedAdData, Ad, ImageSearchQuery, ChatMessage } from '../types.js';
 
@@ -64,7 +65,7 @@ export const generateAdDetailsFromImage = async (userPrompt: string, imageBase64
     });
 
     if (!response.text) {
-        throw new Error("Відповідь від AI порожня. Можливо, зображення було заблоковано через політику безпеки.");
+        throw new Error("Відповідь від AI порожня. Можливо, зображення було заблоковано через політику безпеки. Спробуйте інше фото.");
     }
     const jsonText = response.text.trim();
     const generatedData = JSON.parse(jsonText) as GeneratedAdData;
@@ -77,7 +78,15 @@ export const generateAdDetailsFromImage = async (userPrompt: string, imageBase64
 
   } catch (error) {
     console.error("Помилка під час виклику Gemini API:", error);
-    throw new Error("Не вдалося згенерувати деталі оголошення за допомогою AI. Будь ласка, спробуйте ще раз.");
+    
+    // Re-throw our custom, user-friendly errors directly to the controller.
+    if (error instanceof Error && (error.message.includes("політику безпеки") || error.message.includes("обов'язкових полів"))) {
+        throw error;
+    }
+    
+    // For all other errors (API errors, network issues, JSON parsing), throw a generic message
+    // that includes the most likely cause for an unexpected failure, like a safety block.
+    throw new Error("Не вдалося згенерувати деталі. Можливо, зображення було заблоковано. Спробуйте інше фото.");
   }
 };
 

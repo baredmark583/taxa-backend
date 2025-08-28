@@ -1,6 +1,7 @@
 // FIX: Use `express` default import and qualify types (e.g., `express.Request`) to resolve conflicts with global DOM types.
 // FIX: Using named type imports to resolve persistent type resolution issues.
-import express, { type Request, type Response } from 'express';
+// FIX: Switched to default express import and qualified types to resolve overload and property access errors.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -80,7 +81,7 @@ const startServer = async () => {
     // For any request that doesn't match an API route or a static file,
     // serve the `index.html` file. This is crucial for client-side routing.
     // FIX: Correctly typed handler resolves overload error on line 91 and property access errors within the handler.
-    app.get('*', (req: Request, res: Response) => {
+    app.get('*', (req: express.Request, res: express.Response) => {
         // Prevent API 404s from being served index.html
         if (req.path.startsWith('/api/')) {
             return res.status(404).json({ message: 'API endpoint not found.' });
