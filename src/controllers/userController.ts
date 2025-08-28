@@ -1,15 +1,10 @@
-
-
-
-
-
 // FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Response`) and resolve type conflicts.
 import express from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
 // Get user's favorite ad IDs
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
 export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     try {
@@ -22,7 +17,7 @@ export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) 
 };
 
 // Add an ad to favorites
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params` and `res.status`.
 export const addFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
@@ -39,7 +34,7 @@ export const addFavorite = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Remove an ad from favorites
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params` and `res.status`.
 export const removeFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
@@ -56,7 +51,7 @@ export const removeFavorite = async (req: AuthRequest, res: express.Response) =>
 };
 
 // Get ads favorited by the user
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
 export const getFavoriteAds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     try {

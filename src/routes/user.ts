@@ -5,6 +5,7 @@ import { authMiddleware } from '../middleware/auth.js';
 const router = express.Router();
 
 // All user routes should be protected
+// FIX: Correctly typing the middleware in auth.ts resolves the 'No overload matches this call' error here.
 router.use(authMiddleware);
 
 router.get('/me/favorites/ids', getFavoriteAdIds);

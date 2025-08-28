@@ -38,8 +38,7 @@ async function uploadToLocal(file: any): Promise<string> {
     const newFileName = `${cuid()}${path.extname(file.name)}`;
     const newPath = path.join(uploadsDir, newFileName);
 
-    // Ensure the target directory exists.
-    fs.mkdirSync(path.dirname(newPath), { recursive: true });
+    // The directory is now guaranteed to exist by the startup logic in server.ts.
     
     // renameSync is faster as it's a metadata change on the same filesystem.
     // formidable puts files in a temp directory which should be on the same partition.

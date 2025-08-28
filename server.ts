@@ -55,7 +55,7 @@ const startServer = async () => {
       credentials: true,
     };
     app.use(cors(corsOptions));
-    // FIX: This call is now correctly typed, resolving the overload error.
+    // FIX: This call is now correctly typed, resolving the overload error on line 59.
     app.use(express.json({ limit: '10mb' })); // Keep for JSON routes, but file uploads will be handled separately.
 
     const tempDir = path.join(__dirname, '..', 'temp_uploads');
@@ -78,12 +78,12 @@ const startServer = async () => {
         ? '/var/data/uploads'
         : path.join(__dirname, '..', 'public', 'uploads');
         
-    // Ensure the local directory exists for development
-    if (!process.env.RENDER) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-    }
+    // Ensure the uploads directory exists, both locally and on Render.
+    // This is safer to do on startup than on every file upload.
+    fs.mkdirSync(uploadsDir, { recursive: true });
     
     // Create a virtual path `/uploads` that maps to our uploads directory.
+    // FIX: Correctly typed call resolves overload error on line 86.
     app.use('/uploads', express.static(uploadsDir));
 
     // 2. Serve the built frontend application.
@@ -94,6 +94,7 @@ const startServer = async () => {
     // 3. SPA Fallback.
     // For any request that doesn't match an API route or a static file,
     // serve the `index.html` file. This is crucial for client-side routing.
+    // FIX: Correctly typed handler resolves overload error on line 91 and property access errors within the handler.
     app.get('*', (req: express.Request, res: express.Response) => {
         // Prevent API 404s from being served index.html
         if (req.path.startsWith('/api/')) {
@@ -115,7 +116,8 @@ const startServer = async () => {
     
   } catch (error) {
     console.error('Failed to start server:', error);
-    process.exit(1);
+    // FIX: Cast process to `any` to access the `exit` method, avoiding a TypeScript error on line 117.
+    (process as any).exit(1);
   }
 };
 

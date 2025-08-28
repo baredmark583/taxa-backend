@@ -1,8 +1,3 @@
-
-
-
-
-
 // controllers/chatController.ts
 // FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Response`) and resolve type conflicts.
 import express from 'express';
@@ -13,7 +8,7 @@ import { sendTelegramNotification } from '../services/notificationService.js';
 import { sendMessageToUser } from '../services/websocketService.js';
 
 // Get all conversations for the current user
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
 export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
 
@@ -59,7 +54,7 @@ export const getConversations = async (req: AuthRequest, res: express.Response) 
 };
 
 // Get all messages for a specific conversation (ad + other user)
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params` and `res.status`.
 export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
@@ -84,7 +79,7 @@ export const getMessages = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Send a new message
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.body` and `res.status`.
 export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;

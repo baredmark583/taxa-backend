@@ -1,15 +1,10 @@
-
-
-
-
-
 // FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Request`) and resolve type conflicts.
 import express from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
 // Get dashboard statistics
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
 export const getStats = async (req: AuthRequest, res: express.Response) => {
     try {
         const userCountPromise = pool.query('SELECT COUNT(*) FROM "User"');
@@ -43,7 +38,7 @@ export const getStats = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Get analytics data for charts
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
 export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
     try {
         const userAnalyticsPromise = pool.query(`
@@ -76,7 +71,7 @@ export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
 
 
 // Get all users
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
 export const getUsers = async (req: AuthRequest, res: express.Response) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, status, "createdAt", latitude, longitude, city FROM "User" ORDER BY "createdAt" DESC');
@@ -88,7 +83,7 @@ export const getUsers = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Update a user
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params`, `req.body`, and `res.status`.
 export const updateUser = async (req: express.Request, res: express.Response) => {
     try {
         const { id } = req.params;
@@ -116,7 +111,7 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
 
 
 // Delete a user
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params` and `res.status`.
 export const deleteUser = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   try {
@@ -134,7 +129,7 @@ export const deleteUser = async (req: express.Request, res: express.Response) =>
 };
 
 // Get all ads
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
 export const getAds = async (req: AuthRequest, res: express.Response) => {
   try {
     const result = await pool.query(`
@@ -152,7 +147,7 @@ export const getAds = async (req: AuthRequest, res: express.Response) => {
 
 
 // Update an ad
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params`, `req.body`, and `res.status`.
 export const updateAd = async (req: express.Request, res: express.Response) => {
     try {
         const { id } = req.params;
@@ -187,7 +182,7 @@ export const updateAd = async (req: express.Request, res: express.Response) => {
 };
 
 // Delete an ad
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params` and `res.status`.
 export const deleteAd = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   try {
@@ -204,7 +199,7 @@ export const deleteAd = async (req: express.Request, res: express.Response) => {
 
 
 // Get storage settings
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
 export const getSettings = async (req: AuthRequest, res: express.Response) => {
     try {
         const result = await pool.query('SELECT key, value FROM "Configuration"');
@@ -229,7 +224,7 @@ export const getSettings = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Update storage settings
-// FIX: Use qualified express types for request and response handlers to resolve property errors.
+// FIX: Use qualified express types for request and response handlers to resolve property errors on `req.body` and `res.status`.
 export const updateSettings = async (req: AuthRequest, res: express.Response) => {
     const newSettings = req.body;
     const client = await pool.connect();

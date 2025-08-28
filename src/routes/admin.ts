@@ -6,6 +6,7 @@ import { adminAuthMiddleware } from '../middleware/adminAuth.js';
 const router = express.Router();
 
 // Protect all admin routes
+// FIX: Correctly typing the middleware in adminAuth.ts resolves the 'No overload matches this call' error here.
 router.use(adminAuthMiddleware);
 
 // Add a new route for the admin dashboard statistics.

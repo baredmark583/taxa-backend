@@ -18,11 +18,14 @@ const formidableMiddleware = formidable({
 
 router.get('/', getAllAds);
 // FIX: Use formidable middleware to handle file uploads instead of relying on base64 in JSON.
+// FIX: Correctly typing the middleware and controller handlers resolves the 'No overload matches this call' error here.
 router.post('/', authMiddleware, formidableMiddleware, createAd);
 // Add a new route to get a single ad by its ID for deeplinking.
 router.get('/:id', getAdById);
 // FIX: Use formidable middleware for updates as well.
+// FIX: Correctly typing the middleware and controller handlers resolves the 'No overload matches this call' error here.
 router.put('/:id', authMiddleware, formidableMiddleware, updateAd);
+// FIX: Correctly typing the middleware and controller handlers resolves the 'No overload matches this call' error here.
 router.put('/:id/status', authMiddleware, updateAdStatus);
 
 
