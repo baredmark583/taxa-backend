@@ -1,6 +1,5 @@
-
-
-import { GoogleGenAI, Type } from "@google/genai";
+// FIX: Imported Modality for the image editing feature.
+import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { GeneratedAdData, Ad, ImageSearchQuery, ChatMessage } from '../types.js';
 
 const API_KEY = process.env.API_KEY;
@@ -88,6 +87,41 @@ export const generateAdDetailsFromImage = async (userPrompt: string, imageBase64
     // that includes the most likely cause for an unexpected failure, like a safety block.
     throw new Error("Не вдалося згенерувати деталі. Можливо, зображення було заблоковано. Спробуйте інше фото.");
   }
+};
+
+// Add a new function for editing images.
+export const editImageWithGemini = async (imageBase64: string, mimeType: string, editPrompt: string): Promise<{ imageBase64: string; mimeType: string }> => {
+    try {
+        const imagePart = {
+            inlineData: {
+                data: imageBase64,
+                mimeType: mimeType,
+            },
+        };
+        const textPart = { text: editPrompt };
+        
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image-preview',
+            contents: { parts: [imagePart, textPart] },
+            config: {
+                responseModalities: [Modality.IMAGE, Modality.TEXT],
+            },
+        });
+        
+        // Find the image part in the response
+        const imageResponsePart = response.candidates?.[0]?.content?.parts.find(part => part.inlineData);
+        if (!imageResponsePart || !imageResponsePart.inlineData) {
+            throw new Error('AI did not return an edited image. The image may have been blocked by safety policies.');
+        }
+
+        return {
+            imageBase64: imageResponsePart.inlineData.data,
+            mimeType: imageResponsePart.inlineData.mimeType,
+        };
+    } catch (error) {
+        console.error("Error calling Gemini Image Editing API:", error);
+        throw new Error("Failed to edit image. The image may have been blocked. Please try another photo.");
+    }
 };
 
 // ... other Gemini functions (findRelevantAds, etc.) can be moved here ...

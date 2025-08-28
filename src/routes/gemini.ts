@@ -1,5 +1,6 @@
 import express from 'express';
-import { generateAd } from '../controllers/geminiController.js';
+// FIX: Added editImage to imports.
+import { generateAd, editImage } from '../controllers/geminiController.js';
 import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -9,5 +10,7 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.post('/generate-ad', generateAd);
+// Add a new route for image editing.
+router.post('/edit-image', editImage);
 
 export default router;
