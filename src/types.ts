@@ -19,6 +19,9 @@ export interface User {
   updatedAt: Date;
 }
 
+// FIX: Export AdStatus to be used in controllers.
+export type AdStatus = 'active' | 'reserved' | 'sold' | 'archived';
+
 export interface Ad {
   id: string;
   title: string;
@@ -28,7 +31,7 @@ export interface Ad {
   location: string;
   tags: string[];
   imageUrls: string[];
-  status: 'active' | 'reserved' | 'sold' | 'archived'; 
+  status: AdStatus; 
   isBoosted: boolean;
   sellerId: string;
   // This is added dynamically when fetching ads

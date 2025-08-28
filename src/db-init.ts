@@ -40,6 +40,17 @@ const createAdTableQuery = `
   );
 `;
 
+const createFavoriteTableQuery = `
+  CREATE TABLE "Favorite" (
+      "userId" TEXT NOT NULL,
+      "adId" TEXT NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY ("userId", "adId"),
+      CONSTRAINT "Favorite_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+      CONSTRAINT "Favorite_adId_fkey" FOREIGN KEY ("adId") REFERENCES "Ad" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`;
+
 const createReviewTableQuery = `
   CREATE TABLE "Review" (
       "id" TEXT NOT NULL PRIMARY KEY,
@@ -244,6 +255,7 @@ export const initializeDatabase = async () => {
   await makeColumnNullable('User', 'password');
 
   // Feature tables (with dependencies in mind)
+  await createTableIfNotExists('Favorite', createFavoriteTableQuery);
   await createTableIfNotExists('Review', createReviewTableQuery);
   await createTableIfNotExists('ChatMessage', createChatMessageTableQuery);
   await createTableIfNotExists('SavedSearch', createSavedSearchTableQuery);

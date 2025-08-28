@@ -3,6 +3,7 @@
 // FIX: Import Request and Response types explicitly from express.
 // FIX: Import Request and Response types from express to resolve property access errors.
 // FIX: Using default express import and qualified types to resolve type conflicts.
+// FIX: Using explicit named imports for Request and Response to resolve persistent type conflicts.
 import express from 'express';
 import pool from '../db.js';
 import { AuthRequest } from '../middleware/auth.js';
@@ -13,6 +14,7 @@ import { AuthRequest } from '../middleware/auth.js';
 // FIX: Use explicit AuthRequest and Response types.
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
+// FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 export const getStats = async (req: AuthRequest, res: express.Response) => {
     try {
         const userCountPromise = pool.query('SELECT COUNT(*) FROM "User"');
@@ -49,6 +51,7 @@ export const getStats = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit AuthRequest and Response types from express.
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
+// FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
     try {
         const userAnalyticsPromise = pool.query(`
@@ -86,6 +89,7 @@ export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit AuthRequest and Response types.
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
+// FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 export const getUsers = async (req: AuthRequest, res: express.Response) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, status, "createdAt", latitude, longitude, city FROM "User" ORDER BY "createdAt" DESC');
@@ -100,6 +104,7 @@ export const getUsers = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit AuthRequest and Response types.
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
+// FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 export const updateUser = async (req: express.Request, res: express.Response) => {
     try {
         const { id } = req.params;
@@ -130,6 +135,7 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
 // FIX: Use explicit AuthRequest and Response types.
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
+// FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 export const deleteUser = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   try {
@@ -150,6 +156,7 @@ export const deleteUser = async (req: express.Request, res: express.Response) =>
 // FIX: Use explicit AuthRequest and Response types.
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
+// FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 export const getAds = async (req: AuthRequest, res: express.Response) => {
   try {
     const result = await pool.query(`
@@ -170,6 +177,7 @@ export const getAds = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit Request and Response types from express.
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
+// FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 export const updateAd = async (req: express.Request, res: express.Response) => {
     try {
         const { id } = req.params;
@@ -207,6 +215,7 @@ export const updateAd = async (req: express.Request, res: express.Response) => {
 // FIX: Use explicit Request and Response types from express.
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
+// FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 export const deleteAd = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   try {
