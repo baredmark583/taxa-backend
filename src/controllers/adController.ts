@@ -2,8 +2,10 @@
 
 
 
-// FIX: Replaced express default import with named type imports to resolve type conflicts.
-import { Request, Response } from 'express';
+
+
+// FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Request`) and resolve type conflicts.
+import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad, type AdStatus } from '../types.js';
@@ -13,8 +15,8 @@ import fs from 'fs';
 
 
 // Get all ads
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const getAllAds = async (req: Request, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const getAllAds = async (req: express.Request, res: express.Response) => {
     const { search, category, sortBy, sellerId } = req.query;
 
     let query = `
@@ -69,8 +71,8 @@ export const getAllAds = async (req: Request, res: Response) => {
 };
 
 // Get a single ad by ID
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const getAdById = async (req: Request, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const getAdById = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -96,8 +98,8 @@ export const getAdById = async (req: Request, res: Response) => {
 };
 
 // Create a new ad
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const createAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const createAd = async (req: AuthRequest, res: express.Response) => {
     const sellerId = req.user?.id;
     if (!sellerId) {
         return res.status(401).json({ message: 'User not authenticated' });
@@ -164,8 +166,8 @@ export const createAd = async (req: AuthRequest, res: Response) => {
 };
 
 // Update an existing ad
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const updateAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const updateAd = async (req: AuthRequest, res: express.Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
     
@@ -236,8 +238,8 @@ export const updateAd = async (req: AuthRequest, res: Response) => {
 
 
 // Update ad status
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const updateAdStatus = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;

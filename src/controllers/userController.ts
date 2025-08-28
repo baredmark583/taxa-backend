@@ -1,14 +1,16 @@
 
 
 
-// FIX: Replaced express default import with named type imports to resolve type conflicts.
-import { Response } from 'express';
+
+
+// FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Response`) and resolve type conflicts.
+import express from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
 // Get user's favorite ad IDs
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     try {
         const result = await pool.query('SELECT "adId" FROM "Favorite" WHERE "userId" = $1', [userId]);
@@ -20,8 +22,8 @@ export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
 };
 
 // Add an ad to favorites
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const addFavorite = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const addFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     try {
@@ -37,8 +39,8 @@ export const addFavorite = async (req: AuthRequest, res: Response) => {
 };
 
 // Remove an ad from favorites
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const removeFavorite = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const removeFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     try {
@@ -54,8 +56,8 @@ export const removeFavorite = async (req: AuthRequest, res: Response) => {
 };
 
 // Get ads favorited by the user
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const getFavoriteAds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     try {
         const result = await pool.query(`

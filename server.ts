@@ -1,8 +1,5 @@
-
-
-
-// FIX: Replaced the default express import with named type imports to resolve type conflicts with global DOM types.
-import express, { Request, Response, NextFunction } from 'express';
+// FIX: Use `express` default import and qualify types (e.g., `express.Request`) to resolve conflicts with global DOM types.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -61,62 +58,64 @@ const startServer = async () => {
     // FIX: This call is now correctly typed, resolving the overload error.
     app.use(express.json({ limit: '10mb' })); // Keep for JSON routes, but file uploads will be handled separately.
 
-    // Ensure the directories for file uploads exist.
-    const uploadsDir = path.join(__dirname, '..', 'public', 'uploads');
     const tempDir = path.join(__dirname, '..', 'temp_uploads');
-    fs.mkdirSync(uploadsDir, { recursive: true });
     fs.mkdirSync(tempDir, { recursive: true });
-    // FIX: This call is now correctly typed, resolving the overload error.
-    app.use('/uploads', express.static(uploadsDir));
     
-    // API routes.
+    // API routes must be registered before the static file handlers
     app.use('/api/auth', authRoutes);
     app.use('/api/ads', adRoutes);
     app.use('/api/gemini', geminiRoutes);
     app.use('/api/admin', adminRoutes);
     app.use('/api/user', userRoutes);
     app.use('/api/chat', chatRoutes);
-    
-    // Serve static files from the frontend build directory
-    // It assumes the frontend is built into a 'dist' folder at the project root.
-    const frontendBuildPath = path.join(__dirname, '..', '..', 'dist');
-    // FIX: This call is now correctly typed, resolving the overload error.
-    app.use(express.static(frontendBuildPath));
 
-    // Add a catch-all route to serve index.html for client-side routing.
-    // This allows direct navigation to routes like /profile in the browser.
-    // FIX: Use named express types to resolve property access and overload errors.
-    app.get('*', (req: Request, res: Response) => {
-        // Check if the request is for an API route, if so, do not serve index.html
-        if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
-            return res.status(404).send('Resource not found');
-        }
+    // --- Static File Serving ---
+    // This logic handles serving user uploads and the frontend application.
+
+    // 1. Serve user-uploaded content.
+    // On Render, this points to a persistent disk. Locally, it's a `public` directory inside `backend`.
+    const uploadsDir = process.env.RENDER
+        ? '/var/data/uploads'
+        : path.join(__dirname, '..', 'public', 'uploads');
         
-        // If the request has a file extension, it's likely for a static asset
-        // that was not found by express.static. In this case, send a 404.
-        // This prevents the client-side router's index.html from being sent
-        // for missing assets, which causes MIME type errors.
-        if (path.extname(req.path)) {
-            return res.status(404).send('Resource not found');
-        }
+    // Ensure the local directory exists for development
+    if (!process.env.RENDER) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    
+    // Create a virtual path `/uploads` that maps to our uploads directory.
+    app.use('/uploads', express.static(uploadsDir));
 
-        res.sendFile(path.join(frontendBuildPath, 'index.html'));
+    // 2. Serve the built frontend application.
+    // The frontend build output is expected to be in a `dist` folder at the project root.
+    const frontendDistPath = path.join(__dirname, '..', '..', 'dist');
+    app.use(express.static(frontendDistPath));
+
+    // 3. SPA Fallback.
+    // For any request that doesn't match an API route or a static file,
+    // serve the `index.html` file. This is crucial for client-side routing.
+    app.get('*', (req: express.Request, res: express.Response) => {
+        // Prevent API 404s from being served index.html
+        if (req.path.startsWith('/api/')) {
+            return res.status(404).json({ message: 'API endpoint not found.' });
+        }
+        const indexPath = path.join(frontendDistPath, 'index.html');
+        // Check if index.html exists before sending
+        if (fs.existsSync(indexPath)) {
+            res.sendFile(indexPath);
+        } else {
+            res.status(404).send('Frontend application not found. Have you run the build script?');
+        }
     });
     
-    // Global error handler
-    // FIX: Use named express types to resolve property access and overload errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-        console.error(err.stack);
-        res.status(500).send('Something broke!');
+    // Start the combined HTTP/WebSocket server
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
-
-    // Use the http server to listen, which handles both HTTP and WebSocket traffic.
-    server.listen(Number(PORT), '0.0.0.0', () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  } catch(error) {
-    console.error("Failed to start server:", error);
-    (process as any).exit(1);
+    
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
 };
 

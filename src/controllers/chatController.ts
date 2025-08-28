@@ -1,9 +1,11 @@
 
 
 
+
+
 // controllers/chatController.ts
-// FIX: Replaced express default import with named type imports to resolve type conflicts.
-import { Response } from 'express';
+// FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Response`) and resolve type conflicts.
+import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -11,8 +13,8 @@ import { sendTelegramNotification } from '../services/notificationService.js';
 import { sendMessageToUser } from '../services/websocketService.js';
 
 // Get all conversations for the current user
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const getConversations = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
 
     const query = `
@@ -57,8 +59,8 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 };
 
 // Get all messages for a specific conversation (ad + other user)
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const getMessages = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
 
@@ -82,8 +84,8 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 };
 
 // Send a new message
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const sendMessage = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
 

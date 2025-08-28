@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,7 +6,13 @@ import pool from '../db.js';
 
 // Helper constants for file paths
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Correctly navigate from dist/src/services/storageService.js to the backend root directory.
+const backendRoot = path.join(path.dirname(__filename), '..', '..', '..');
+
+// Use Render's persistent disk path if available, otherwise use a local `public` folder.
+const uploadsBaseDir = process.env.RENDER ? '/var/data' : path.join(backendRoot, 'public');
+const uploadsDir = path.join(uploadsBaseDir, 'uploads');
+
 
 let settingsCache: Record<string, string> | null = null;
 let cacheTimestamp = 0;
@@ -31,25 +36,18 @@ async function getSettings(): Promise<Record<string, string>> {
 
 async function uploadToLocal(file: any): Promise<string> {
     const newFileName = `${cuid()}${path.extname(file.name)}`;
-    // The compiled file is in dist/src/services, so we need to go up three levels to reach the 'backend' root.
-    const newPath = path.join(__dirname, '..', '..', '..', 'public', 'uploads', newFileName);
+    const newPath = path.join(uploadsDir, newFileName);
+
+    // Ensure the target directory exists.
+    fs.mkdirSync(path.dirname(newPath), { recursive: true });
     
     // renameSync is faster as it's a metadata change on the same filesystem.
     // formidable puts files in a temp directory which should be on the same partition.
     fs.renameSync(file.path, newPath);
     
-    // The backend URL must be set in the environment for images to be accessible.
-    // e.g., BACKEND_URL=https://taxa-backend.onrender.com
-    const backendUrl = process.env.BACKEND_URL;
+    // Always return a relative URL path. The frontend is responsible for creating the full URL.
     const publicPath = `/uploads/${newFileName}`;
-    
-    if (!backendUrl) {
-        console.warn('BACKEND_URL environment variable is not set. Image URLs will be relative, which may not work if frontend and backend are on different domains.');
-        return publicPath;
-    }
-    
-    // Return the full, absolute URL for the client.
-    return `${backendUrl}${publicPath}`;
+    return publicPath;
 }
 
 async function uploadToS3(file: any, settings: Record<string, string>): Promise<string> {

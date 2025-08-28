@@ -1,8 +1,10 @@
 
 
 
-// FIX: Replaced express default import with named type imports to resolve type conflicts.
-import { Request, Response } from 'express';
+
+
+// FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Request`) and resolve type conflicts.
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -11,8 +13,8 @@ import { User } from '../types.js';
 import crypto from 'crypto';
 import { updateLocationFromIp } from '../services/locationService.js';
 
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const register = async (req: Request, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -50,8 +52,8 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const login = async (req: Request, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -88,8 +90,8 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// FIX: Use named express types for request and response handlers to resolve property errors.
-export const telegramLogin = async (req: Request, res: Response) => {
+// FIX: Use qualified express types for request and response handlers to resolve property errors.
+export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
