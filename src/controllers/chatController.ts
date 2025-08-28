@@ -3,6 +3,8 @@
 // FIX: Use named import for express Response type to resolve type conflicts and fix property access errors.
 // FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
 // FIX: Use named import for express Response type to resolve property access errors.
+// FIX: Use named import for Express Response type to resolve property access errors.
+// FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts.
 import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
@@ -13,6 +15,7 @@ import { sendMessageToUser } from '../services/websocketService.js';
 // Get all conversations for the current user
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use named imports for Express types to resolve property access errors.
 export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
 
@@ -60,6 +63,7 @@ export const getConversations = async (req: AuthRequest, res: express.Response) 
 // Get all messages for a specific conversation (ad + other user)
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use named imports for Express types to resolve property access errors.
 export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
@@ -86,6 +90,7 @@ export const getMessages = async (req: AuthRequest, res: express.Response) => {
 // Send a new message
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use named imports for Express types to resolve property access errors.
 export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;

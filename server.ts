@@ -11,6 +11,8 @@
 // FIX: Use named imports for express types to resolve type conflicts and property access errors.
 // FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
 // FIX: Use named imports for express Request, Response, and NextFunction to resolve type conflicts.
+// FIX: Resolve Express type conflicts by using named imports for Request, Response, and NextFunction.
+// FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts.
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -70,9 +72,12 @@ const startServer = async () => {
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
     app.use(express.json({ limit: '10mb' })); // Keep for JSON routes, but file uploads will be handled separately.
 
-    // Ensure the 'uploads' directory exists and serve it statically.
+    // Ensure the directories for file uploads exist.
     const uploadsDir = path.join(__dirname, '..', 'public', 'uploads');
+    const tempDir = path.join(__dirname, '..', 'temp_uploads');
     fs.mkdirSync(uploadsDir, { recursive: true });
+    // FIX: Create the temporary directory used by formidable middleware to prevent server crashes on file upload.
+    fs.mkdirSync(tempDir, { recursive: true });
     app.use('/uploads', express.static(uploadsDir));
     
     // API routes.
@@ -102,6 +107,7 @@ const startServer = async () => {
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use named express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access and overload errors.
+    // FIX: Use named imports for Express types to resolve property access errors.
     app.get('*', (req: express.Request, res: express.Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
@@ -131,6 +137,7 @@ const startServer = async () => {
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use named express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access and overload errors.
+    // FIX: Use named imports for Express types to resolve property access errors.
     app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');

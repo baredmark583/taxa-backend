@@ -130,6 +130,14 @@ const createFollowTableQuery = `
   );
 `;
 
+const createConfigurationTableQuery = `
+  CREATE TABLE "Configuration" (
+      "key" TEXT NOT NULL PRIMARY KEY,
+      "value" TEXT
+  );
+`;
+
+
 const checkTableExists = async (tableName: string): Promise<boolean> => {
   const res = await pool.query(
     "SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = $1)",
@@ -230,6 +238,40 @@ const createAdminUserIfNotExists = async () => {
     }
 };
 
+const initializeConfiguration = async () => {
+    await createTableIfNotExists('Configuration', createConfigurationTableQuery);
+
+    const configDefaults = {
+        'storage_provider': 'local',
+        's3_bucket': '',
+        's3_region': '',
+        's3_access_key_id': '',
+        's3_secret_access_key': '',
+        'gcs_bucket': '',
+        'gcs_project_id': '',
+        'gcs_credentials': '',
+    };
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        for (const [key, value] of Object.entries(configDefaults)) {
+            await client.query(
+                `INSERT INTO "Configuration" (key, value) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING`,
+                [key, value]
+            );
+        }
+        await client.query('COMMIT');
+    } catch (e) {
+        await client.query('ROLLBACK');
+        throw e;
+    } finally {
+        client.release();
+    }
+    console.log('Configuration initialized.');
+};
+
+
 export const initializeDatabase = async () => {
   console.log('Checking database schema...');
 
@@ -264,6 +306,9 @@ export const initializeDatabase = async () => {
   // Question/Answer pair (Question must exist before Answer)
   await createTableIfNotExists('Question', createQuestionTableQuery);
   await createTableIfNotExists('Answer', createAnswerTableQuery);
+
+  // Add settings table
+  await initializeConfiguration();
 
   // Ensure admin user exists
   await createAdminUserIfNotExists();

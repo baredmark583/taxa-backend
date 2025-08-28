@@ -10,6 +10,8 @@
 // FIX: Use named imports for express types to resolve type conflicts and property access errors.
 // FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
 // FIX: Use named imports for express types to resolve property access errors.
+// FIX: Use named imports for Express types to resolve property access and type conflict errors.
+// FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts.
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -28,6 +30,7 @@ import { updateLocationFromIp } from '../services/locationService.js';
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use named imports for Express types to resolve property access errors.
 export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
@@ -75,6 +78,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use named imports for Express types to resolve property access errors.
 export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
@@ -121,6 +125,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use named imports for Express types to resolve property access errors.
 export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;

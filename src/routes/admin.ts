@@ -1,6 +1,6 @@
 import express from 'express';
 // FIX: Added getStats to the import list.
-import { getAds, getUsers, deleteAd, deleteUser, getStats, updateAd, updateUser, getAnalytics } from '../controllers/adminController.js';
+import { getAds, getUsers, deleteAd, deleteUser, getStats, updateAd, updateUser, getAnalytics, getSettings, updateSettings } from '../controllers/adminController.js';
 import { adminAuthMiddleware } from '../middleware/adminAuth.js';
 
 const router = express.Router();
@@ -11,6 +11,10 @@ router.use(adminAuthMiddleware);
 // Add a new route for the admin dashboard statistics.
 router.get('/stats', getStats);
 router.get('/analytics', getAnalytics);
+
+// Settings routes
+router.get('/settings', getSettings);
+router.put('/settings', updateSettings);
 
 
 router.get('/users', getUsers);
