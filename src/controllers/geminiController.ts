@@ -1,5 +1,5 @@
 // FIX: Switched to named, type-only imports to resolve type conflicts.
-import type { Response } from 'express';
+import { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Added editImageWithGemini to imports.
 import { generateAdDetailsFromImage, editImageWithGemini } from '../services/geminiService.js';

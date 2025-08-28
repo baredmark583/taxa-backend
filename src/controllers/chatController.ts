@@ -1,6 +1,6 @@
 // controllers/chatController.ts
 // FIX: Switched to named, type-only imports for Express types to resolve conflicts.
-import type { Response } from 'express';
+import { Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';

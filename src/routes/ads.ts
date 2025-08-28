@@ -1,6 +1,6 @@
 import express from 'express';
 // FIX: Use named, type-only imports for Express types in the error handler.
-import type { Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { getAllAds, createAd, getAdById, updateAdStatus, updateAd } from '../controllers/adController.js';
 import { authMiddleware, type AuthRequest } from '../middleware/auth.js';
 import { upload } from '../services/cloudinaryService.js';

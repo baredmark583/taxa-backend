@@ -95,7 +95,8 @@ const startServer = async () => {
         
         // The "catchall" handler: for any request that doesn't match an API route,
         // send back the main index.html file from the React build.
-        app.get('*', (req, res) => {
+        // FIX: Explicitly type req and res to resolve overload errors.
+        app.get('*', (req: express.Request, res: express.Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
         });
     } else {
@@ -113,7 +114,8 @@ const startServer = async () => {
     
   } catch (error) {
     console.error("Failed to start server:", error);
-    process.exit(1);
+    // FIX: Cast process to any to access exit method, avoiding a type error.
+    (process as any).exit(1);
   }
 };
 

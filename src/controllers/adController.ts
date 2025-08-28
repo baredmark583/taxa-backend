@@ -1,5 +1,5 @@
 // FIX: Switched to named, type-only imports to resolve type conflicts.
-import type { Request, Response } from 'express';
+import { Request, Response } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import pool from '../db.js';
