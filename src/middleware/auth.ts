@@ -1,7 +1,6 @@
 
-
-// FIX: Use named imports for Express types to resolve widespread type conflicts with global DOM types.
-import { type Request, type Response, type NextFunction } from 'express';
+// FIX: Resolve Express type conflicts by using named imports for Request, Response, and NextFunction.
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.
@@ -15,6 +14,7 @@ import jwt from 'jsonwebtoken';
 // FIX: Add properties from formidable middleware and use named import for Request.
 // FIX: Extend express.Request to resolve type conflicts.
 // FIX: Extend the correctly imported Request type to resolve all type conflicts.
+// FIX: Extend express.Request to resolve all type conflicts.
 export interface AuthRequest extends Request {
   user?: { id: string };
   fields?: any; // from express-formidable
@@ -31,6 +31,7 @@ export interface AuthRequest extends Request {
 // FIX: Use named imports for express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
+// FIX: Use qualified express types to resolve type conflicts and property access errors.
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 

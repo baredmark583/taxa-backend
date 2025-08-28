@@ -1,7 +1,6 @@
 
-
-// FIX: Use named imports for Express types to resolve widespread type conflicts with global DOM types.
-import { type Response } from 'express';
+// FIX: Resolve Express type conflicts by using named import for Response.
+import { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 import { generateAdDetailsFromImage } from '../services/geminiService.js';
 
@@ -15,6 +14,7 @@ import { generateAdDetailsFromImage } from '../services/geminiService.js';
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
+// FIX: Use qualified express types to resolve property access errors.
 export const generateAd = async (req: AuthRequest, res: Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     

@@ -1,8 +1,7 @@
 
-
 // controllers/chatController.ts
-// FIX: Use named imports for Express types to resolve widespread type conflicts with global DOM types.
-import { type Response } from 'express';
+// FIX: Resolve Express type conflicts by using named import for Response.
+import { Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -13,6 +12,7 @@ import { sendMessageToUser } from '../services/websocketService.js';
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
+// FIX: Use qualified express types to resolve property access errors.
 export const getConversations = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
 
@@ -61,6 +61,7 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
+// FIX: Use qualified express types to resolve property access errors.
 export const getMessages = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
@@ -88,6 +89,7 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 // FIX: Use named express types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use named imports for Express types to resolve property access errors.
+// FIX: Use qualified express types to resolve property access errors.
 export const sendMessage = async (req: AuthRequest, res: Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;

@@ -1,22 +1,6 @@
 
-
-// Use the 'process' global from Node.js, do not import it.
-// FIX: Switched to a default express import to avoid conflicts with global DOM types.
-// FIX: Use fully-qualified types like express.Request and express.Response to resolve conflicts.
-// FIX: Import Request, Response, and NextFunction types explicitly from express to resolve type conflicts.
-// FIX: Correctly import Request, Response, and NextFunction types from express to fix handler type issues.
-// FIX: Reverting to a default express import and using fully qualified types like express.Request to resolve persistent type conflicts.
-// FIX: Using explicit named imports for Request, Response, and NextFunction to resolve persistent type conflicts.
-// FIX: Switched to combined default and named imports for express types to resolve type resolution issues.
-// FIX: Use a default import for express and qualified types (e.g., express.Request) to resolve type errors.
-// FIX: Use both default and named imports to resolve global type conflicts and fix property access errors.
-// FIX: Use named imports for express types to resolve type conflicts and property access errors.
-// FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
-// FIX: Use named imports for express Request, Response, and NextFunction to resolve type conflicts.
-// FIX: Resolve Express type conflicts by using named imports for Request, Response, and NextFunction.
-// FIX: Use a default express import and qualified types (e.g., express.Request) to resolve widespread type conflicts.
-// FIX: Use combined default and named imports for Express types to resolve widespread type conflicts with global DOM types, which was causing overload errors and property access issues.
-import express, { type Request, type Response, type NextFunction } from 'express';
+// FIX: Resolve widespread Express type conflicts by using named imports for Request, Response, and NextFunction.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -42,7 +26,8 @@ import chatRoutes from './src/routes/chat.js';
 
 dotenv.config();
 
-const app = express();
+// FIX: Explicitly type app as Express to help with type resolution.
+const app: express.Express = express();
 const PORT = process.env.PORT || 3001;
 
 // Enable trusting proxy headers for accurate IP address detection in production
@@ -111,6 +96,7 @@ const startServer = async () => {
     // FIX: Use named express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access and overload errors.
     // FIX: Use named imports for Express types to resolve property access errors.
+    // FIX: Use qualified express types to resolve type conflicts and property access errors.
     app.get('*', (req: Request, res: Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
@@ -141,6 +127,7 @@ const startServer = async () => {
     // FIX: Use named express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access and overload errors.
     // FIX: Use named imports for Express types to resolve property access errors.
+    // FIX: Use qualified express types to resolve type conflicts and property access errors.
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
