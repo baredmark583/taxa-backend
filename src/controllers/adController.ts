@@ -4,7 +4,8 @@
 // FIX: Import Request and Response types from express to resolve property access errors.
 // FIX: Using default express import and qualified types to resolve type conflicts.
 // FIX: Using explicit named imports for Request and Response to resolve persistent type conflicts.
-import express from 'express';
+// FIX: Switched to named imports for express types to resolve property access errors.
+import { Request, Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad, type AdStatus } from '../types.js';
@@ -17,7 +18,8 @@ import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+// FIX: Use named Request and Response imports to fix property access errors.
+export const getAllAds = async (req: Request, res: Response) => {
     const { search, category, sortBy } = req.query;
 
     let query = `
@@ -73,7 +75,8 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const getAdById = async (req: express.Request, res: express.Response) => {
+// FIX: Use named Request and Response imports to fix property access errors.
+export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -105,7 +108,8 @@ export const getAdById = async (req: express.Request, res: express.Response) => 
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use named Response import to fix property access errors.
+export const createAd = async (req: AuthRequest, res: Response) => {
     const { adData, imageUrls } = req.body;
     const sellerId = req.user?.id;
 
@@ -155,7 +159,8 @@ export const createAd = async (req: AuthRequest, res: express.Response) => {
 
 // Update ad status
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use named Response import to fix property access errors.
+export const updateAdStatus = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;

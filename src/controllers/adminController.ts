@@ -4,7 +4,8 @@
 // FIX: Import Request and Response types from express to resolve property access errors.
 // FIX: Using default express import and qualified types to resolve type conflicts.
 // FIX: Using explicit named imports for Request and Response to resolve persistent type conflicts.
-import express from 'express';
+// FIX: Switched to named imports for express types to resolve property access errors.
+import { Request, Response } from 'express';
 import pool from '../db.js';
 import { AuthRequest } from '../middleware/auth.js';
 
@@ -15,7 +16,8 @@ import { AuthRequest } from '../middleware/auth.js';
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const getStats = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use named Response import to fix property access errors.
+export const getStats = async (req: AuthRequest, res: Response) => {
     try {
         const userCountPromise = pool.query('SELECT COUNT(*) FROM "User"');
         const adCountPromise = pool.query('SELECT COUNT(*) FROM "Ad"');
@@ -52,7 +54,8 @@ export const getStats = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use named Response import to fix property access errors.
+export const getAnalytics = async (req: AuthRequest, res: Response) => {
     try {
         const userAnalyticsPromise = pool.query(`
             SELECT DATE_TRUNC('day', "createdAt")::DATE AS date, COUNT(*) AS count
@@ -90,7 +93,8 @@ export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const getUsers = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use named Response import to fix property access errors.
+export const getUsers = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, status, "createdAt", latitude, longitude, city FROM "User" ORDER BY "createdAt" DESC');
     res.status(200).json(result.rows);
@@ -105,7 +109,8 @@ export const getUsers = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const updateUser = async (req: express.Request, res: express.Response) => {
+// FIX: Use named Request and Response imports to fix property access errors.
+export const updateUser = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { name, role, status } = req.body;
@@ -136,7 +141,8 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const deleteUser = async (req: express.Request, res: express.Response) => {
+// FIX: Use named Request and Response imports to fix property access errors.
+export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     // Optional: First, handle related data, e.g., delete user's ads
@@ -157,7 +163,8 @@ export const deleteUser = async (req: express.Request, res: express.Response) =>
 // FIX: Use explicit Response type from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const getAds = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use named Response import to fix property access errors.
+export const getAds = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(`
         SELECT a.*, u.name as "sellerName"
@@ -178,7 +185,8 @@ export const getAds = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const updateAd = async (req: express.Request, res: express.Response) => {
+// FIX: Use named Request and Response imports to fix property access errors.
+export const updateAd = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { title, description, price, status, isBoosted } = req.body;
@@ -216,7 +224,8 @@ export const updateAd = async (req: express.Request, res: express.Response) => {
 // FIX: Use explicit Request and Response types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const deleteAd = async (req: express.Request, res: express.Response) => {
+// FIX: Use named Request and Response imports to fix property access errors.
+export const deleteAd = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const result = await pool.query('DELETE FROM "Ad" WHERE id = $1', [id]);

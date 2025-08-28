@@ -4,7 +4,8 @@
 // FIX: Import Request, Response, and NextFunction types from express to resolve property access errors.
 // FIX: Using default express import and qualified types to resolve type conflicts.
 // FIX: Using explicit named imports for Request, Response, and NextFunction to resolve persistent type conflicts.
-import express from 'express';
+// FIX: Switched to named imports for express types to resolve property access errors.
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.
@@ -14,7 +15,8 @@ import jwt from 'jsonwebtoken';
 // FIX: Extend the imported Request type from express.
 // FIX: Extending express.Request to resolve type conflicts.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export interface AuthRequest extends express.Request {
+// FIX: Extend the named Request import to fix property access errors.
+export interface AuthRequest extends Request {
   user?: { id: string };
 }
 
@@ -24,7 +26,8 @@ export interface AuthRequest extends express.Request {
 // FIX: Use explicit Response and NextFunction types from express to resolve property access errors.
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-export const authMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+// FIX: Use named Response and NextFunction imports to fix property access errors.
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

@@ -5,7 +5,8 @@
 // FIX: Correctly import Request, Response, and NextFunction types from express to fix handler type issues.
 // FIX: Reverting to a default express import and using fully qualified types like express.Request to resolve persistent type conflicts.
 // FIX: Using explicit named imports for Request, Response, and NextFunction to resolve persistent type conflicts.
-import express from 'express';
+// FIX: Switched to combined default and named imports for express types to resolve type resolution issues.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -71,7 +72,8 @@ const startServer = async () => {
     // FIX: Use explicit Request and Response types from express to resolve property access errors.
     // FIX: Using fully qualified express types to resolve property access and overload errors.
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-    app.get('*', (req: express.Request, res: express.Response) => {
+    // FIX: Use named Request and Response imports to fix property access errors.
+    app.get('*', (req: Request, res: Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api')) {
             return res.status(404).send('API route not found');
@@ -96,13 +98,15 @@ const startServer = async () => {
     // FIX: Use explicit Request, Response, and NextFunction types from express to resolve property access errors.
     // FIX: Using fully qualified express types to resolve property access errors.
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Use named Request, Response, and NextFunction imports to fix property access errors.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
 
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+    // FIX: Listen on '0.0.0.0' to be accessible in containerized environments like Render.
+    app.listen(Number(PORT), '0.0.0.0', () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   } catch(error) {
     console.error("Failed to start server:", error);
