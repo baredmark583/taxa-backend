@@ -1,8 +1,5 @@
 
-// FIX: Use `express` default import and qualify types (e.g., `express.Request`) to resolve conflicts with global DOM types.
-// FIX: Using named type imports to resolve persistent type resolution issues.
-// FIX: Switched to default express import and qualified types to resolve overload and property access errors.
-// FIX: Switched to default express import and qualified types to resolve overload and property access errors.
+// FIX: Use named type imports to resolve persistent type resolution issues.
 import express, { type Request, type Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -97,6 +94,7 @@ const startServer = async () => {
         // The "catchall" handler: for any request that doesn't match an API route,
         // send back the main index.html file from the React build.
         // FIX: Explicitly type req and res to resolve overload errors.
+        // FIX: Use qualified express types to resolve property access errors.
         app.get('*', (req: Request, res: Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
         });

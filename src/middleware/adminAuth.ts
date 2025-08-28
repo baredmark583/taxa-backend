@@ -1,11 +1,11 @@
 
-// FIX: Switched to named, type-only imports for Express types to resolve conflicts.
+// FIX: Using named type imports to resolve persistent type resolution issues.
 import { type Response, type NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import pool from '../db.js';
 
-// FIX: Use named Express types for middleware signature to resolve property errors.
+// FIX: Use qualified express types for middleware signature to resolve property errors.
 export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 

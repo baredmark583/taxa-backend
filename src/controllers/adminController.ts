@@ -1,11 +1,11 @@
 
-// FIX: Switched to named, type-only imports to resolve type conflicts.
+// FIX: Use named type imports to resolve persistent type resolution issues.
 import { type Request, type Response } from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
 // Get dashboard statistics
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getStats = async (req: AuthRequest, res: Response) => {
     try {
         const userCountPromise = pool.query('SELECT COUNT(*) FROM "User"');
@@ -39,7 +39,7 @@ export const getStats = async (req: AuthRequest, res: Response) => {
 };
 
 // Get analytics data for charts
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getAnalytics = async (req: AuthRequest, res: Response) => {
     try {
         const userAnalyticsPromise = pool.query(`
@@ -72,7 +72,7 @@ export const getAnalytics = async (req: AuthRequest, res: Response) => {
 
 
 // Get all users
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getUsers = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, status, "createdAt", latitude, longitude, city FROM "User" ORDER BY "createdAt" DESC');
@@ -84,7 +84,7 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 };
 
 // Update a user
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const updateUser = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -112,7 +112,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
 
 // Delete a user
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
@@ -130,7 +130,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 // Get all ads
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getAds = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(`
@@ -148,7 +148,7 @@ export const getAds = async (req: AuthRequest, res: Response) => {
 
 
 // Update an ad
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const updateAd = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -183,7 +183,7 @@ export const updateAd = async (req: Request, res: Response) => {
 };
 
 // Delete an ad
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const deleteAd = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
@@ -200,7 +200,7 @@ export const deleteAd = async (req: Request, res: Response) => {
 
 
 // Get storage settings
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getSettings = async (req: AuthRequest, res: Response) => {
     try {
         const result = await pool.query('SELECT key, value FROM "Configuration"');
@@ -225,7 +225,7 @@ export const getSettings = async (req: AuthRequest, res: Response) => {
 };
 
 // Update storage settings
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const updateSettings = async (req: AuthRequest, res: Response) => {
     const newSettings = req.body;
     const client = await pool.connect();

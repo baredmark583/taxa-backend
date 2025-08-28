@@ -1,11 +1,11 @@
 
-// FIX: Switched to named, type-only imports for Express types to resolve conflicts.
+// FIX: Use named type imports to resolve persistent type resolution issues.
 import { type Response } from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
 // Get user's favorite ad IDs
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     try {
@@ -18,7 +18,7 @@ export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
 };
 
 // Add an ad to favorites
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const addFavorite = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
@@ -35,7 +35,7 @@ export const addFavorite = async (req: AuthRequest, res: Response) => {
 };
 
 // Remove an ad from favorites
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const removeFavorite = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
@@ -52,7 +52,7 @@ export const removeFavorite = async (req: AuthRequest, res: Response) => {
 };
 
 // Get ads favorited by the user
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     try {

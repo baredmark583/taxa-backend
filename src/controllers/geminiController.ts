@@ -1,11 +1,11 @@
 
-// FIX: Switched to named, type-only imports to resolve type conflicts.
+// FIX: Use named type imports to resolve persistent type resolution issues.
 import { type Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Added editImageWithGemini to imports.
 import { generateAdDetailsFromImage, editImageWithGemini } from '../services/geminiService.js';
 
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const generateAd = async (req: AuthRequest, res: Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     

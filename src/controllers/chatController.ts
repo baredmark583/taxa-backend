@@ -1,6 +1,6 @@
 
 // controllers/chatController.ts
-// FIX: Switched to named, type-only imports for Express types to resolve conflicts.
+// FIX: Use named type imports to resolve persistent type resolution issues.
 import { type Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
@@ -9,7 +9,7 @@ import { sendTelegramNotification } from '../services/notificationService.js';
 import { sendMessageToUser } from '../services/websocketService.js';
 
 // Get all conversations for the current user
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getConversations = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
 
@@ -55,7 +55,7 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 };
 
 // Get all messages for a specific conversation (ad + other user)
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getMessages = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
@@ -80,7 +80,7 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 };
 
 // Send a new message
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const sendMessage = async (req: AuthRequest, res: Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;

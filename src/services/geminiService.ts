@@ -101,7 +101,7 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
         const textPart = { text: editPrompt };
         
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image-preview',
+            model: 'gemini-2.0-flash-preview-image-generation',
             contents: { parts: [imagePart, textPart] },
             config: {
                 responseModalities: [Modality.IMAGE, Modality.TEXT],
@@ -128,13 +128,19 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
             throw new Error('AI did not return an edited image. The image may have been blocked by safety policies.');
         }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error calling Gemini Image Editing API:", error);
+        
+        // Check for rate limit error (status code 429)
+        if (error.status === 429) {
+            throw new Error("Ліміт запитів до AI вичерпано. Спробуйте пізніше або перевірте ваш тарифний план.");
+        }
+
         // Re-throw custom errors to the controller, otherwise throw a generic one.
         if (error instanceof Error && error.message.startsWith('AI did not')) {
             throw error;
         }
-        throw new Error("Failed to edit image. The image may have been blocked. Please try another photo.");
+        throw new Error("Не вдалося відредагувати зображення. Можливо, його було заблоковано. Спробуйте інше фото.");
     }
 };
 

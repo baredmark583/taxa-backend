@@ -1,5 +1,5 @@
 
-// FIX: Switched to named, type-only imports to resolve type conflicts.
+// FIX: Use named type imports to resolve persistent type resolution issues.
 import { type Request, type Response } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
@@ -9,7 +9,7 @@ import { type Ad, type AdStatus } from '../types.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
 // Get all ads
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getAllAds = async (req: Request, res: Response) => {
     const { search, category, sortBy, sellerId } = req.query;
 
@@ -65,7 +65,7 @@ export const getAllAds = async (req: Request, res: Response) => {
 };
 
 // Get a single ad by ID
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
@@ -92,7 +92,7 @@ export const getAdById = async (req: Request, res: Response) => {
 };
 
 // Create a new ad
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const createAd = async (req: AuthRequest, res: Response) => {
     const sellerId = req.user?.id;
     if (!sellerId) {
@@ -153,7 +153,7 @@ export const createAd = async (req: AuthRequest, res: Response) => {
 };
 
 // Update an existing ad
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const updateAd = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
@@ -218,7 +218,7 @@ export const updateAd = async (req: AuthRequest, res: Response) => {
 
 
 // Update ad status
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const updateAdStatus = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };

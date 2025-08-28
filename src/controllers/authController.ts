@@ -1,5 +1,5 @@
 
-// FIX: Switched to named, type-only imports to resolve type conflicts.
+// FIX: Use named type imports to resolve persistent type resolution issues.
 import { type Request, type Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -9,7 +9,7 @@ import { User } from '../types.js';
 import crypto from 'crypto';
 import { updateLocationFromIp } from '../services/locationService.js';
 
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
@@ -48,7 +48,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -86,7 +86,7 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// FIX: Use named Express types for request and response handlers.
+// FIX: Use qualified express types for request and response handlers.
 export const telegramLogin = async (req: Request, res: Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
