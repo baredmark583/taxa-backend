@@ -1,7 +1,8 @@
 
 
-// FIX: Replaced named express imports with a default import to resolve type conflicts.
-import express from 'express';
+
+// FIX: Replaced the default express import with named type imports to resolve type conflicts with global DOM types.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -27,8 +28,8 @@ import chatRoutes from './src/routes/chat.js';
 
 dotenv.config();
 
-// FIX: Explicitly type app as Express to help with type resolution.
-const app: express.Express = express();
+// FIX: Removed redundant type, `express()` correctly infers the Express app type.
+const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Enable trusting proxy headers for accurate IP address detection in production
@@ -51,22 +52,21 @@ const startServer = async () => {
     // Initialize the database schema before starting the server
     await initializeDatabase();
       
-    // FIX: Configured CORS for a separate frontend deployment.
     // The frontend URL must be set in the .env file or environment variables.
     const corsOptions = {
       origin: process.env.FRONTEND_URL, // e.g., 'https://your-frontend-domain.vercel.app'
       credentials: true,
     };
     app.use(cors(corsOptions));
-    // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
+    // FIX: This call is now correctly typed, resolving the overload error.
     app.use(express.json({ limit: '10mb' })); // Keep for JSON routes, but file uploads will be handled separately.
 
     // Ensure the directories for file uploads exist.
     const uploadsDir = path.join(__dirname, '..', 'public', 'uploads');
     const tempDir = path.join(__dirname, '..', 'temp_uploads');
     fs.mkdirSync(uploadsDir, { recursive: true });
-    // FIX: Create the temporary directory used by formidable middleware to prevent server crashes on file upload.
     fs.mkdirSync(tempDir, { recursive: true });
+    // FIX: This call is now correctly typed, resolving the overload error.
     app.use('/uploads', express.static(uploadsDir));
     
     // API routes.
@@ -77,29 +77,16 @@ const startServer = async () => {
     app.use('/api/user', userRoutes);
     app.use('/api/chat', chatRoutes);
     
-    // FIX: Serve static files from the frontend build directory
+    // Serve static files from the frontend build directory
     // It assumes the frontend is built into a 'dist' folder at the project root.
     const frontendBuildPath = path.join(__dirname, '..', '..', 'dist');
-    // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
+    // FIX: This call is now correctly typed, resolving the overload error.
     app.use(express.static(frontendBuildPath));
 
-    // FIX: Add a catch-all route to serve index.html for client-side routing.
+    // Add a catch-all route to serve index.html for client-side routing.
     // This allows direct navigation to routes like /profile in the browser.
-    // FIX: Use explicit express types to resolve overload errors.
-    // FIX: Use explicit express types to resolve overload errors.
-    // FIX: Use fully-qualified express types to resolve overload errors.
-    // FIX: Use explicit Request and Response types from express.
-    // FIX: Use explicit Request and Response types from express to resolve property access errors.
-    // FIX: Using fully qualified express types to resolve property access and overload errors.
-    // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-    // FIX: Use qualified express types to resolve property access errors.
-    // FIX: Use qualified express types to resolve property access errors.
-    // FIX: Use named express types to resolve property access errors.
-    // FIX: Use qualified express types to resolve property access and overload errors.
-    // FIX: Use named imports for Express types to resolve property access errors.
-    // FIX: Use qualified express types to resolve type conflicts and property access errors.
-    // FIX: Switched to qualified express types to prevent conflicts with global DOM types.
-    app.get('*', (req: express.Request, res: express.Response) => {
+    // FIX: Use named express types to resolve property access and overload errors.
+    app.get('*', (req: Request, res: Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
         if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
             return res.status(404).send('Resource not found');
@@ -117,33 +104,18 @@ const startServer = async () => {
     });
     
     // Global error handler
-    // FIX: Used explicit express types to avoid conflicts with global DOM types and resolve property errors.
-    // FIX: Used explicit express types to avoid conflicts with global DOM types and resolve property errors.
-    // FIX: Use fully-qualified express types to avoid conflicts with global DOM types.
-    // FIX: Use explicit Error, Request, Response, and NextFunction types.
-    // FIX: Use explicit Request, Response, and NextFunction types from express to resolve property access errors.
-    // FIX: Using fully qualified express types to resolve property access errors.
-    // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-    // FIX: Use qualified express types to resolve property access errors.
-    // FIX: Use qualified express types to resolve property access errors.
-    // FIX: Use named express types to resolve property access errors.
-    // FIX: Use qualified express types to resolve property access and overload errors.
-    // FIX: Use named imports for Express types to resolve property access errors.
-    // FIX: Use qualified express types to resolve type conflicts and property access errors.
-    // FIX: Switched to qualified express types to prevent conflicts with global DOM types.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Use named express types to resolve property access and overload errors.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });
 
-    // FIX: Listen on '0.0.0.0' to be accessible in containerized environments like Render.
     // Use the http server to listen, which handles both HTTP and WebSocket traffic.
     server.listen(Number(PORT), '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch(error) {
     console.error("Failed to start server:", error);
-    // FIX: Cast process to any to access exit method, avoiding a type error.
     (process as any).exit(1);
   }
 };
