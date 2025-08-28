@@ -10,7 +10,8 @@
 // FIX: Use both default and named imports to resolve global type conflicts and fix property access errors.
 // FIX: Use named imports for express types to resolve type conflicts and property access errors.
 // FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
-import express from 'express';
+// FIX: Use named imports for express Request, Response, and NextFunction to resolve type conflicts.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -19,6 +20,8 @@ import { fileURLToPath } from 'url';
 // Added http and ws imports for WebSocket server setup.
 import http from 'http';
 import { WebSocketServer } from 'ws';
+// Import fs to handle file system operations.
+import fs from 'fs';
 // Added .js extension to local imports for ES module resolution.
 import { initializeDatabase } from './src/db-init.js';
 import { handleConnection } from './src/services/websocketService.js';
@@ -65,8 +68,13 @@ const startServer = async () => {
     };
     app.use(cors(corsOptions));
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-    app.use(express.json({ limit: '10mb' })); // Increase limit for base64 images
+    app.use(express.json({ limit: '10mb' })); // Keep for JSON routes, but file uploads will be handled separately.
 
+    // Ensure the 'uploads' directory exists and serve it statically.
+    const uploadsDir = path.join(__dirname, '..', 'public', 'uploads');
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    app.use('/uploads', express.static(uploadsDir));
+    
     // API routes.
     app.use('/api/auth', authRoutes);
     app.use('/api/ads', adRoutes);
@@ -92,10 +100,11 @@ const startServer = async () => {
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access errors.
-    app.get('*', (req: express.Request, res: express.Response) => {
+    // FIX: Use named express types to resolve property access errors.
+    app.get('*', (req: Request, res: Response) => {
         // Check if the request is for an API route, if so, do not serve index.html
-        if (req.originalUrl.startsWith('/api')) {
-            return res.status(404).send('API route not found');
+        if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
+            return res.status(404).send('Resource not found');
         }
         
         // If the request has a file extension, it's likely for a static asset
@@ -119,7 +128,8 @@ const startServer = async () => {
     // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access errors.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Use named express types to resolve property access errors.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
     });

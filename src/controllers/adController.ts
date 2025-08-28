@@ -9,11 +9,20 @@
 // FIX: Use explicit named imports for Request and Response to resolve type conflicts with global DOM types.
 // FIX: Use named imports for express types to resolve type conflicts and property access errors.
 // FIX: Use default express import and qualified types like express.Request to resolve all type conflicts.
-import express from 'express';
+// FIX: Use named imports for express types to resolve property access errors.
+import { Request, Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad, type AdStatus } from '../types.js';
 import { type AuthRequest } from '../middleware/auth.js';
+// Import Node.js modules for file handling
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Helper constants for file paths
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Get all ads
 // FIX: Use explicit express types for request and response handlers to resolve property errors.
@@ -23,7 +32,8 @@ import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 // FIX: Use qualified express types to resolve property access errors.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+// FIX: Use named express types to resolve property access errors.
+export const getAllAds = async (req: Request, res: Response) => {
     const { search, category, sortBy, sellerId } = req.query;
 
     let query = `
@@ -85,7 +95,8 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 // FIX: Using fully qualified express types to resolve property access errors.
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 // FIX: Use qualified express types to resolve property access errors.
-export const getAdById = async (req: express.Request, res: express.Response) => {
+// FIX: Use named express types to resolve property access errors.
+export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -111,32 +122,48 @@ export const getAdById = async (req: express.Request, res: express.Response) => 
 };
 
 // Create a new ad
-// FIX: Use explicit express.Response type. AuthRequest is correctly typed from its definition.
-// FIX: Use fully-qualified express.Response type.
-// FIX: Use explicit AuthRequest and Response types.
-// FIX: Use explicit Response type from express to resolve property access errors.
-// FIX: Using fully qualified express types to resolve property access errors.
-// FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
-// FIX: Use qualified express.Response type to fix property access errors.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
-    const { adData, imageUrls } = req.body;
+// FIX: Rewritten to handle multipart/form-data for file uploads instead of base64 strings.
+// FIX: Use named express types to resolve property access errors.
+export const createAd = async (req: AuthRequest, res: Response) => {
     const sellerId = req.user?.id;
-
     if (!sellerId) {
         return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    if (!adData || !imageUrls || imageUrls.length === 0) {
-        return res.status(400).json({ message: 'Ad data and at least one image URL are required' });
-    }
-    
-    const { title, description, price, category, location, tags } = adData;
+    // `express-formidable` places fields in `req.fields` and files in `req.files`.
+    const { adData: adDataString } = req.fields as { adData: string };
+    const imageFiles = req.files?.images; // 'images' is the key from FormData
 
-    if (!title || !description || !price || !category || !location || !tags) {
-        return res.status(400).json({ message: 'All ad fields are required' });
+    if (!adDataString) {
+        return res.status(400).json({ message: 'Ad data is required' });
     }
 
     try {
+        const adData = JSON.parse(adDataString);
+        const { title, description, price, category, location, tags } = adData;
+        
+        if (!title || !description || !price || !category || !location || !tags) {
+            return res.status(400).json({ message: 'All ad fields are required' });
+        }
+
+        const imageUrls: string[] = [];
+        const filesToProcess = Array.isArray(imageFiles) ? imageFiles : (imageFiles ? [imageFiles] : []);
+        
+        if (filesToProcess.length === 0) {
+            return res.status(400).json({ message: 'At least one image is required' });
+        }
+
+        // Process and move uploaded files
+        for (const file of filesToProcess) {
+            if (file.size > 0) {
+                const newFileName = `${cuid()}${path.extname(file.name)}`;
+                const newPath = path.join(__dirname, '..', '..', 'public', 'uploads', newFileName);
+                fs.renameSync(file.path, newPath);
+                // Construct the public URL to be stored in the DB
+                imageUrls.push(`/uploads/${newFileName}`);
+            }
+        }
+        
         const adId = cuid();
         const newAdResult = await pool.query(
             `INSERT INTO "Ad" (id, title, description, price, category, location, tags, "imageUrls", "sellerId", "updatedAt") 
@@ -167,20 +194,45 @@ export const createAd = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Update an existing ad
-// FIX: Use qualified express.Response type to fix property access errors.
-export const updateAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Rewritten to handle multipart/form-data for potential new image uploads.
+// FIX: Use named express types to resolve property access errors.
+export const updateAd = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const { title, description, price, category, location, tags, imageUrls } = req.body;
     const userId = req.user?.id;
+    
+    const { adData: adDataString } = req.fields as { adData: string };
+    const imageFiles = req.files?.images; // New images being uploaded
 
     try {
-        const adResult = await pool.query('SELECT "sellerId" FROM "Ad" WHERE id = $1', [id]);
+        const adResult = await pool.query('SELECT "sellerId", "imageUrls" FROM "Ad" WHERE id = $1', [id]);
         if (adResult.rows.length === 0) {
             return res.status(404).json({ message: 'Ad not found.' });
         }
         if (adResult.rows[0].sellerId !== userId) {
             return res.status(403).json({ message: 'You are not authorized to update this ad.' });
         }
+
+        const adData = JSON.parse(adDataString);
+        const { title, description, price, category, location, tags, existingImageUrls } = adData;
+        
+        const newImageUrls: string[] = [];
+        const filesToProcess = Array.isArray(imageFiles) ? imageFiles : (imageFiles ? [imageFiles] : []);
+
+        // Process and move any newly uploaded files
+        for (const file of filesToProcess) {
+            if (file.size > 0) {
+                const newFileName = `${cuid()}${path.extname(file.name)}`;
+                const newPath = path.join(__dirname, '..', '..', 'public', 'uploads', newFileName);
+                fs.renameSync(file.path, newPath);
+                newImageUrls.push(`/uploads/${newFileName}`);
+            }
+        }
+        
+        // Combine existing URLs (that weren't deleted on the client) with new URLs
+        const finalImageUrls = [...(existingImageUrls || []), ...newImageUrls];
+
+        // Here you might want to delete old images from the filesystem that are no longer in `finalImageUrls`
+        // For simplicity, this step is omitted, but in a production app it's important to avoid orphaned files.
 
         const updateResult = await pool.query(
             `UPDATE "Ad" SET 
@@ -193,7 +245,7 @@ export const updateAd = async (req: AuthRequest, res: express.Response) => {
                 "imageUrls" = $7, 
                 "updatedAt" = $8 
              WHERE id = $9 RETURNING *`,
-            [title, description, price, category, location, tags, imageUrls, new Date(), id]
+            [title, description, price, category, location, tags, finalImageUrls, new Date(), id]
         );
 
         const finalAdResult = await pool.query(`
@@ -220,7 +272,8 @@ export const updateAd = async (req: AuthRequest, res: express.Response) => {
 // Update ad status
 // FIX: Use `express` namespace for types to avoid conflicts with global DOM types.
 // FIX: Use qualified express.Response type to fix property access errors.
-export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use named express types to resolve property access errors.
+export const updateAdStatus = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;
