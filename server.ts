@@ -1,5 +1,6 @@
 // FIX: Use `express` default import and qualify types (e.g., `express.Request`) to resolve conflicts with global DOM types.
-import express from 'express';
+// FIX: Using named type imports to resolve persistent type resolution issues.
+import express, { type Request, type Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -58,9 +59,6 @@ const startServer = async () => {
     // FIX: This call is now correctly typed, resolving the overload error on line 59.
     app.use(express.json({ limit: '10mb' })); // Keep for JSON routes, but file uploads will be handled separately.
 
-    const tempDir = path.join(__dirname, '..', 'temp_uploads');
-    fs.mkdirSync(tempDir, { recursive: true });
-    
     // API routes must be registered before the static file handlers
     app.use('/api/auth', authRoutes);
     app.use('/api/ads', adRoutes);
@@ -70,32 +68,19 @@ const startServer = async () => {
     app.use('/api/chat', chatRoutes);
 
     // --- Static File Serving ---
-    // This logic handles serving user uploads and the frontend application.
+    // This logic handles serving the frontend application.
+    // User uploads are now handled by an external service (Cloudinary).
 
-    // 1. Serve user-uploaded content.
-    // On Render, this points to a persistent disk. Locally, it's a `public` directory inside `backend`.
-    const uploadsDir = process.env.RENDER
-        ? '/var/data/uploads'
-        : path.join(__dirname, '..', 'public', 'uploads');
-        
-    // Ensure the uploads directory exists, both locally and on Render.
-    // This is safer to do on startup than on every file upload.
-    fs.mkdirSync(uploadsDir, { recursive: true });
-    
-    // Create a virtual path `/uploads` that maps to our uploads directory.
-    // FIX: Correctly typed call resolves overload error on line 86.
-    app.use('/uploads', express.static(uploadsDir));
-
-    // 2. Serve the built frontend application.
+    // 1. Serve the built frontend application.
     // The frontend build output is expected to be in a `dist` folder at the project root.
     const frontendDistPath = path.join(__dirname, '..', '..', 'dist');
     app.use(express.static(frontendDistPath));
 
-    // 3. SPA Fallback.
+    // 2. SPA Fallback.
     // For any request that doesn't match an API route or a static file,
     // serve the `index.html` file. This is crucial for client-side routing.
     // FIX: Correctly typed handler resolves overload error on line 91 and property access errors within the handler.
-    app.get('*', (req: express.Request, res: express.Response) => {
+    app.get('*', (req: Request, res: Response) => {
         // Prevent API 404s from being served index.html
         if (req.path.startsWith('/api/')) {
             return res.status(404).json({ message: 'API endpoint not found.' });

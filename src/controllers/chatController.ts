@@ -1,6 +1,6 @@
 // controllers/chatController.ts
 // FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Response`) and resolve type conflicts.
-import express from 'express';
+import type { Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -9,7 +9,7 @@ import { sendMessageToUser } from '../services/websocketService.js';
 
 // Get all conversations for the current user
 // FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
-export const getConversations = async (req: AuthRequest, res: express.Response) => {
+export const getConversations = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
 
     const query = `
@@ -55,7 +55,7 @@ export const getConversations = async (req: AuthRequest, res: express.Response) 
 
 // Get all messages for a specific conversation (ad + other user)
 // FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params` and `res.status`.
-export const getMessages = async (req: AuthRequest, res: express.Response) => {
+export const getMessages = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
 
@@ -80,7 +80,7 @@ export const getMessages = async (req: AuthRequest, res: express.Response) => {
 
 // Send a new message
 // FIX: Use qualified express types for request and response handlers to resolve property errors on `req.body` and `res.status`.
-export const sendMessage = async (req: AuthRequest, res: express.Response) => {
+export const sendMessage = async (req: AuthRequest, res: Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
 

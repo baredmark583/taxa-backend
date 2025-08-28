@@ -1,16 +1,15 @@
 // FIX: Replaced named type imports with a default import to use qualified types (e.g., `express.Request`) and resolve type conflicts.
-import express from 'express';
+import type { Request, Response } from 'express';
+// FIX: Added 'multer' import to make Express.Multer.File type available.
+import 'multer';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type Ad, type AdStatus } from '../types.js';
 import { type AuthRequest } from '../middleware/auth.js';
-import * as storageService from '../services/storageService.js';
-import fs from 'fs';
-
 
 // Get all ads
 // FIX: Use qualified express types for request and response handlers to resolve property errors on `req.query` and `res.status`.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+export const getAllAds = async (req: Request, res: Response) => {
     const { search, category, sortBy, sellerId } = req.query;
 
     let query = `
@@ -66,7 +65,7 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 
 // Get a single ad by ID
 // FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params` and `res.status`.
-export const getAdById = async (req: express.Request, res: express.Response) => {
+export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -93,22 +92,19 @@ export const getAdById = async (req: express.Request, res: express.Response) => 
 
 // Create a new ad
 // FIX: Use qualified express types for request and response handlers to resolve property errors on `res.status`.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+export const createAd = async (req: AuthRequest, res: Response) => {
     const sellerId = req.user?.id;
     if (!sellerId) {
         return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // `express-formidable` places fields in `req.fields` and files in `req.files`.
-    const { adData: adDataString } = req.fields as { adData: string };
-    const imageFiles = req.files?.images; // 'images' is the key from FormData
+    // With `multer`, text fields are in `req.body` and files in `req.files`.
+    const { adData: adDataString } = req.body as { adData: string };
+    const imageFiles = req.files as Express.Multer.File[];
 
     if (!adDataString) {
         return res.status(400).json({ message: 'Ad data is required' });
     }
-
-    const filesToProcess = Array.isArray(imageFiles) ? imageFiles : (imageFiles ? [imageFiles] : []);
-    const uploadedUrls: string[] = [];
 
     try {
         const adData = JSON.parse(adDataString);
@@ -118,17 +114,13 @@ export const createAd = async (req: AuthRequest, res: express.Response) => {
             return res.status(400).json({ message: 'All ad fields are required' });
         }
         
-        if (filesToProcess.length === 0) {
+        if (!imageFiles || imageFiles.length === 0) {
             return res.status(400).json({ message: 'At least one image is required' });
         }
 
-        // Process and upload files using the storage service
-        for (const file of filesToProcess) {
-            if (file.size > 0) {
-                const publicUrl = await storageService.uploadFile(file);
-                uploadedUrls.push(publicUrl);
-            }
-        }
+        // The files are already uploaded to Cloudinary by the middleware.
+        // `file.path` now contains the public URL from Cloudinary.
+        const uploadedUrls = imageFiles.map(file => file.path);
         
         const adId = cuid();
         const newAdResult = await pool.query(
@@ -161,15 +153,13 @@ export const createAd = async (req: AuthRequest, res: express.Response) => {
 
 // Update an existing ad
 // FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params` and `res.status`.
-export const updateAd = async (req: AuthRequest, res: express.Response) => {
+export const updateAd = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
     
-    const { adData: adDataString } = req.fields as { adData: string };
-    const imageFiles = req.files?.images; // New images being uploaded
-    const filesToProcess = Array.isArray(imageFiles) ? imageFiles : (imageFiles ? [imageFiles] : []);
-    const newImageUrls: string[] = [];
-
+    const { adData: adDataString } = req.body as { adData: string };
+    const newImageFiles = req.files as Express.Multer.File[];
+    
     try {
         const adResult = await pool.query('SELECT "sellerId", "imageUrls" FROM "Ad" WHERE id = $1', [id]);
         if (adResult.rows.length === 0) {
@@ -182,19 +172,14 @@ export const updateAd = async (req: AuthRequest, res: express.Response) => {
         const adData = JSON.parse(adDataString);
         const { title, description, price, category, location, tags, existingImageUrls } = adData;
         
-        // Process and upload any newly uploaded files
-        for (const file of filesToProcess) {
-            if (file.size > 0) {
-                const publicUrl = await storageService.uploadFile(file);
-                newImageUrls.push(publicUrl);
-            }
-        }
+        // Get URLs of newly uploaded images from Cloudinary
+        const newImageUrls = newImageFiles.map(file => file.path);
         
         // Combine existing URLs (that weren't deleted on the client) with new URLs
         const finalImageUrls = [...(existingImageUrls || []), ...newImageUrls];
 
-        // Here you might want to delete old images from the filesystem that are no longer in `finalImageUrls`
-        // For simplicity, this step is omitted, but in a production app it's important to avoid orphaned files.
+        // TODO in a real app: Delete old images from Cloudinary that are no longer in `finalImageUrls`
+        // This requires using the Cloudinary Admin API.
 
         const updateResult = await pool.query(
             `UPDATE "Ad" SET 
@@ -233,7 +218,7 @@ export const updateAd = async (req: AuthRequest, res: express.Response) => {
 
 // Update ad status
 // FIX: Use qualified express types for request and response handlers to resolve property errors on `req.params`, `req.body`, and `res.status`.
-export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
+export const updateAdStatus = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;
