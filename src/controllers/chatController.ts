@@ -1,6 +1,7 @@
 
-// FIX: Use default express import to enable qualified type usage (e.g., express.Response) which resolves type errors.
-import express from 'express';
+
+// FIX: Import explicit types from express to resolve type conflicts and property access errors.
+import { type Response } from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -8,8 +9,8 @@ import { sendTelegramNotification } from '../services/notificationService.js';
 import { sendMessageToUser } from '../services/websocketService.js';
 
 // Get all conversations for the current user
-// FIX: Use qualified express types for request and response handlers.
-export const getConversations = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported express types for request and response handlers.
+export const getConversations = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
 
     const query = `
@@ -54,8 +55,8 @@ export const getConversations = async (req: AuthRequest, res: express.Response) 
 };
 
 // Get all messages for a specific conversation (ad + other user)
-// FIX: Use qualified express types for request and response handlers.
-export const getMessages = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported express types for request and response handlers.
+export const getMessages = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
 
@@ -79,8 +80,8 @@ export const getMessages = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Send a new message
-// FIX: Use qualified express types for request and response handlers.
-export const sendMessage = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported express types for request and response handlers.
+export const sendMessage = async (req: AuthRequest, res: Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
 
