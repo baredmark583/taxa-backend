@@ -1,10 +1,7 @@
 
-
-
-
-
 // FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
-import { Request, Response } from 'express';
+// FIX: Import default express module to use its types and resolve conflicts.
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from '../db.js';
@@ -14,7 +11,8 @@ import crypto from 'crypto';
 import { updateLocationFromIp } from '../services/locationService.js';
 import { log } from '../utils/logger.js';
 
-export const register = async (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response for correct typing.
+export const register = async (req: express.Request, res: express.Response) => {
   const CONTEXT = 'authController:register';
   const { email, password, name } = req.body;
   log.info(CONTEXT, 'Attempting to register new user.', { email, name });
@@ -58,7 +56,8 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response for correct typing.
+export const login = async (req: express.Request, res: express.Response) => {
   const CONTEXT = 'authController:login';
   const { email, password } = req.body;
   log.info(CONTEXT, 'Attempting to log in user.', { email });
@@ -102,7 +101,8 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const telegramLogin = async (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response for correct typing.
+export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const CONTEXT = 'authController:telegramLogin';
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;

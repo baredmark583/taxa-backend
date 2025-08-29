@@ -1,16 +1,14 @@
 
-
-
-
-
 // FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
-import { Response } from 'express';
+// FIX: Import default express module to use its types and resolve conflicts.
+import express from 'express';
 import { query } from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
 
 // Get user's favorite ad IDs
-export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:getFavoriteAdIds(${userId})`;
     log.info(CONTEXT, "Fetching user's favorite ad IDs.");
@@ -26,7 +24,8 @@ export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
 };
 
 // Add an ad to favorites
-export const addFavorite = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const addFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     const CONTEXT = `userController:addFavorite(${userId})`;
@@ -45,7 +44,8 @@ export const addFavorite = async (req: AuthRequest, res: Response) => {
 };
 
 // Remove an ad from favorites
-export const removeFavorite = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const removeFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     const CONTEXT = `userController:removeFavorite(${userId})`;
@@ -64,7 +64,8 @@ export const removeFavorite = async (req: AuthRequest, res: Response) => {
 };
 
 // Get ads favorited by the user
-export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const getFavoriteAds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:getFavoriteAds(${userId})`;
     log.info(CONTEXT, "Fetching user's favorite ads.");

@@ -1,10 +1,7 @@
 
-
-
-
-
 // FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
-import { Response } from 'express';
+// FIX: Import default express module to use its types and resolve conflicts.
+import express from 'express';
 import { query } from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -13,7 +10,8 @@ import { sendMessageToUser } from '../services/websocketService.js';
 import { log } from '../utils/logger.js';
 
 // Get all conversations for the current user
-export const getConversations = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `chatController:getConversations(${userId})`;
     log.info(CONTEXT, 'Fetching conversations for user.');
@@ -61,7 +59,8 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 };
 
 // Get all messages for a specific conversation (ad + other user)
-export const getMessages = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
     const CONTEXT = `chatController:getMessages(${userId})`;
@@ -89,7 +88,8 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 };
 
 // Send a new message
-export const sendMessage = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
     const CONTEXT = `chatController:sendMessage(${senderId})`;

@@ -1,16 +1,14 @@
 
-
-
-
-
 // FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
-import { Response, NextFunction } from 'express';
+// FIX: Import default express module to use its types and resolve conflicts.
+import express from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import { query } from '../db.js';
 import { log } from '../utils/logger.js';
 
-export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Response and express.NextFunction for correct typing.
+export const adminAuthMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   const CONTEXT = 'adminAuthMiddleware';
   const authHeader = req.headers.authorization;
 

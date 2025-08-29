@@ -1,16 +1,14 @@
 
-
-
-
-
 // FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
-import { Request, Response } from 'express';
+// FIX: Import default express module to use its types and resolve conflicts.
+import express from 'express';
 import { query } from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
 
 // Get dashboard statistics
-export const getStats = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const getStats = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'adminController:getStats';
     log.info(CONTEXT, 'Fetching dashboard statistics.');
     try {
@@ -45,7 +43,8 @@ export const getStats = async (req: AuthRequest, res: Response) => {
 };
 
 // Get analytics data for charts
-export const getAnalytics = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'adminController:getAnalytics';
     log.info(CONTEXT, 'Fetching analytics data for charts.');
     try {
@@ -81,7 +80,8 @@ export const getAnalytics = async (req: AuthRequest, res: Response) => {
 
 
 // Get all users
-export const getUsers = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const getUsers = async (req: AuthRequest, res: express.Response) => {
   const CONTEXT = 'adminController:getUsers';
   log.info(CONTEXT, 'Fetching all users for admin.');
   try {
@@ -95,7 +95,8 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 };
 
 // Update a user
-export const updateUser = async (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response for correct typing.
+export const updateUser = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateUser(${id})`;
     log.info(CONTEXT, 'Attempting to update user.', { body: req.body });
@@ -127,7 +128,8 @@ export const updateUser = async (req: Request, res: Response) => {
 
 
 // Delete a user
-export const deleteUser = async (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response for correct typing.
+export const deleteUser = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteUser(${id})`;
   log.info(CONTEXT, 'Attempting to delete user.');
@@ -149,7 +151,8 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 // Get all ads
-export const getAds = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const getAds = async (req: AuthRequest, res: express.Response) => {
   const CONTEXT = 'adminController:getAds';
   log.info(CONTEXT, 'Fetching all ads for admin.');
   try {
@@ -169,7 +172,8 @@ export const getAds = async (req: AuthRequest, res: Response) => {
 
 
 // Update an ad
-export const updateAd = async (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response for correct typing.
+export const updateAd = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateAd(${id})`;
     log.info(CONTEXT, 'Attempting to update ad.', { body: req.body });
@@ -207,7 +211,8 @@ export const updateAd = async (req: Request, res: Response) => {
 };
 
 // Delete an ad
-export const deleteAd = async (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response for correct typing.
+export const deleteAd = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteAd(${id})`;
   log.info(CONTEXT, 'Attempting to delete ad.');
@@ -227,7 +232,8 @@ export const deleteAd = async (req: Request, res: Response) => {
 
 
 // Get storage settings
-export const getSettings = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const getSettings = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'adminController:getSettings';
     log.info(CONTEXT, 'Fetching settings.');
     try {
@@ -254,7 +260,8 @@ export const getSettings = async (req: AuthRequest, res: Response) => {
 };
 
 // Update storage settings
-export const updateSettings = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response for correct typing.
+export const updateSettings = async (req: AuthRequest, res: express.Response) => {
     const newSettings = req.body;
     const CONTEXT = 'adminController:updateSettings';
     log.info(CONTEXT, 'Attempting to update settings.', { newSettings });

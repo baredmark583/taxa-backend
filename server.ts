@@ -1,12 +1,7 @@
 
-
-
-
-
-
 // FIX: Use default express import to resolve type errors.
 // FIX: Import Request, Response, and NextFunction types directly from express.
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -54,7 +49,8 @@ wss.on('connection', handleConnection);
 
 // --- Middleware for Request Logging ---
 // FIX: Using express.Request and express.Response to resolve type conflicts
-app.use((req: Request, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to resolve type errors.
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -107,7 +103,9 @@ const startServer = async () => {
     app.use('/api/chat', chatRoutes);
     
     // --- Serve Frontend Static Files ---
-    // Path is relative from `dist/server.js` to `public` folder.
+    // Path is relative from `backend/dist/server.js` to the frontend build output `frontend/dist`.
+    // In a typical monorepo setup, you'd adjust your build scripts to place this output correctly.
+    // We assume the frontend is built into a directory that becomes `../public` relative to the running server script.
     const publicPath = path.join(__dirname, '..', 'public');
 
     if (fs.existsSync(publicPath)) {
@@ -116,7 +114,8 @@ const startServer = async () => {
 
         // --- Handle Client-Side Routing ---
         // This catch-all route must be defined *after* API routes and static middleware.
-        app.get('*', (req: Request, res: Response, next: NextFunction) => {
+        // FIX: Use express.Request, express.Response, and express.NextFunction to resolve type errors.
+        app.get('*', (req: express.Request, res: express.Response, next: express.NextFunction) => {
             // Safeguard to ensure API calls are not caught here
             if (req.path.startsWith('/api/')) {
                 return next();
@@ -140,7 +139,8 @@ const startServer = async () => {
     // This MUST be the last `app.use()` call.
     // FIX: Use Request, Response, and NextFunction types from express to resolve property access errors.
     // FIX: Using express.Request and express.Response to resolve type conflicts
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use express.Request, express.Response, and express.NextFunction to resolve type errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 
