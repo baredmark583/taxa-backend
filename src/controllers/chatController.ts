@@ -1,7 +1,7 @@
 
-// FIX: Use default express import for correct type resolution.
-// FIX: Import Response type directly from express.
-import express, { Response } from 'express';
+
+// FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
+import { Response } from 'express';
 import { query } from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -10,7 +10,6 @@ import { sendMessageToUser } from '../services/websocketService.js';
 import { log } from '../utils/logger.js';
 
 // Get all conversations for the current user
-// FIX: Use Response type.
 export const getConversations = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const CONTEXT = `chatController:getConversations(${userId})`;
@@ -59,7 +58,6 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 };
 
 // Get all messages for a specific conversation (ad + other user)
-// FIX: Use Response type.
 export const getMessages = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
@@ -88,7 +86,6 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 };
 
 // Send a new message
-// FIX: Use Response type.
 export const sendMessage = async (req: AuthRequest, res: Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;

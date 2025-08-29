@@ -1,13 +1,12 @@
 
-// FIX: Use default express import for correct type resolution.
-// FIX: Import Response type directly from express.
-import express, { Response } from 'express';
+
+// FIX: Only import the Response type, as the rest of express is not used.
+import { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Added editImageWithGemini to imports.
 import { generateAdDetailsFromImage, editImageWithGemini } from '../services/geminiService.js';
 import { log } from '../utils/logger.js';
 
-// FIX: Use imported express types for request and response handlers.
 export const generateAd = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'geminiController:generateAd';
     const { prompt, imageBase64, mimeType } = req.body;

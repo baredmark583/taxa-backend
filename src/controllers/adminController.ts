@@ -1,13 +1,12 @@
 
-// FIX: Use default express import for correct type resolution.
-// FIX: Import Request and Response types directly from express.
-import express, { Request, Response } from 'express';
+
+// FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
+import { Request, Response } from 'express';
 import { query } from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
 
 // Get dashboard statistics
-// FIX: Use Response type.
 export const getStats = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getStats';
     log.info(CONTEXT, 'Fetching dashboard statistics.');
@@ -43,7 +42,6 @@ export const getStats = async (req: AuthRequest, res: Response) => {
 };
 
 // Get analytics data for charts
-// FIX: Use Response type.
 export const getAnalytics = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getAnalytics';
     log.info(CONTEXT, 'Fetching analytics data for charts.');
@@ -80,7 +78,6 @@ export const getAnalytics = async (req: AuthRequest, res: Response) => {
 
 
 // Get all users
-// FIX: Use Response type.
 export const getUsers = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getUsers';
   log.info(CONTEXT, 'Fetching all users for admin.');
@@ -95,7 +92,6 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 };
 
 // Update a user
-// FIX: Use Request and Response types.
 export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateUser(${id})`;
@@ -128,7 +124,6 @@ export const updateUser = async (req: Request, res: Response) => {
 
 
 // Delete a user
-// FIX: Use Request and Response types.
 export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteUser(${id})`;
@@ -151,7 +146,6 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 // Get all ads
-// FIX: Use Response type.
 export const getAds = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getAds';
   log.info(CONTEXT, 'Fetching all ads for admin.');
@@ -172,7 +166,6 @@ export const getAds = async (req: AuthRequest, res: Response) => {
 
 
 // Update an ad
-// FIX: Use Request and Response types.
 export const updateAd = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateAd(${id})`;
@@ -211,7 +204,6 @@ export const updateAd = async (req: Request, res: Response) => {
 };
 
 // Delete an ad
-// FIX: Use Request and Response types.
 export const deleteAd = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteAd(${id})`;
@@ -232,7 +224,6 @@ export const deleteAd = async (req: Request, res: Response) => {
 
 
 // Get storage settings
-// FIX: Use Response type.
 export const getSettings = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getSettings';
     log.info(CONTEXT, 'Fetching settings.');
@@ -260,7 +251,6 @@ export const getSettings = async (req: AuthRequest, res: Response) => {
 };
 
 // Update storage settings
-// FIX: Use Response type.
 export const updateSettings = async (req: AuthRequest, res: Response) => {
     const newSettings = req.body;
     const CONTEXT = 'adminController:updateSettings';

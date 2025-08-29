@@ -1,13 +1,12 @@
 
-// FIX: Use default express import for correct type resolution.
-// FIX: Import Response and NextFunction types directly from express.
-import express, { Response, NextFunction } from 'express';
+
+// FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import { query } from '../db.js';
 import { log } from '../utils/logger.js';
 
-// FIX: Use imported express types for middleware signature to resolve property errors.
 export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const CONTEXT = 'adminAuthMiddleware';
   const authHeader = req.headers.authorization;

@@ -1,7 +1,7 @@
 
-// FIX: Use default express import for correct type resolution.
-// FIX: Import Request and Response types directly from express.
-import express, { Request, Response } from 'express';
+
+// FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from '../db.js';
@@ -11,7 +11,6 @@ import crypto from 'crypto';
 import { updateLocationFromIp } from '../services/locationService.js';
 import { log } from '../utils/logger.js';
 
-// FIX: Use imported express types for request and response handlers.
 export const register = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:register';
   const { email, password, name } = req.body;
@@ -56,7 +55,6 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-// FIX: Use imported express types for request and response handlers.
 export const login = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:login';
   const { email, password } = req.body;
@@ -101,7 +99,6 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// FIX: Use imported express types for request and response handlers.
 export const telegramLogin = async (req: Request, res: Response) => {
     const CONTEXT = 'authController:telegramLogin';
     const { initData } = req.body;
