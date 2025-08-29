@@ -1,5 +1,9 @@
 
 
+
+
+
+
 // FIX: Use default express import to resolve type errors.
 // FIX: Import Request, Response, and NextFunction types directly from express.
 import express, { Request, Response, NextFunction } from 'express';
@@ -49,7 +53,7 @@ const wss = new WebSocketServer({ server });
 wss.on('connection', handleConnection);
 
 // --- Middleware for Request Logging ---
-// FIX: Use Request, Response, and NextFunction for correct types.
+// FIX: Using express.Request and express.Response to resolve type conflicts
 app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
@@ -101,10 +105,41 @@ const startServer = async () => {
     app.use('/api/admin', adminRoutes);
     app.use('/api/user', userRoutes);
     app.use('/api/chat', chatRoutes);
+    
+    // --- Serve Frontend Static Files ---
+    // Path is relative from `dist/server.js` to `public` folder.
+    const publicPath = path.join(__dirname, '..', 'public');
+
+    if (fs.existsSync(publicPath)) {
+        log.info('Server', `Serving static files from: ${publicPath}`);
+        app.use(express.static(publicPath));
+
+        // --- Handle Client-Side Routing ---
+        // This catch-all route must be defined *after* API routes and static middleware.
+        app.get('*', (req: Request, res: Response, next: NextFunction) => {
+            // Safeguard to ensure API calls are not caught here
+            if (req.path.startsWith('/api/')) {
+                return next();
+            }
+            
+            // If the request path is for the admin panel, serve its dedicated HTML file.
+            // Vite builds this from admin.html to taxaadmin.html.
+            if (req.path.startsWith('/taxaadmin')) {
+                res.sendFile(path.join(publicPath, 'taxaadmin.html'));
+            } else {
+                // For all other client-side routes, serve the main application's HTML file.
+                res.sendFile(path.join(publicPath, 'index.html'));
+            }
+        });
+    } else {
+        log.info('Server', `Static frontend directory not found at ${publicPath}. Running in API-only mode.`);
+    }
+
 
     // --- Global Error Handling Middleware ---
     // This MUST be the last `app.use()` call.
     // FIX: Use Request, Response, and NextFunction types from express to resolve property access errors.
+    // FIX: Using express.Request and express.Response to resolve type conflicts
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
