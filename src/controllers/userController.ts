@@ -1,16 +1,11 @@
-
-
-
-
-
-// FIX: Import explicit types from express to resolve type conflicts and property access errors.
-import { type Response } from 'express';
+// FIX: Use default express import to enable qualified type usage which resolves type errors.
+import express from 'express';
 import pool from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 
 // Get user's favorite ad IDs
 // FIX: Use imported express types for request and response handlers.
-export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
+export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     try {
         const result = await pool.query('SELECT "adId" FROM "Favorite" WHERE "userId" = $1', [userId]);
@@ -23,7 +18,7 @@ export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
 
 // Add an ad to favorites
 // FIX: Use imported express types for request and response handlers.
-export const addFavorite = async (req: AuthRequest, res: Response) => {
+export const addFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     try {
@@ -40,7 +35,7 @@ export const addFavorite = async (req: AuthRequest, res: Response) => {
 
 // Remove an ad from favorites
 // FIX: Use imported express types for request and response handlers.
-export const removeFavorite = async (req: AuthRequest, res: Response) => {
+export const removeFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     try {
@@ -57,7 +52,7 @@ export const removeFavorite = async (req: AuthRequest, res: Response) => {
 
 // Get ads favorited by the user
 // FIX: Use imported express types for request and response handlers.
-export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
+export const getFavoriteAds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     try {
         const result = await pool.query(`
