@@ -1,9 +1,9 @@
 
-
 // FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
 // FIX: Import Request and Response directly from express to resolve type conflicts.
 // FIX: Use default express import and qualified types to fix all type errors.
-import express from 'express';
+// FIX: Import Request and Response directly from express to resolve type conflicts.
+import { type Request, type Response } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import { query } from '../db.js';
@@ -16,7 +16,7 @@ import { log } from '../utils/logger.js';
 // FIX: Use qualified express types to resolve type conflicts.
 // FIX: Use imported Request and Response types.
 // FIX: Use qualified express types to fix property access errors.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+export const getAllAds = async (req: Request, res: Response) => {
     const CONTEXT = 'adController:getAllAds';
     log.info(CONTEXT, 'Attempting to fetch all ads', { query: req.query });
 
@@ -78,7 +78,7 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 // FIX: Use qualified express types to resolve type conflicts.
 // FIX: Use imported Request and Response types.
 // FIX: Use qualified express types to fix property access errors.
-export const getAdById = async (req: express.Request, res: express.Response) => {
+export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adController:getAdById(${id})`;
     log.info(CONTEXT, 'Attempting to fetch a single ad.');
@@ -112,7 +112,7 @@ export const getAdById = async (req: express.Request, res: express.Response) => 
 // FIX: Use qualified express types to resolve type conflicts.
 // FIX: Use imported Response type. AuthRequest is handled in its own module.
 // FIX: Use qualified express types to fix property access errors.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+export const createAd = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adController:createAd';
     const sellerId = req.user?.id;
     log.info(CONTEXT, 'Attempting to create a new ad', { sellerId });
@@ -185,7 +185,7 @@ export const createAd = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use qualified express types to resolve type conflicts.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const updateAd = async (req: AuthRequest, res: express.Response) => {
+export const updateAd = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
     const CONTEXT = `adController:updateAd(${id})`;
@@ -259,7 +259,7 @@ export const updateAd = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use qualified express types to resolve type conflicts.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
+export const updateAdStatus = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;
