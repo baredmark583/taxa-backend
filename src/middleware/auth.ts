@@ -1,8 +1,10 @@
+
 // FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
 // FIX: Switched to qualified express types to resolve type conflicts and property access errors.
 // FIX: Import Request, Response, NextFunction directly from express.
 // FIX: Use qualified express types to avoid conflicts with global types.
-import express from 'express';
+// FIX: Import Request, Response, and NextFunction types directly from express to resolve type errors.
+import { Request, Response, NextFunction } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import jwt from 'jsonwebtoken';
@@ -12,7 +14,8 @@ import jwt from 'jsonwebtoken';
 // FIX: Base AuthRequest on Request for correct typing.
 // FIX: Use Request type directly to avoid conflicts with global Request.
 // FIX: Switched to qualified express types to resolve all property access errors.
-export type AuthRequest = express.Request & {
+// FIX: Use imported Request type to fix type errors.
+export type AuthRequest = Request & {
   user?: { id: string };
 };
 
@@ -21,7 +24,8 @@ export type AuthRequest = express.Request & {
 // FIX: Use qualified express types for middleware signature.
 // FIX: Use Response and NextFunction types directly.
 // FIX: Switched to qualified express types to resolve all property access errors.
-export const authMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+// FIX: Use imported Response and NextFunction types to fix type errors.
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
