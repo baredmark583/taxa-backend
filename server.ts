@@ -2,8 +2,10 @@
 
 
 
+
+
 // FIX: Use explicit Request and Response types to resolve type errors.
-import express, { type Request, type Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -101,7 +103,7 @@ const startServer = async () => {
         // Handler for the admin panel route must come BEFORE express.static
         // to ensure it's not overridden by the static file server.
         // FIX: Use imported express types to resolve property access errors.
-        app.get('/taxaadmin*', (req: Request, res: Response) => {
+        app.get('/taxaadmin*', (req: express.Request, res: express.Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'admin.html'));
         });
 
@@ -110,7 +112,7 @@ const startServer = async () => {
         // The "catchall" handler: for any request that doesn't match one of the above,
         // send back the main index.html file. This is crucial for client-side routing.
         // FIX: Use imported express types to resolve property access errors.
-        app.get('*', (req: Request, res: Response) => {
+        app.get('*', (req: express.Request, res: express.Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
         });
     } else {

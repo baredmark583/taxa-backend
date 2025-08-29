@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "build": "npm install --prefix ../ && npm run build --prefix ../ && tsc",
+    "build": "(cd .. && npm install && npm run build) && tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only server.ts"
   },
