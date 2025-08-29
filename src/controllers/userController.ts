@@ -1,14 +1,18 @@
 
+
 // FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
 // FIX: Import default express module to use its types and resolve conflicts.
-import express from 'express';
+// FIX: Replaced `express.Response` with a direct type import.
+import { Response } from 'express';
 import { query } from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
+import crypto from 'crypto';
 
 // Get user's favorite ad IDs
 // FIX: Use express.Response for correct typing.
-export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:getFavoriteAdIds(${userId})`;
     log.info(CONTEXT, "Fetching user's favorite ad IDs.");
@@ -25,7 +29,8 @@ export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) 
 
 // Add an ad to favorites
 // FIX: Use express.Response for correct typing.
-export const addFavorite = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const addFavorite = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     const CONTEXT = `userController:addFavorite(${userId})`;
@@ -45,7 +50,8 @@ export const addFavorite = async (req: AuthRequest, res: express.Response) => {
 
 // Remove an ad from favorites
 // FIX: Use express.Response for correct typing.
-export const removeFavorite = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const removeFavorite = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     const CONTEXT = `userController:removeFavorite(${userId})`;
@@ -65,7 +71,8 @@ export const removeFavorite = async (req: AuthRequest, res: express.Response) =>
 
 // Get ads favorited by the user
 // FIX: Use express.Response for correct typing.
-export const getFavoriteAds = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:getFavoriteAds(${userId})`;
     log.info(CONTEXT, "Fetching user's favorite ads.");
@@ -90,3 +97,43 @@ export const getFavoriteAds = async (req: AuthRequest, res: express.Response) =>
         res.status(500).json({ message: 'Failed to fetch favorite ads' });
     }
 }
+
+// FIX: Use Response type from express to resolve property access errors.
+export const generateWebCode = async (req: AuthRequest, res: Response) => {
+    const userId = req.user?.id;
+    const CONTEXT = `userController:generateWebCode(${userId})`;
+    log.info(CONTEXT, "Generating a one-time web login code.");
+
+    if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    // Use a transaction to ensure atomicity
+    const client = await (await import('../db.js')).default.connect();
+    try {
+        await client.query('BEGIN');
+        // Delete any previous codes for this user
+        await client.query('DELETE FROM "WebLoginCode" WHERE "userId" = $1', [userId]);
+
+        // Generate a cryptographically secure random 6-character code (e.g., ABC-XYZ)
+        const code = crypto.randomBytes(4).toString('hex').toUpperCase().substring(0, 6);
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+
+        await client.query(
+            'INSERT INTO "WebLoginCode" (code, "userId", "expiresAt") VALUES ($1, $2, $3)',
+            [code, userId, expiresAt]
+        );
+
+        await client.query('COMMIT');
+        
+        log.info(CONTEXT, "Successfully generated and stored new web login code.");
+        res.status(201).json({ code, expiresAt });
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        log.error(CONTEXT, "Failed to generate web login code.", error);
+        res.status(500).json({ message: 'Failed to generate code' });
+    } finally {
+        client.release();
+    }
+};

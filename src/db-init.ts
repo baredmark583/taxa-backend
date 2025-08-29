@@ -139,6 +139,16 @@ const createConfigurationTableQuery = `
   );
 `;
 
+const createWebLoginCodeTableQuery = `
+  CREATE TABLE "WebLoginCode" (
+      "code" TEXT NOT NULL PRIMARY KEY,
+      "userId" TEXT NOT NULL,
+      "expiresAt" TIMESTAMP(3) NOT NULL,
+      CONSTRAINT "WebLoginCode_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`;
+
+
 const CONTEXT = 'DB-Init';
 
 const checkTableExists = async (tableName: string): Promise<boolean> => {
@@ -309,6 +319,9 @@ export const initializeDatabase = async () => {
   // Question/Answer pair (Question must exist before Answer)
   await createTableIfNotExists('Question', createQuestionTableQuery);
   await createTableIfNotExists('Answer', createAnswerTableQuery);
+
+  // Web Login table
+  await createTableIfNotExists('WebLoginCode', createWebLoginCodeTableQuery);
 
   // Add settings table
   await initializeConfiguration();

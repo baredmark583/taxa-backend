@@ -1,7 +1,9 @@
 
+
 // FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
 // FIX: Import default express module to use its types and resolve conflicts.
-import express from 'express';
+// FIX: Replaced `express.Response` with a direct type import.
+import { Response } from 'express';
 import { query } from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -11,7 +13,8 @@ import { log } from '../utils/logger.js';
 
 // Get all conversations for the current user
 // FIX: Use express.Response for correct typing.
-export const getConversations = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const getConversations = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const CONTEXT = `chatController:getConversations(${userId})`;
     log.info(CONTEXT, 'Fetching conversations for user.');
@@ -60,7 +63,8 @@ export const getConversations = async (req: AuthRequest, res: express.Response) 
 
 // Get all messages for a specific conversation (ad + other user)
 // FIX: Use express.Response for correct typing.
-export const getMessages = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const getMessages = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
     const CONTEXT = `chatController:getMessages(${userId})`;
@@ -89,7 +93,8 @@ export const getMessages = async (req: AuthRequest, res: express.Response) => {
 
 // Send a new message
 // FIX: Use express.Response for correct typing.
-export const sendMessage = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const sendMessage = async (req: AuthRequest, res: Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
     const CONTEXT = `chatController:sendMessage(${senderId})`;

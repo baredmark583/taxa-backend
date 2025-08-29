@@ -1,14 +1,17 @@
 
+
 // FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
 // FIX: Import default express module to use its types and resolve conflicts.
-import express from 'express';
+// FIX: Replaced `express.Request` and `express.Response` with direct type imports.
+import { Request, Response } from 'express';
 import { query } from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
 
 // Get dashboard statistics
 // FIX: Use express.Response for correct typing.
-export const getStats = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const getStats = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getStats';
     log.info(CONTEXT, 'Fetching dashboard statistics.');
     try {
@@ -44,7 +47,8 @@ export const getStats = async (req: AuthRequest, res: express.Response) => {
 
 // Get analytics data for charts
 // FIX: Use express.Response for correct typing.
-export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const getAnalytics = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getAnalytics';
     log.info(CONTEXT, 'Fetching analytics data for charts.');
     try {
@@ -81,7 +85,8 @@ export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
 
 // Get all users
 // FIX: Use express.Response for correct typing.
-export const getUsers = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const getUsers = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getUsers';
   log.info(CONTEXT, 'Fetching all users for admin.');
   try {
@@ -96,7 +101,8 @@ export const getUsers = async (req: AuthRequest, res: express.Response) => {
 
 // Update a user
 // FIX: Use express.Request and express.Response for correct typing.
-export const updateUser = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express to resolve property access errors.
+export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateUser(${id})`;
     log.info(CONTEXT, 'Attempting to update user.', { body: req.body });
@@ -129,7 +135,8 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
 
 // Delete a user
 // FIX: Use express.Request and express.Response for correct typing.
-export const deleteUser = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express to resolve property access errors.
+export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteUser(${id})`;
   log.info(CONTEXT, 'Attempting to delete user.');
@@ -152,7 +159,8 @@ export const deleteUser = async (req: express.Request, res: express.Response) =>
 
 // Get all ads
 // FIX: Use express.Response for correct typing.
-export const getAds = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const getAds = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getAds';
   log.info(CONTEXT, 'Fetching all ads for admin.');
   try {
@@ -173,7 +181,8 @@ export const getAds = async (req: AuthRequest, res: express.Response) => {
 
 // Update an ad
 // FIX: Use express.Request and express.Response for correct typing.
-export const updateAd = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express to resolve property access errors.
+export const updateAd = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateAd(${id})`;
     log.info(CONTEXT, 'Attempting to update ad.', { body: req.body });
@@ -212,7 +221,8 @@ export const updateAd = async (req: express.Request, res: express.Response) => {
 
 // Delete an ad
 // FIX: Use express.Request and express.Response for correct typing.
-export const deleteAd = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express to resolve property access errors.
+export const deleteAd = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteAd(${id})`;
   log.info(CONTEXT, 'Attempting to delete ad.');
@@ -233,7 +243,8 @@ export const deleteAd = async (req: express.Request, res: express.Response) => {
 
 // Get storage settings
 // FIX: Use express.Response for correct typing.
-export const getSettings = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const getSettings = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getSettings';
     log.info(CONTEXT, 'Fetching settings.');
     try {
@@ -261,7 +272,8 @@ export const getSettings = async (req: AuthRequest, res: express.Response) => {
 
 // Update storage settings
 // FIX: Use express.Response for correct typing.
-export const updateSettings = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type from express to resolve property access errors.
+export const updateSettings = async (req: AuthRequest, res: Response) => {
     const newSettings = req.body;
     const CONTEXT = 'adminController:updateSettings';
     log.info(CONTEXT, 'Attempting to update settings.', { newSettings });

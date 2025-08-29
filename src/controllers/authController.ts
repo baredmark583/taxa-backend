@@ -1,7 +1,9 @@
 
+
 // FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
 // FIX: Import default express module to use its types and resolve conflicts.
-import express from 'express';
+// FIX: Replaced `express.Request` and `express.Response` with direct type imports.
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from '../db.js';
@@ -12,7 +14,8 @@ import { updateLocationFromIp } from '../services/locationService.js';
 import { log } from '../utils/logger.js';
 
 // FIX: Use express.Request and express.Response for correct typing.
-export const register = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express to resolve property access errors.
+export const register = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:register';
   const { email, password, name } = req.body;
   log.info(CONTEXT, 'Attempting to register new user.', { email, name });
@@ -57,7 +60,8 @@ export const register = async (req: express.Request, res: express.Response) => {
 };
 
 // FIX: Use express.Request and express.Response for correct typing.
-export const login = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express to resolve property access errors.
+export const login = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:login';
   const { email, password } = req.body;
   log.info(CONTEXT, 'Attempting to log in user.', { email });
@@ -101,8 +105,68 @@ export const login = async (req: express.Request, res: express.Response) => {
   }
 };
 
+// FIX: Use Request and Response types from express to resolve property access errors.
+export const redeemWebCode = async (req: Request, res: Response) => {
+  const CONTEXT = 'authController:redeemWebCode';
+  const { code } = req.body;
+  log.info(CONTEXT, 'Attempting to log in user with one-time code.', { code });
+
+  if (!code) {
+    log.error(CONTEXT, 'Login failed: Code is required.');
+    return res.status(400).json({ message: 'Code is required' });
+  }
+
+  const client = await (await import('../db.js')).default.connect();
+  try {
+    await client.query('BEGIN');
+
+    const codeResult = await client.query('SELECT * FROM "WebLoginCode" WHERE code = $1 FOR UPDATE', [code]);
+
+    if (codeResult.rows.length === 0) {
+      log.info(CONTEXT, 'Login failed: Invalid code.');
+      await client.query('ROLLBACK');
+      return res.status(401).json({ message: 'Invalid or expired code' });
+    }
+
+    const loginCode = codeResult.rows[0];
+
+    if (new Date(loginCode.expiresAt) < new Date()) {
+      log.info(CONTEXT, 'Login failed: Expired code.');
+      await client.query('DELETE FROM "WebLoginCode" WHERE code = $1', [code]);
+      await client.query('COMMIT');
+      return res.status(401).json({ message: 'Invalid or expired code' });
+    }
+
+    const userResult = await client.query('SELECT * FROM "User" WHERE id = $1', [loginCode.userId]);
+    if (userResult.rows.length === 0) {
+      log.error(CONTEXT, 'Logic error: Code exists but user does not.');
+      await client.query('ROLLBACK');
+      return res.status(500).json({ message: 'Server error' });
+    }
+    
+    const user: User = userResult.rows[0];
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+    
+    await client.query('DELETE FROM "WebLoginCode" WHERE code = $1', [code]);
+    await client.query('COMMIT');
+
+    log.info(CONTEXT, `User logged in successfully via web code: ${user.id}`);
+    const { password: _password, ...userWithoutPassword } = user;
+    res.status(200).json({ token, user: userWithoutPassword });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    log.error(CONTEXT, 'Server error during web code login.', error);
+    res.status(500).json({ message: 'Server error during login' });
+  } finally {
+    client.release();
+  }
+};
+
+
 // FIX: Use express.Request and express.Response for correct typing.
-export const telegramLogin = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response types from express to resolve property access errors.
+export const telegramLogin = async (req: Request, res: Response) => {
     const CONTEXT = 'authController:telegramLogin';
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
