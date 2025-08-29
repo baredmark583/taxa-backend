@@ -1,11 +1,7 @@
 
-
-
-
-
-
 // FIX: Use default express import to resolve type errors.
-import express from 'express';
+// FIX: Import Request, Response, and NextFunction types directly from express.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -52,8 +48,8 @@ const wss = new WebSocketServer({ server });
 wss.on('connection', handleConnection);
 
 // --- Middleware for Request Logging ---
-// FIX: Use express.Request, express.Response, and express.NextFunction for correct types.
-app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use Request, Response, and NextFunction for correct types.
+app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -105,44 +101,10 @@ const startServer = async () => {
     app.use('/api/user', userRoutes);
     app.use('/api/chat', chatRoutes);
 
-    // Serve static files from the React app build directory in production
-    // FIX: Changed path resolution to be relative to the running script's directory (__dirname).
-    // This is more robust in deployment environments as it doesn't rely on the current
-    // working directory (CWD), which can vary. This navigates from `backend/dist` up
-    // to the project root and then into the frontend's `dist` folder.
-    const frontendBuildPath = path.resolve(__dirname, '..', '..', 'dist');
-
-
-    // Check if the build directory exists
-    if (fs.existsSync(frontendBuildPath)) {
-        log.info('Static Server', `Serving frontend files from: ${frontendBuildPath}`);
-        // Handler for the admin panel route must come BEFORE express.static
-        // to ensure it's not overridden by the static file server.
-        // FIX: Use Request and Response types from express to resolve property access errors.
-        app.get('/taxaadmin*', (req: express.Request, res: express.Response) => {
-            res.sendFile(path.resolve(frontendBuildPath, 'admin.html'));
-        });
-
-        app.use(express.static(frontendBuildPath));
-        
-        // The "catchall" handler: for any request that doesn't match one of the above,
-        // send back the main index.html file. This is crucial for client-side routing.
-        // FIX: Use Request and Response types from express to resolve property access errors.
-        app.get('*', (req: express.Request, res: express.Response) => {
-            res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
-        });
-    } else {
-        log.error("Static Server", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        log.error("Static Server", `!!! __dirname: ${__dirname}`);
-        log.error("Static Server", `!!! Frontend build directory not found at: ${frontendBuildPath}`);
-        log.error("Static Server", "!!! Make sure you have built the frontend part of the application.");
-        log.error("Static Server", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    }
-
     // --- Global Error Handling Middleware ---
     // This MUST be the last `app.use()` call.
     // FIX: Use Request, Response, and NextFunction types from express to resolve property access errors.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 

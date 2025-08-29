@@ -1,11 +1,7 @@
 
-
-
-
-
-
 // FIX: Use default express import for correct type resolution.
-import express from 'express';
+// FIX: Import Response type directly from express.
+import express, { Response } from 'express';
 import { query } from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -14,8 +10,8 @@ import { sendMessageToUser } from '../services/websocketService.js';
 import { log } from '../utils/logger.js';
 
 // Get all conversations for the current user
-// FIX: Use express.Response type.
-export const getConversations = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type.
+export const getConversations = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const CONTEXT = `chatController:getConversations(${userId})`;
     log.info(CONTEXT, 'Fetching conversations for user.');
@@ -63,8 +59,8 @@ export const getConversations = async (req: AuthRequest, res: express.Response) 
 };
 
 // Get all messages for a specific conversation (ad + other user)
-// FIX: Use express.Response type.
-export const getMessages = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type.
+export const getMessages = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
     const CONTEXT = `chatController:getMessages(${userId})`;
@@ -92,8 +88,8 @@ export const getMessages = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Send a new message
-// FIX: Use express.Response type.
-export const sendMessage = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response type.
+export const sendMessage = async (req: AuthRequest, res: Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
     const CONTEXT = `chatController:sendMessage(${senderId})`;
