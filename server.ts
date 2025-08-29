@@ -2,7 +2,7 @@
 // FIX: Use default express import to resolve type errors.
 // FIX: Reverted to using qualified express types (e.g., express.Request) to resolve widespread property access errors caused by potential type conflicts.
 // FIX: Import Request, Response, and NextFunction directly from express to fix type errors.
-import express, { type Request, type Response, type NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -53,7 +53,8 @@ wss.on('connection', handleConnection);
 // FIX: Use express.Request, express.Response, and express.NextFunction to resolve type errors.
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use direct Request, Response, and NextFunction types.
-app.use((req: Request, res: Response, next: NextFunction) => {
+// FIX: Switched to qualified express types to resolve all property access errors.
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -120,9 +121,15 @@ const startServer = async () => {
         // FIX: Use express.Request, express.Response, and express.NextFunction to resolve type errors.
         // FIX: Use qualified express types to resolve property access errors.
         // FIX: Use direct Request, Response, and NextFunction types.
-        app.get('*', (req: Request, res: Response, next: NextFunction) => {
+        // FIX: Switched to qualified express types to resolve all property access errors.
+        app.get('*', (req: express.Request, res: express.Response, next: express.NextFunction) => {
             // Safeguard to ensure API calls are not caught here
             if (req.path.startsWith('/api/')) {
+                return next();
+            }
+            // Add a check to prevent SPA routing for file assets.
+            // This fixes the CSS MIME type error.
+            if (path.extname(req.path).length > 0) {
                 return next();
             }
             
@@ -147,7 +154,8 @@ const startServer = async () => {
     // FIX: Use express.Request, express.Response, and express.NextFunction to resolve type errors.
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use direct Request, Response, and NextFunction types.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Switched to qualified express types to resolve all property access errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 
