@@ -3,8 +3,9 @@
 
 
 
-// FIX: Use named imports from express for correct type resolution.
-import { Request, Response } from 'express';
+
+// FIX: Use default express import for correct type resolution.
+import express from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import { query } from '../db.js';
@@ -14,8 +15,8 @@ import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
 
 // Get all ads
-// FIX: Use Request and Response types from express.
-export const getAllAds = async (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response types.
+export const getAllAds = async (req: express.Request, res: express.Response) => {
     const CONTEXT = 'adController:getAllAds';
     log.info(CONTEXT, 'Attempting to fetch all ads', { query: req.query });
 
@@ -74,8 +75,8 @@ export const getAllAds = async (req: Request, res: Response) => {
 };
 
 // Get a single ad by ID
-// FIX: Use Request and Response types from express.
-export const getAdById = async (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response types.
+export const getAdById = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     const CONTEXT = `adController:getAdById(${id})`;
     log.info(CONTEXT, 'Attempting to fetch a single ad.');
@@ -106,8 +107,8 @@ export const getAdById = async (req: Request, res: Response) => {
 };
 
 // Create a new ad
-// FIX: Use Response type from express.
-export const createAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response type.
+export const createAd = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'adController:createAd';
     const sellerId = req.user?.id;
     log.info(CONTEXT, 'Attempting to create a new ad', { sellerId });
@@ -177,8 +178,8 @@ export const createAd = async (req: AuthRequest, res: Response) => {
 };
 
 // Update an existing ad
-// FIX: Use Response type from express.
-export const updateAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response type.
+export const updateAd = async (req: AuthRequest, res: express.Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
     const CONTEXT = `adController:updateAd(${id})`;
@@ -249,8 +250,8 @@ export const updateAd = async (req: AuthRequest, res: Response) => {
 
 
 // Update ad status
-// FIX: Use Response type from express.
-export const updateAdStatus = async (req: AuthRequest, res: Response) => {
+// FIX: Use express.Response type.
+export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;

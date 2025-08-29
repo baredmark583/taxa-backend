@@ -3,8 +3,9 @@
 
 
 
-// FIX: Use named imports from express for correct type resolution.
-import { Request, Response } from 'express';
+
+// FIX: Use default express import for correct type resolution.
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from '../db.js';
@@ -15,7 +16,7 @@ import { updateLocationFromIp } from '../services/locationService.js';
 import { log } from '../utils/logger.js';
 
 // FIX: Use imported express types for request and response handlers.
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: express.Request, res: express.Response) => {
   const CONTEXT = 'authController:register';
   const { email, password, name } = req.body;
   log.info(CONTEXT, 'Attempting to register new user.', { email, name });
@@ -60,7 +61,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 // FIX: Use imported express types for request and response handlers.
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: express.Request, res: express.Response) => {
   const CONTEXT = 'authController:login';
   const { email, password } = req.body;
   log.info(CONTEXT, 'Attempting to log in user.', { email });
@@ -105,7 +106,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // FIX: Use imported express types for request and response handlers.
-export const telegramLogin = async (req: Request, res: Response) => {
+export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const CONTEXT = 'authController:telegramLogin';
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
