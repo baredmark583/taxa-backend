@@ -1,11 +1,6 @@
 
-
-
-
-
-
-// FIX: Use default express import to enable qualified type usage which resolves type errors.
-import express from 'express';
+// FIX: Use combined default and named type imports for express to resolve type errors.
+import express, { type Response, type NextFunction } from 'express';
 // FIX: Use default express import to resolve type conflicts.
 import { getAllAds, createAd, getAdById, updateAdStatus, updateAd } from '../controllers/adController.js';
 import { authMiddleware, type AuthRequest } from '../middleware/auth.js';
@@ -26,7 +21,7 @@ router.put('/:id/status', authMiddleware, updateAdStatus);
 // Custom error handler for multer/cloudinary errors on this router.
 // This will catch errors from the `upload.array()` middleware.
 // FIX: Use imported express types for middleware signature.
-router.use((err: Error, req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+router.use((err: Error, req: AuthRequest, res: Response, next: NextFunction) => {
     if (err) {
         console.error('File Upload Error:', err.message);
         // Provide a more specific error message if possible.

@@ -1,17 +1,12 @@
 
-
-
-
-
-
-// FIX: Use explicit express imports to resolve type errors.
-import express from 'express';
+// FIX: Use named type imports for express to resolve property access errors.
+import type { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import pool from '../db.js';
 
 // FIX: Use imported express types for middleware signature to resolve property errors.
-export const adminAuthMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
