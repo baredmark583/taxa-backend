@@ -1,12 +1,12 @@
 
-
 // FIX: Use default express import to resolve type errors.
 // FIX: Reverted to using qualified express types (e.g., express.Request) to resolve widespread property access errors caused by potential type conflicts.
 // FIX: Import Request, Response, and NextFunction directly from express to fix type errors.
 // FIX: Import Request, Response, and NextFunction directly to fix type errors.
 // FIX: Use default express import and qualified types to resolve all type errors.
 // FIX: Import Request, Response, and NextFunction from express to resolve type errors.
-import express, { Request, Response, NextFunction } from 'express';
+// FIX: Use qualified express types to avoid conflicts with global types.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -54,7 +54,8 @@ wss.on('connection', handleConnection);
 
 // --- Middleware for Request Logging ---
 // FIX: Use Request, Response, and NextFunction types.
-app.use((req: Request, res: Response, next: NextFunction) => {
+// FIX: Use qualified express types to avoid conflicts with global types.
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -107,14 +108,15 @@ const startServer = async () => {
     app.use('/api/chat', chatRoutes);
     
     // --- Serve Frontend Static Files ---
-    // The frontend is built by Vite into a 'dist' directory in the project root.
-    // We'll use process.cwd() which points to the project root on Render.
-    // FIX: Cast process to any to access cwd method, avoiding a type error.
-    const publicPath = path.join((process as any).cwd(), 'dist');
+    // The frontend is built into a 'dist' directory in the project root.
+    // We'll resolve the path from our current script location (__dirname)
+    // which is backend/dist, so we go up two directories to the project root.
+    const projectRoot = path.resolve(__dirname, '..', '..');
+    const publicPath = path.join(projectRoot, 'dist');
 
     log.info('Server Path Check', `Looking for frontend static files`, {
-        // FIX: Cast process to any to access cwd method, avoiding a type error.
-        'process.cwd()': (process as any).cwd(),
+        '__dirname': __dirname,
+        'resolved projectRoot': projectRoot,
         'resolved publicPath': publicPath,
     });
 
@@ -125,7 +127,8 @@ const startServer = async () => {
         // --- Handle Client-Side Routing ---
         // This catch-all route must be defined *after* API routes and static middleware.
         // FIX: Use Request, Response, and NextFunction to resolve type errors.
-        app.get('*', (req: Request, res: Response, next: NextFunction) => {
+        // FIX: Use qualified express types to avoid conflicts with global types.
+        app.get('*', (req: express.Request, res: express.Response, next: express.NextFunction) => {
             // Exclude API calls and requests that look like files (contain a dot).
             // This is a more robust fix for the CSS MIME type error.
             if (req.path.startsWith('/api/') || req.path.includes('.')) {
@@ -149,7 +152,8 @@ const startServer = async () => {
     // --- Global Error Handling Middleware ---
     // This MUST be the last `app.use()` call.
     // FIX: Use Request, Response, and NextFunction to resolve type errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use qualified express types to avoid conflicts with global types.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 

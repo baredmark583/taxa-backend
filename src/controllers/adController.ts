@@ -1,14 +1,9 @@
-
-
-
-
-
-
 // FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
 // FIX: Import Request and Response types directly from express to fix type errors.
 // FIX: Switched to default express import and qualified types to resolve type errors.
 // FIX: Import Request and Response from express to resolve type errors.
-import { Request, Response } from 'express';
+// FIX: Use qualified express types to avoid conflicts with global types.
+import express from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import { query } from '../db.js';
@@ -19,7 +14,7 @@ import { log } from '../utils/logger.js';
 
 // Get all ads
 // FIX: Use Request and Response for correct typing.
-export const getAllAds = async (req: Request, res: Response) => {
+export const getAllAds = async (req: express.Request, res: express.Response) => {
     const CONTEXT = 'adController:getAllAds';
     log.info(CONTEXT, 'Attempting to fetch all ads', { query: req.query });
 
@@ -79,7 +74,7 @@ export const getAllAds = async (req: Request, res: Response) => {
 
 // Get a single ad by ID
 // FIX: Use Request and Response for correct typing.
-export const getAdById = async (req: Request, res: Response) => {
+export const getAdById = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     const CONTEXT = `adController:getAdById(${id})`;
     log.info(CONTEXT, 'Attempting to fetch a single ad.');
@@ -111,7 +106,7 @@ export const getAdById = async (req: Request, res: Response) => {
 
 // Create a new ad
 // FIX: Use Response for correct typing.
-export const createAd = async (req: AuthRequest, res: Response) => {
+export const createAd = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'adController:createAd';
     const sellerId = req.user?.id;
     log.info(CONTEXT, 'Attempting to create a new ad', { sellerId });
@@ -182,7 +177,7 @@ export const createAd = async (req: AuthRequest, res: Response) => {
 
 // Update an existing ad
 // FIX: Use Response for correct typing.
-export const updateAd = async (req: AuthRequest, res: Response) => {
+export const updateAd = async (req: AuthRequest, res: express.Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
     const CONTEXT = `adController:updateAd(${id})`;
@@ -254,7 +249,7 @@ export const updateAd = async (req: AuthRequest, res: Response) => {
 
 // Update ad status
 // FIX: Use Response for correct typing.
-export const updateAdStatus = async (req: AuthRequest, res: Response) => {
+export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;
