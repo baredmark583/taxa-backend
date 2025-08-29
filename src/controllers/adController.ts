@@ -1,5 +1,6 @@
+
 // FIX: Use default express import to enable qualified type usage which resolves type errors.
-import express from 'express';
+import express, { type Request, type Response } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import pool from '../db.js';
@@ -9,7 +10,7 @@ import { type AuthRequest } from '../middleware/auth.js';
 
 // Get all ads
 // FIX: Use imported express types for request and response handlers.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+export const getAllAds = async (req: Request, res: Response) => {
     const { search, category, sortBy, sellerId } = req.query;
 
     let query = `
@@ -65,7 +66,7 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 
 // Get a single ad by ID
 // FIX: Use imported express types for request and response handlers.
-export const getAdById = async (req: express.Request, res: express.Response) => {
+export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const result = await pool.query(`
@@ -92,7 +93,7 @@ export const getAdById = async (req: express.Request, res: express.Response) => 
 
 // Create a new ad
 // FIX: Use imported express types for request and response handlers.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+export const createAd = async (req: AuthRequest, res: Response) => {
     const sellerId = req.user?.id;
     if (!sellerId) {
         return res.status(401).json({ message: 'User not authenticated' });
@@ -153,7 +154,7 @@ export const createAd = async (req: AuthRequest, res: express.Response) => {
 
 // Update an existing ad
 // FIX: Use imported express types for request and response handlers.
-export const updateAd = async (req: AuthRequest, res: express.Response) => {
+export const updateAd = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
     
@@ -218,7 +219,7 @@ export const updateAd = async (req: AuthRequest, res: express.Response) => {
 
 // Update ad status
 // FIX: Use imported express types for request and response handlers.
-export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
+export const updateAdStatus = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;
