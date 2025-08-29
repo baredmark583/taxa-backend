@@ -1,7 +1,7 @@
 
-
 // FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
-import express from 'express';
+// FIX: Import Request and Response directly from express to resolve type conflicts.
+import express, { Request, Response } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import { query } from '../db.js';
@@ -12,7 +12,8 @@ import { log } from '../utils/logger.js';
 
 // Get all ads
 // FIX: Use qualified express types to resolve type conflicts.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+// FIX: Use imported Request and Response types.
+export const getAllAds = async (req: Request, res: Response) => {
     const CONTEXT = 'adController:getAllAds';
     log.info(CONTEXT, 'Attempting to fetch all ads', { query: req.query });
 
@@ -72,7 +73,8 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 
 // Get a single ad by ID
 // FIX: Use qualified express types to resolve type conflicts.
-export const getAdById = async (req: express.Request, res: express.Response) => {
+// FIX: Use imported Request and Response types.
+export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adController:getAdById(${id})`;
     log.info(CONTEXT, 'Attempting to fetch a single ad.');
@@ -104,7 +106,8 @@ export const getAdById = async (req: express.Request, res: express.Response) => 
 
 // Create a new ad
 // FIX: Use qualified express types to resolve type conflicts.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported Response type. AuthRequest is handled in its own module.
+export const createAd = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adController:createAd';
     const sellerId = req.user?.id;
     log.info(CONTEXT, 'Attempting to create a new ad', { sellerId });
@@ -175,7 +178,8 @@ export const createAd = async (req: AuthRequest, res: express.Response) => {
 
 // Update an existing ad
 // FIX: Use qualified express types to resolve type conflicts.
-export const updateAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported Response type.
+export const updateAd = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
     const CONTEXT = `adController:updateAd(${id})`;
@@ -247,7 +251,8 @@ export const updateAd = async (req: AuthRequest, res: express.Response) => {
 
 // Update ad status
 // FIX: Use qualified express types to resolve type conflicts.
-export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported Response type.
+export const updateAdStatus = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;

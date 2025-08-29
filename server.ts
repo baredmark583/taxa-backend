@@ -1,7 +1,4 @@
 
-
-
-
 // FIX: Use default express import to resolve type errors.
 // FIX: Reverted to using qualified express types (e.g., express.Request) to resolve widespread property access errors caused by potential type conflicts.
 // FIX: Import Request, Response, and NextFunction directly from express to fix type errors.
@@ -11,7 +8,8 @@
 // FIX: Use qualified express types to avoid conflicts with global types.
 // FIX: Import Request, Response, and NextFunction types directly from express to resolve type errors.
 // FIX: Switched to default express import and qualified types (e.g., express.Request) to resolve property access errors from potential type conflicts.
-import express from 'express';
+// FIX: Import Request, Response, and NextFunction directly from express to resolve type conflicts.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added http and ws imports for WebSocket server setup.
@@ -53,7 +51,8 @@ wss.on('connection', handleConnection);
 // FIX: Use qualified express types to avoid conflicts with global types.
 // FIX: Use imported Request, Response, and NextFunction types to fix type errors.
 // FIX: Use qualified express types to resolve type conflicts.
-app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use imported Request, Response, and NextFunction types to fix type errors.
+app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -111,7 +110,8 @@ const startServer = async () => {
     // FIX: Use qualified express types to avoid conflicts with global types.
     // FIX: Use imported Request, Response, and NextFunction types to fix type errors.
     // FIX: Use qualified express types to resolve type conflicts.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Use imported Request, Response, and NextFunction types to fix type errors.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 

@@ -1,14 +1,15 @@
 
-
 // FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
-import express from 'express';
+// FIX: Import Request and Response directly from express to resolve type conflicts.
+import express, { Request, Response } from 'express';
 import { query } from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
 
 // Get dashboard statistics
 // FIX: Use qualified express types to resolve type conflicts.
-export const getStats = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported Response type.
+export const getStats = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getStats';
     log.info(CONTEXT, 'Fetching dashboard statistics.');
     try {
@@ -44,7 +45,8 @@ export const getStats = async (req: AuthRequest, res: express.Response) => {
 
 // Get analytics data for charts
 // FIX: Use qualified express types to resolve type conflicts.
-export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported Response type.
+export const getAnalytics = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getAnalytics';
     log.info(CONTEXT, 'Fetching analytics data for charts.');
     try {
@@ -81,7 +83,8 @@ export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
 
 // Get all users
 // FIX: Use qualified express types to resolve type conflicts.
-export const getUsers = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported Response type.
+export const getUsers = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getUsers';
   log.info(CONTEXT, 'Fetching all users for admin.');
   try {
@@ -96,7 +99,8 @@ export const getUsers = async (req: AuthRequest, res: express.Response) => {
 
 // Update a user
 // FIX: Use qualified express types to resolve type conflicts.
-export const updateUser = async (req: express.Request, res: express.Response) => {
+// FIX: Use imported Request and Response types.
+export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateUser(${id})`;
     log.info(CONTEXT, 'Attempting to update user.', { body: req.body });
@@ -129,7 +133,8 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
 
 // Delete a user
 // FIX: Use qualified express types to resolve type conflicts.
-export const deleteUser = async (req: express.Request, res: express.Response) => {
+// FIX: Use imported Request and Response types.
+export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteUser(${id})`;
   log.info(CONTEXT, 'Attempting to delete user.');
@@ -152,7 +157,8 @@ export const deleteUser = async (req: express.Request, res: express.Response) =>
 
 // Get all ads
 // FIX: Use qualified express types to resolve type conflicts.
-export const getAds = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported Response type.
+export const getAds = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getAds';
   log.info(CONTEXT, 'Fetching all ads for admin.');
   try {
@@ -173,7 +179,8 @@ export const getAds = async (req: AuthRequest, res: express.Response) => {
 
 // Update an ad
 // FIX: Use qualified express types to resolve type conflicts.
-export const updateAd = async (req: express.Request, res: express.Response) => {
+// FIX: Use imported Request and Response types.
+export const updateAd = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateAd(${id})`;
     log.info(CONTEXT, 'Attempting to update ad.', { body: req.body });
@@ -212,7 +219,8 @@ export const updateAd = async (req: express.Request, res: express.Response) => {
 
 // Delete an ad
 // FIX: Use qualified express types to resolve type conflicts.
-export const deleteAd = async (req: express.Request, res: express.Response) => {
+// FIX: Use imported Request and Response types.
+export const deleteAd = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteAd(${id})`;
   log.info(CONTEXT, 'Attempting to delete ad.');
@@ -233,7 +241,8 @@ export const deleteAd = async (req: express.Request, res: express.Response) => {
 
 // Get storage settings
 // FIX: Use qualified express types to resolve type conflicts.
-export const getSettings = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported Response type.
+export const getSettings = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getSettings';
     log.info(CONTEXT, 'Fetching settings.');
     try {
@@ -261,7 +270,8 @@ export const getSettings = async (req: AuthRequest, res: express.Response) => {
 
 // Update storage settings
 // FIX: Use qualified express types to resolve type conflicts.
-export const updateSettings = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use imported Response type.
+export const updateSettings = async (req: AuthRequest, res: Response) => {
     const newSettings = req.body;
     const CONTEXT = 'adminController:updateSettings';
     log.info(CONTEXT, 'Attempting to update settings.', { newSettings });
