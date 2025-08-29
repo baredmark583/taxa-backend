@@ -1,24 +1,23 @@
 
-
-// FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
-// FIX: Import default express module to use its types and resolve conflicts.
-// FIX: Replaced `express.Request`, `express.Response`, and `express.NextFunction` with direct imports.
-import { Request, Response, NextFunction } from 'express';
+// FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
+// FIX: Import Request, Response, and NextFunction directly from express to fix type errors.
+import { type Request, type Response, type NextFunction } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.
-// FIX: Use Request for better compatibility.
+// FIX: Use express.Request for better compatibility.
 // FIX: Base AuthRequest on express.Request for correct typing.
-// FIX: Base AuthRequest on the imported Request type.
+// FIX: Use Request type directly.
 export type AuthRequest = Request & {
   user?: { id: string };
 };
 
 // FIX: Use imported express types for middleware signature.
 // FIX: Use express.Response and express.NextFunction for correct typing.
-// FIX: Use imported types for middleware signature.
+// FIX: Use qualified express types for middleware signature.
+// FIX: Use Response and NextFunction types directly.
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 

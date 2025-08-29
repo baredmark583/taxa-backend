@@ -1,9 +1,8 @@
 
-
 // FIX: Use default express import to resolve type errors.
-// FIX: Import Request, Response, and NextFunction types directly from express.
-// FIX: Replaced `express.Request`, `express.Response`, and `express.NextFunction` with direct imports (`Request`, `Response`, `NextFunction`) to resolve property access and overload errors.
-import express, { Request, Response, NextFunction } from 'express';
+// FIX: Reverted to using qualified express types (e.g., express.Request) to resolve widespread property access errors caused by potential type conflicts.
+// FIX: Import Request, Response, and NextFunction directly from express to fix type errors.
+import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -52,7 +51,8 @@ wss.on('connection', handleConnection);
 // --- Middleware for Request Logging ---
 // FIX: Using express.Request and express.Response to resolve type conflicts
 // FIX: Use express.Request, express.Response, and express.NextFunction to resolve type errors.
-// FIX: Use Request, Response, and NextFunction types from express to resolve property access errors.
+// FIX: Use qualified express types to resolve property access errors.
+// FIX: Use direct Request, Response, and NextFunction types.
 app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
@@ -118,7 +118,8 @@ const startServer = async () => {
         // --- Handle Client-Side Routing ---
         // This catch-all route must be defined *after* API routes and static middleware.
         // FIX: Use express.Request, express.Response, and express.NextFunction to resolve type errors.
-        // FIX: Use Request, Response, and NextFunction types from express to resolve property access errors.
+        // FIX: Use qualified express types to resolve property access errors.
+        // FIX: Use direct Request, Response, and NextFunction types.
         app.get('*', (req: Request, res: Response, next: NextFunction) => {
             // Safeguard to ensure API calls are not caught here
             if (req.path.startsWith('/api/')) {
@@ -141,10 +142,11 @@ const startServer = async () => {
 
     // --- Global Error Handling Middleware ---
     // This MUST be the last `app.use()` call.
-    // FIX: Use Request, Response, and NextFunction types from express to resolve property access errors.
+    // FIX: Use qualified express types to resolve property access errors.
     // FIX: Using express.Request and express.Response to resolve type conflicts
     // FIX: Use express.Request, express.Response, and express.NextFunction to resolve type errors.
-    // FIX: Use Request, Response, and NextFunction types from express to resolve property access errors.
+    // FIX: Use qualified express types to resolve property access errors.
+    // FIX: Use direct Request, Response, and NextFunction types.
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production

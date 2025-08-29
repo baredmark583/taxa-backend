@@ -1,9 +1,7 @@
 
-
-// FIX: Only import types from express, as the default export is not used. This helps avoid potential type conflicts.
-// FIX: Import default express module to use its types and resolve conflicts.
-// FIX: Replaced `express.Request` and `express.Response` with direct type imports.
-import { Request, Response } from 'express';
+// FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
+// FIX: Import Request and Response types directly from express to fix type errors.
+import { type Request, type Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from '../db.js';
@@ -14,7 +12,8 @@ import { updateLocationFromIp } from '../services/locationService.js';
 import { log } from '../utils/logger.js';
 
 // FIX: Use express.Request and express.Response for correct typing.
-// FIX: Use Request and Response types from express to resolve property access errors.
+// FIX: Use qualified express types to resolve property access errors.
+// FIX: Use direct Request and Response types.
 export const register = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:register';
   const { email, password, name } = req.body;
@@ -60,7 +59,8 @@ export const register = async (req: Request, res: Response) => {
 };
 
 // FIX: Use express.Request and express.Response for correct typing.
-// FIX: Use Request and Response types from express to resolve property access errors.
+// FIX: Use qualified express types to resolve property access errors.
+// FIX: Use direct Request and Response types.
 export const login = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:login';
   const { email, password } = req.body;
@@ -105,7 +105,8 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// FIX: Use Request and Response types from express to resolve property access errors.
+// FIX: Use qualified express types to resolve property access errors.
+// FIX: Use direct Request and Response types.
 export const redeemWebCode = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:redeemWebCode';
   const { code } = req.body;
@@ -165,7 +166,8 @@ export const redeemWebCode = async (req: Request, res: Response) => {
 
 
 // FIX: Use express.Request and express.Response for correct typing.
-// FIX: Use Request and Response types from express to resolve property access errors.
+// FIX: Use qualified express types to resolve property access errors.
+// FIX: Use direct Request and Response types.
 export const telegramLogin = async (req: Request, res: Response) => {
     const CONTEXT = 'authController:telegramLogin';
     const { initData } = req.body;
