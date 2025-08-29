@@ -1,4 +1,5 @@
 
+
 // FIX: Use default express import to resolve type errors.
 // FIX: Reverted to using qualified express types (e.g., express.Request) to resolve widespread property access errors caused by potential type conflicts.
 // FIX: Import Request, Response, and NextFunction directly from express to fix type errors.
@@ -9,7 +10,8 @@
 // FIX: Import Request, Response, and NextFunction types directly from express to resolve type errors.
 // FIX: Switched to default express import and qualified types (e.g., express.Request) to resolve property access errors from potential type conflicts.
 // FIX: Import Request, Response, and NextFunction directly from express to resolve type conflicts.
-import express, { Request, Response, NextFunction } from 'express';
+// FIX: Use default express import and qualified types to fix all type errors.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added http and ws imports for WebSocket server setup.
@@ -52,7 +54,8 @@ wss.on('connection', handleConnection);
 // FIX: Use imported Request, Response, and NextFunction types to fix type errors.
 // FIX: Use qualified express types to resolve type conflicts.
 // FIX: Use imported Request, Response, and NextFunction types to fix type errors.
-app.use((req: Request, res: Response, next: NextFunction) => {
+// FIX: Use qualified express types to fix property access errors.
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -71,24 +74,15 @@ const startServer = async () => {
     await initializeDatabase();
       
     // A more flexible CORS configuration to handle different environments.
+    // FIX: Simplified to a direct array for better reliability in proxy environments like Render.
     const allowedOrigins = [
         'https://taxa-5ky4.onrender.com', // The production frontend URL from the logs
-        process.env.FRONTEND_URL,       // The configured frontend URL from environment variables
         'http://localhost:5173',        // For local development (Vite)
         'http://127.0.0.1:5173'         // For local development (Vite)
-    ].filter(Boolean); // Filter out undefined/null values from process.env
+    ];
 
     app.use(cors({
-        origin: (origin, callback) => {
-            // Allow requests with no origin (like mobile apps or curl requests)
-            if (!origin) return callback(null, true);
-            if (allowedOrigins.indexOf(origin) !== -1) {
-                callback(null, true);
-            } else {
-                log.info('CORS', `Blocked origin: ${origin}`);
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
+        origin: allowedOrigins,
         credentials: true,
     }));
 
@@ -111,7 +105,8 @@ const startServer = async () => {
     // FIX: Use imported Request, Response, and NextFunction types to fix type errors.
     // FIX: Use qualified express types to resolve type conflicts.
     // FIX: Use imported Request, Response, and NextFunction types to fix type errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use qualified express types to fix property access errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 
