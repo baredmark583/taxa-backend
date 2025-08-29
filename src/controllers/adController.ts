@@ -3,10 +3,12 @@
 
 
 
+
 // FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
 // FIX: Import Request and Response types directly from express to fix type errors.
 // FIX: Switched to default express import and qualified types to resolve type errors.
-import express from 'express';
+// FIX: Import Request and Response from express to resolve type errors.
+import { Request, Response } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import { query } from '../db.js';
@@ -16,12 +18,8 @@ import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
 
 // Get all ads
-// FIX: Use express.Request and express.Response for correct typing.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use direct Request and Response types.
-// FIX: Switched to qualified express types to resolve all property access errors.
-// FIX: Use qualified express types (e.g., express.Request) to resolve type errors.
-export const getAllAds = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response for correct typing.
+export const getAllAds = async (req: Request, res: Response) => {
     const CONTEXT = 'adController:getAllAds';
     log.info(CONTEXT, 'Attempting to fetch all ads', { query: req.query });
 
@@ -80,12 +78,8 @@ export const getAllAds = async (req: express.Request, res: express.Response) => 
 };
 
 // Get a single ad by ID
-// FIX: Use express.Request and express.Response for correct typing.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use direct Request and Response types.
-// FIX: Switched to qualified express types to resolve all property access errors.
-// FIX: Use qualified express types (e.g., express.Request) to resolve type errors.
-export const getAdById = async (req: express.Request, res: express.Response) => {
+// FIX: Use Request and Response for correct typing.
+export const getAdById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adController:getAdById(${id})`;
     log.info(CONTEXT, 'Attempting to fetch a single ad.');
@@ -116,12 +110,8 @@ export const getAdById = async (req: express.Request, res: express.Response) => 
 };
 
 // Create a new ad
-// FIX: Use express.Response for correct typing.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use direct Response type.
-// FIX: Switched to qualified express types to resolve all property access errors.
-// FIX: Use qualified express types (e.g., express.Response) to resolve type errors.
-export const createAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response for correct typing.
+export const createAd = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adController:createAd';
     const sellerId = req.user?.id;
     log.info(CONTEXT, 'Attempting to create a new ad', { sellerId });
@@ -191,12 +181,8 @@ export const createAd = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Update an existing ad
-// FIX: Use express.Response for correct typing.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use direct Response type.
-// FIX: Switched to qualified express types to resolve all property access errors.
-// FIX: Use qualified express types (e.g., express.Response) to resolve type errors.
-export const updateAd = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response for correct typing.
+export const updateAd = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
     const CONTEXT = `adController:updateAd(${id})`;
@@ -267,12 +253,8 @@ export const updateAd = async (req: AuthRequest, res: express.Response) => {
 
 
 // Update ad status
-// FIX: Use express.Response for correct typing.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use direct Response type.
-// FIX: Switched to qualified express types to resolve all property access errors.
-// FIX: Use qualified express types (e.g., express.Response) to resolve type errors.
-export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response for correct typing.
+export const updateAdStatus = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;

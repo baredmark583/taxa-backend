@@ -3,9 +3,11 @@
 
 
 
+
 // FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
 // FIX: Switched to default express import and qualified express.Response type to fix errors.
-import express from 'express';
+// FIX: Import Response from express to resolve type errors.
+import { Response } from 'express';
 import { query } from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -14,11 +16,8 @@ import { sendMessageToUser } from '../services/websocketService.js';
 import { log } from '../utils/logger.js';
 
 // Get all conversations for the current user
-// FIX: Use express.Response for correct typing.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use express.Response type.
-// FIX: Switched to qualified express types to resolve all property access errors.
-export const getConversations = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response for correct typing.
+export const getConversations = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const CONTEXT = `chatController:getConversations(${userId})`;
     log.info(CONTEXT, 'Fetching conversations for user.');
@@ -66,11 +65,8 @@ export const getConversations = async (req: AuthRequest, res: express.Response) 
 };
 
 // Get all messages for a specific conversation (ad + other user)
-// FIX: Use express.Response for correct typing.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use express.Response type.
-// FIX: Switched to qualified express types to resolve all property access errors.
-export const getMessages = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response for correct typing.
+export const getMessages = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
     const CONTEXT = `chatController:getMessages(${userId})`;
@@ -98,11 +94,8 @@ export const getMessages = async (req: AuthRequest, res: express.Response) => {
 };
 
 // Send a new message
-// FIX: Use express.Response for correct typing.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use express.Response type.
-// FIX: Switched to qualified express types to resolve all property access errors.
-export const sendMessage = async (req: AuthRequest, res: express.Response) => {
+// FIX: Use Response for correct typing.
+export const sendMessage = async (req: AuthRequest, res: Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
     const CONTEXT = `chatController:sendMessage(${senderId})`;
