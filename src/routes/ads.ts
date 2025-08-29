@@ -1,4 +1,5 @@
 
+
 // FIX: Use default express import for correct type resolution.
 // FIX: Use default express import to resolve type errors.
 // FIX: Use default express import to resolve type conflicts.
@@ -6,7 +7,8 @@
 // FIX: Import Response and NextFunction from express to resolve type errors.
 // FIX: Use qualified express types to avoid conflicts with global types.
 // FIX: Import Response and NextFunction types directly from express to resolve type errors.
-import express, { Response, NextFunction } from 'express';
+// FIX: Switched to default express import and qualified types (express.Response, express.NextFunction) to resolve property access errors and handler overload errors.
+import express from 'express';
 import { getAllAds, createAd, getAdById, updateAdStatus, updateAd } from '../controllers/adController.js';
 import { authMiddleware, type AuthRequest } from '../middleware/auth.js';
 import { upload } from '../services/cloudinaryService.js';
@@ -25,9 +27,8 @@ router.put('/:id/status', authMiddleware, updateAdStatus);
 
 // Custom error handler for multer/cloudinary errors on this router.
 // This will catch errors from the `upload.array()` middleware.
-// FIX: Use Response and NextFunction for correct typing.
-// FIX: Use imported Response and NextFunction types to fix type errors.
-router.use((err: Error, req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use qualified express types to resolve type conflicts.
+router.use((err: Error, req: AuthRequest, res: express.Response, next: express.NextFunction) => {
     if (err) {
         console.error('File Upload Error:', err.message);
         // Provide a more specific error message if possible.

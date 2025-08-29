@@ -1,18 +1,19 @@
 
+
 // FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
 // FIX: Switched to default express import to resolve type errors.
 // FIX: Import Response, NextFunction directly from express.
 // FIX: Use qualified express types to avoid conflicts with global types.
 // FIX: Import Response and NextFunction types directly from express to resolve type errors.
-import { Response, NextFunction } from 'express';
+// FIX: Switched to default express import and qualified types (express.Response, express.NextFunction) to resolve property access errors from potential type conflicts.
+import express from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import { query } from '../db.js';
 import { log } from '../utils/logger.js';
 
-// FIX: Use Response and NextFunction for correct typing.
-// FIX: Use imported Response and NextFunction types to fix type errors.
-export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use qualified express types to resolve type conflicts.
+export const adminAuthMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   const CONTEXT = 'adminAuthMiddleware';
   const authHeader = req.headers.authorization;
 
