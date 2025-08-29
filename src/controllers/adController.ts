@@ -1,6 +1,7 @@
 
-// FIX: Use named type imports to resolve persistent type resolution issues.
-import { type Request, type Response } from 'express';
+
+// FIX: Removed 'type' from express imports to resolve type inference issues.
+import { Request, Response } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import pool from '../db.js';

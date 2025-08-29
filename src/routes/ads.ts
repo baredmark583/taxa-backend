@@ -1,6 +1,7 @@
 
-// FIX: Use named type imports for error handler signature.
-import express, { type Response, type NextFunction } from 'express';
+
+// FIX: Removed 'type' from express imports to resolve type inference issues.
+import express, { Response, NextFunction } from 'express';
 // FIX: Use default express import to resolve type conflicts.
 import { getAllAds, createAd, getAdById, updateAdStatus, updateAd } from '../controllers/adController.js';
 import { authMiddleware, type AuthRequest } from '../middleware/auth.js';

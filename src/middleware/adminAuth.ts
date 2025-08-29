@@ -1,6 +1,7 @@
 
-// FIX: Using named type imports to resolve persistent type resolution issues.
-import { type Response, type NextFunction } from 'express';
+
+// FIX: Removed 'type' from express imports to resolve type inference issues.
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
 import pool from '../db.js';

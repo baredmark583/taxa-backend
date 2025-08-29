@@ -1,6 +1,7 @@
 
-// FIX: Use named type imports to resolve persistent type resolution issues.
-import { type Request, type Response } from 'express';
+
+// FIX: Removed 'type' from express imports to resolve type inference issues.
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';

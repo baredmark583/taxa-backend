@@ -101,7 +101,8 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
         const textPart = { text: editPrompt };
         
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-preview-image-generation',
+// FIX: Updated model name to the correct one for image editing per guidelines.
+            model: 'gemini-2.5-flash-image-preview',
             contents: { parts: [imagePart, textPart] },
             config: {
                 responseModalities: [Modality.IMAGE, Modality.TEXT],

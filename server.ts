@@ -1,6 +1,7 @@
 
-// FIX: Use named type imports to resolve persistent type resolution issues.
-import express, { type Request, type Response } from 'express';
+
+// FIX: Removed 'type' from express imports to resolve type inference issues.
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -91,10 +92,13 @@ const startServer = async () => {
     if (fs.existsSync(frontendBuildPath)) {
         app.use(express.static(frontendBuildPath));
         
-        // The "catchall" handler: for any request that doesn't match an API route,
+        // Handler for the admin panel route
+        app.get('/taxaadmin*', (req: Request, res: Response) => {
+            res.sendFile(path.resolve(frontendBuildPath, 'admin.html'));
+        });
+
+        // The "catchall" handler: for any request that doesn't match an API or admin route,
         // send back the main index.html file from the React build.
-        // FIX: Explicitly type req and res to resolve overload errors.
-        // FIX: Use qualified express types to resolve property access errors.
         app.get('*', (req: Request, res: Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
         });

@@ -1,6 +1,7 @@
 
-// FIX: Use named type imports to resolve persistent type resolution issues.
-import { type Response } from 'express';
+
+// FIX: Removed 'type' from express imports to resolve type inference issues.
+import { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Added editImageWithGemini to imports.
 import { generateAdDetailsFromImage, editImageWithGemini } from '../services/geminiService.js';
