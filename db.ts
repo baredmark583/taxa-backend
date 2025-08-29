@@ -2,8 +2,7 @@
 
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
-// FIX: Added logger import to be used in this module.
-import { log } from './utils/logger.js';
+import { log } from './src/utils/logger.js';
 
 dotenv.config();
 
@@ -16,24 +15,22 @@ const pool = new Pool({
 });
 
 pool.on('connect', () => {
-  // FIX: Use the logger for consistency.
-  log.info('Database', 'Connected to the PostgreSQL database!');
+  log.info('Database', 'Successfully connected to the PostgreSQL database!');
 });
 
 // FIX: Added an error handler to the pool for better debugging.
 pool.on('error', (err) => {
-    // FIX: Use the logger for consistency.
     log.error('Database Pool', 'Unexpected error on idle client', err);
     // FIX: Cast process to any to access exit method, avoiding a type error.
     (process as any).exit(-1);
 });
 
+
 /**
- * FIX: Added a query wrapper function to centralize database calls and logging.
- * This resolves the "module has no exported member 'query'" error in other files.
- * @param text - The SQL query text.
- * @param params - Parameters for the SQL query.
- * @returns The result of the query.
+ * Обертка над pool.query для логирования всех запросов к базе данных.
+ * @param text - Текст SQL-запроса.
+ * @param params - Параметры для SQL-запроса.
+ * @returns Результат выполнения запроса.
  */
 export const query = async (text: string, params?: any[]) => {
     const start = Date.now();
@@ -46,9 +43,10 @@ export const query = async (text: string, params?: any[]) => {
     } catch (err) {
         const duration = Date.now() - start;
         log.error('DB', `Query failed (${duration}ms)`, { text, error: err });
-        throw err;
+        throw err; // Пробрасываем ошибку дальше, чтобы ее обработал вызывающий код
     }
 };
 
 
+// Оставляем pool для прямого доступа, если он где-то нужен (например, в db-init)
 export default pool;

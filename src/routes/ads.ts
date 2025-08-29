@@ -1,6 +1,9 @@
 
-// FIX: Use combined default and named type imports for express to resolve type errors.
-import express, { type Response, type NextFunction } from 'express';
+
+
+
+// FIX: Use named imports from express for correct type resolution.
+import express, { Response, NextFunction } from 'express';
 // FIX: Use default express import to resolve type conflicts.
 import { getAllAds, createAd, getAdById, updateAdStatus, updateAd } from '../controllers/adController.js';
 import { authMiddleware, type AuthRequest } from '../middleware/auth.js';

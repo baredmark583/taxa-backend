@@ -1,10 +1,14 @@
+
+
 // FIX: Imported Modality for the image editing feature.
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { GeneratedAdData, Ad, ImageSearchQuery, ChatMessage } from '../types.js';
+import { log } from '../utils/logger.js';
 
 const API_KEY = process.env.API_KEY;
 
 if (!API_KEY) {
+  log.error('GeminiService', 'API_KEY environment variable not set for Gemini.');
   throw new Error("API_KEY environment variable not set for Gemini.");
 }
 
@@ -44,6 +48,8 @@ const adSchema = {
 
 
 export const generateAdDetailsFromImage = async (userPrompt: string, imageBase64: string, mimeType: string): Promise<GeneratedAdData> => {
+  const CONTEXT = 'GeminiService:generateAdDetails';
+  log.info(CONTEXT, 'Starting ad generation from image and prompt.', { userPrompt, mimeType });
   try {
     const textPart = { text: `На основі зображення та цього опису від користувача: "${userPrompt}", згенеруй деталі оголошення. Весь текст має бути українською мовою. Використовуй лише надані категорії. Запропонуй ціну в гривнях (UAH). Визнач місто. Згенеруй 3-5 релевантних тегів.` };
     const imagePart = {
@@ -62,21 +68,25 @@ export const generateAdDetailsFromImage = async (userPrompt: string, imageBase64
         systemInstruction: "You are an expert copywriter for a Ukrainian classifieds website. All your output must be in Ukrainian."
       }
     });
+    log.info(CONTEXT, 'Received response from Gemini API.');
 
     if (!response.text) {
+        log.error(CONTEXT, 'Gemini API response is empty. Possibly blocked by safety policy.');
         throw new Error("Відповідь від AI порожня. Можливо, зображення було заблоковано через політику безпеки. Спробуйте інше фото.");
     }
     const jsonText = response.text.trim();
+    log.debug(CONTEXT, 'Received JSON text from Gemini', { jsonText });
     const generatedData = JSON.parse(jsonText) as GeneratedAdData;
     
     if (!generatedData.title || !generatedData.description || !generatedData.category || !generatedData.price || !generatedData.location) {
+        log.error(CONTEXT, 'AI response is missing required fields.', { generatedData });
         throw new Error("Відповідь AI не містить обов'язкових полів.");
     }
-    
+    log.info(CONTEXT, 'Successfully parsed ad details from Gemini response.');
     return generatedData;
 
   } catch (error) {
-    console.error("Помилка під час виклику Gemini API:", error);
+    log.error(CONTEXT, 'Error calling Gemini API.', error);
     
     // Re-throw our custom, user-friendly errors directly to the controller.
     if (error instanceof Error && (error.message.includes("політику безпеки") || error.message.includes("обов'язкових полів"))) {
@@ -91,6 +101,8 @@ export const generateAdDetailsFromImage = async (userPrompt: string, imageBase64
 
 // Add a new function for editing images.
 export const editImageWithGemini = async (imageBase64: string, mimeType: string, editPrompt: string): Promise<{ imageBase64: string; mimeType: string }> => {
+    const CONTEXT = 'GeminiService:editImage';
+    log.info(CONTEXT, 'Starting image editing.', { mimeType, editPrompt });
     try {
         const imagePart = {
             inlineData: {
@@ -101,13 +113,14 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
         const textPart = { text: editPrompt };
         
         const response = await ai.models.generateContent({
-// FIX: Updated model name to the correct one for image editing per guidelines.
+            // FIX: Updated model name to the correct one for image editing per guidelines.
             model: 'gemini-2.5-flash-image-preview',
             contents: { parts: [imagePart, textPart] },
             config: {
                 responseModalities: [Modality.IMAGE, Modality.TEXT],
             },
         });
+        log.info(CONTEXT, 'Received image editing response from Gemini.');
         
         const imageResponsePart = response.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
         const inlineData = imageResponsePart?.inlineData;
@@ -116,6 +129,7 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
         // to the TypeScript compiler, ensuring that inside the `if` block, `inlineData` and its properties are
         // correctly typed as strings, which resolves the persistent TS2322 build error.
         if (inlineData && typeof inlineData.data === 'string' && typeof inlineData.mimeType === 'string') {
+            log.info(CONTEXT, 'Successfully extracted edited image data from response.');
             return {
                 imageBase64: inlineData.data,
                 mimeType: inlineData.mimeType,
@@ -124,13 +138,15 @@ export const editImageWithGemini = async (imageBase64: string, mimeType: string,
             // Failure path
             const textResponse = response.text; // Check for a text-based error from Gemini
             if (textResponse) {
+                log.error(CONTEXT, 'AI did not return an image. Reason provided:', { textResponse });
                 throw new Error(`AI did not return an image. Reason: ${textResponse}`);
             }
+            log.error(CONTEXT, 'AI did not return an edited image. Possibly blocked by safety policies.');
             throw new Error('AI did not return an edited image. The image may have been blocked by safety policies.');
         }
 
     } catch (error: any) {
-        console.error("Error calling Gemini Image Editing API:", error);
+        log.error(CONTEXT, 'Error calling Gemini Image Editing API.', error);
         
         // Check for rate limit error (status code 429)
         if (error.status === 429) {

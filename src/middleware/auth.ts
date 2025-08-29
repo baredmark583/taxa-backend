@@ -1,15 +1,15 @@
 
-// FIX: Use explicit named type imports from 'express' to ensure correct type resolution.
-import type { Request, Response, NextFunction } from 'express';
+
+
+
+// FIX: Use named imports from express for correct type resolution.
+import { Request, Response, NextFunction } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.
-// FIX: Changed from an interface to a type intersection to prevent issues with
-// property inheritance. The `body` and `files` properties are now
-// correctly inherited from `Request` and augmented by middleware types.
-// FIX: Use imported `Request` type.
+// FIX: Use named `Request` type for better compatibility.
 export type AuthRequest = Request & {
   user?: { id: string };
 };

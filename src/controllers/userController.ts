@@ -1,62 +1,79 @@
 
-// FIX: Use named type imports for express to resolve property access errors.
-import type { Response } from 'express';
-import pool from '../db.js';
+
+
+
+
+// FIX: Use named imports from express for correct type resolution.
+import { Response } from 'express';
+import { query } from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
+import { log } from '../utils/logger.js';
 
 // Get user's favorite ad IDs
-// FIX: Use imported express types for request and response handlers.
+// FIX: Use Response type from express.
 export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
+    const CONTEXT = `userController:getFavoriteAdIds(${userId})`;
+    log.info(CONTEXT, "Fetching user's favorite ad IDs.");
     try {
-        const result = await pool.query('SELECT "adId" FROM "Favorite" WHERE "userId" = $1', [userId]);
-        res.status(200).json(result.rows.map(row => row.adId));
+        const result = await query('SELECT "adId" FROM "Favorite" WHERE "userId" = $1', [userId]);
+        const ids = result.rows.map(row => row.adId);
+        log.info(CONTEXT, `Successfully fetched ${ids.length} favorite ad IDs.`);
+        res.status(200).json(ids);
     } catch (error) {
-        console.error('Get favorite ad IDs error:', error);
+        log.error(CONTEXT, 'Failed to fetch favorite ad IDs.', error);
         res.status(500).json({ message: 'Failed to fetch favorite ads' });
     }
 };
 
 // Add an ad to favorites
-// FIX: Use imported express types for request and response handlers.
+// FIX: Use Response type from express.
 export const addFavorite = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
+    const CONTEXT = `userController:addFavorite(${userId})`;
+    log.info(CONTEXT, "Adding ad to favorites.", { adId });
     try {
-        await pool.query(
+        await query(
             'INSERT INTO "Favorite" ("userId", "adId") VALUES ($1, $2) ON CONFLICT DO NOTHING',
             [userId, adId]
         );
+        log.info(CONTEXT, "Successfully added ad to favorites.");
         res.status(201).send();
     } catch (error) {
-        console.error('Add favorite error:', error);
+        log.error(CONTEXT, 'Failed to add ad to favorites.', error);
         res.status(500).json({ message: 'Failed to add ad to favorites' });
     }
 };
 
 // Remove an ad from favorites
-// FIX: Use imported express types for request and response handlers.
+// FIX: Use Response type from express.
 export const removeFavorite = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
+    const CONTEXT = `userController:removeFavorite(${userId})`;
+    log.info(CONTEXT, "Removing ad from favorites.", { adId });
     try {
-        await pool.query(
+        await query(
             'DELETE FROM "Favorite" WHERE "userId" = $1 AND "adId" = $2',
             [userId, adId]
         );
+        log.info(CONTEXT, "Successfully removed ad from favorites.");
         res.status(204).send();
     } catch (error) {
-        console.error('Remove favorite error:', error);
+        log.error(CONTEXT, 'Failed to remove ad from favorites.', error);
         res.status(500).json({ message: 'Failed to remove ad from favorites' });
     }
 };
 
 // Get ads favorited by the user
-// FIX: Use imported express types for request and response handlers.
+// FIX: Use Response type from express.
 export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
+    const CONTEXT = `userController:getFavoriteAds(${userId})`;
+    log.info(CONTEXT, "Fetching user's favorite ads.");
     try {
-        const result = await pool.query(`
+        const result = await query(`
             SELECT a.*,
                    json_build_object(
                        'id', u.id,
@@ -69,9 +86,10 @@ export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
             WHERE f."userId" = $1
             ORDER BY f."createdAt" DESC
         `, [userId]);
+        log.info(CONTEXT, `Successfully fetched ${result.rows.length} favorite ads.`);
         res.status(200).json(result.rows);
     } catch (error) {
-        console.error('Get favorite ads error:', error);
+        log.error(CONTEXT, 'Failed to fetch favorite ads.', error);
         res.status(500).json({ message: 'Failed to fetch favorite ads' });
     }
 }

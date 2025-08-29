@@ -1,5 +1,7 @@
+
 import axios from 'axios';
-import pool from '../db.js';
+import { query } from '../db.js';
+import { log } from '../utils/logger.js';
 
 interface GeoLocationResponse {
     status: string;
@@ -14,24 +16,31 @@ interface GeoLocationResponse {
  * @param userId The ID of the user to update.
  */
 export const updateLocationFromIp = async (ip: string | undefined, userId: string): Promise<void> => {
+    const CONTEXT = `locationService(${userId})`;
+    
     // Skip for local/internal IPs
     if (!ip || ip === '::1' || ip === '127.0.0.1') {
+        log.debug(CONTEXT, 'Skipping location update for local IP.', { ip });
         return;
     }
 
     try {
+        log.info(CONTEXT, 'Fetching geolocation for IP.', { ip });
         const response = await axios.get<GeoLocationResponse>(`http://ip-api.com/json/${ip}`);
         const { data } = response;
+        log.debug(CONTEXT, 'Received response from geo IP API.', { data });
 
         if (data.status === 'success' && data.lat && data.lon && data.city) {
-            await pool.query(
+            await query(
                 'UPDATE "User" SET latitude = $1, longitude = $2, city = $3 WHERE id = $4',
                 [data.lat, data.lon, data.city, userId]
             );
-            console.log(`Updated location for user ${userId} to ${data.city}`);
+            log.info(CONTEXT, `Successfully updated location for user to ${data.city}.`);
+        } else {
+            log.info(CONTEXT, 'Geo IP API response was not successful or missing data.', { status: data.status });
         }
     } catch (error) {
         // Log the error but don't let it crash the auth flow
-        console.error(`Could not fetch geolocation for IP ${ip}:`, error);
+        log.error(CONTEXT, `Could not fetch or update geolocation for IP ${ip}.`, error);
     }
 };

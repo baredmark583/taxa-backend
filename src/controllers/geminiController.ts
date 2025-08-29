@@ -1,32 +1,44 @@
 
-// FIX: Use named type imports for express to resolve property access errors.
-import type { Response } from 'express';
+
+
+
+
+// FIX: Use named imports from express for correct type resolution.
+import { Response } from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Added editImageWithGemini to imports.
 import { generateAdDetailsFromImage, editImageWithGemini } from '../services/geminiService.js';
+import { log } from '../utils/logger.js';
 
 // FIX: Use imported express types for request and response handlers.
 export const generateAd = async (req: AuthRequest, res: Response) => {
+    const CONTEXT = 'geminiController:generateAd';
     const { prompt, imageBase64, mimeType } = req.body;
+    log.info(CONTEXT, 'Received request to generate ad details from image.', { prompt, mimeType });
     
     if (!prompt || !imageBase64 || !mimeType) {
+        log.error(CONTEXT, 'Request is missing required fields.');
         return res.status(400).json({ message: 'Prompt, image, and mimeType are required.' });
     }
 
     try {
         const adDetails = await generateAdDetailsFromImage(prompt, imageBase64, mimeType);
+        log.info(CONTEXT, 'Successfully generated ad details.', { adDetails });
         res.status(200).json(adDetails);
     } catch (error) {
-        console.error("Gemini ad generation failed:", error);
+        log.error(CONTEXT, 'Failed to generate ad details from AI.', error);
         res.status(500).json({ message: (error as Error).message || 'Failed to generate ad details from AI.' });
     }
 };
 
 // Add a new controller for image editing.
 export const editImage = async (req: AuthRequest, res: Response) => {
+    const CONTEXT = 'geminiController:editImage';
     const { imageBase64, mimeType, editType } = req.body as { imageBase64: string, mimeType: string, editType: 'background' | 'enhance' };
+    log.info(CONTEXT, 'Received request to edit an image.', { editType, mimeType });
 
     if (!imageBase64 || !mimeType || !editType) {
+        log.error(CONTEXT, 'Request is missing required fields for image editing.');
         return res.status(400).json({ message: 'Image, mimeType, and editType are required.' });
     }
     
@@ -36,14 +48,18 @@ export const editImage = async (req: AuthRequest, res: Response) => {
     } else if (editType === 'enhance') {
         editPrompt = 'Enhance the quality of this image. Improve brightness, contrast, and sharpness to make it look more professional and appealing. Do not change the content of the image.';
     } else {
+        log.error(CONTEXT, 'Invalid editType provided.', { editType });
         return res.status(400).json({ message: 'Invalid editType.' });
     }
+    log.debug(CONTEXT, 'Generated Gemini prompt for image editing.', { editPrompt });
 
     try {
         const editedImage = await editImageWithGemini(imageBase64, mimeType, editPrompt);
-        res.status(200).json(editedImage);
+        log.info(CONTEXT, 'Successfully edited image with Gemini.');
+        // Don't log the full base64 string, just the success and mimeType
+        res.status(200).json({ imageBase64: editedImage.imageBase64, mimeType: editedImage.mimeType });
     } catch (error) {
-        console.error("Gemini image editing failed:", error);
+        log.error(CONTEXT, 'Failed to edit image with AI.', error);
         res.status(500).json({ message: (error as Error).message || 'Failed to edit image with AI.' });
     }
 };

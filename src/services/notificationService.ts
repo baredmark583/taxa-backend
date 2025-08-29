@@ -1,9 +1,11 @@
+
 import axios from 'axios';
+import { log } from '../utils/logger.js';
 
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
 if (!botToken) {
-    console.warn("TELEGRAM_BOT_TOKEN environment variable not set. Telegram notifications will be disabled.");
+    log.info("TelegramService", "TELEGRAM_BOT_TOKEN environment variable not set. Telegram notifications will be disabled.");
 }
 
 /**
@@ -13,8 +15,10 @@ if (!botToken) {
  * @param adId Optional Ad ID to create a deep link button.
  */
 export const sendTelegramNotification = async (telegramId: number, message: string, adId?: string): Promise<void> => {
+    const CONTEXT = 'TelegramService';
+
     if (!botToken || !process.env.FRONTEND_URL) {
-        console.log(`Telegram notifications are disabled. Would have sent to ${telegramId}: "${message}"`);
+        log.info(CONTEXT, `Notifications are disabled. Would have sent to ${telegramId}: "${message}"`);
         return;
     }
 
@@ -36,11 +40,13 @@ export const sendTelegramNotification = async (telegramId: number, message: stri
             ]
         };
     }
+    
+    log.info(CONTEXT, 'Sending notification.', { telegramId, message, adId });
 
     try {
         await axios.post(apiUrl, payload);
-        console.log(`Successfully sent notification to Telegram user ${telegramId}`);
+        log.info(CONTEXT, `Successfully sent notification to Telegram user ${telegramId}`);
     } catch (error: any) {
-        console.error(`Failed to send Telegram notification to user ${telegramId}:`, error.response?.data || error.message);
+        log.error(CONTEXT, `Failed to send Telegram notification to user ${telegramId}.`, error.response?.data || error.message);
     }
 };

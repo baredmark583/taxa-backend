@@ -1,6 +1,10 @@
 
-// FIX: Use combined default and named type imports for express to resolve type errors.
-import express, { type Request, type Response } from 'express';
+
+
+
+
+// FIX: Use default express import to resolve type errors.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -14,6 +18,7 @@ import fs from 'fs';
 // Added .js extension to local imports for ES module resolution.
 import { initializeDatabase } from './src/db-init.js';
 import { handleConnection } from './src/services/websocketService.js';
+import { log } from './src/utils/logger.js';
 
 
 import authRoutes from './src/routes/auth.js';
@@ -45,6 +50,20 @@ const wss = new WebSocketServer({ server });
 // Set up a listener for new WebSocket connections.
 wss.on('connection', handleConnection);
 
+// --- Middleware for Request Logging ---
+app.use((req, res, next) => {
+    const start = Date.now();
+    const { method, url, ip } = req;
+    log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
+
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        log.info('Request', `<-- ${method} ${url} - ${res.statusCode} (${duration}ms)`);
+    });
+    next();
+});
+
+
 const startServer = async () => {
   try {
     // Initialize the database schema before starting the server
@@ -65,7 +84,7 @@ const startServer = async () => {
             if (allowedOrigins.indexOf(origin) !== -1) {
                 callback(null, true);
             } else {
-                console.warn(`CORS blocked for origin: ${origin}`);
+                log.info('CORS', `Blocked origin: ${origin}`);
                 callback(new Error('Not allowed by CORS'));
             }
         },
@@ -94,10 +113,10 @@ const startServer = async () => {
 
     // Check if the build directory exists
     if (fs.existsSync(frontendBuildPath)) {
-        console.log("Serving frontend files from:", frontendBuildPath);
+        log.info('Static Server', `Serving frontend files from: ${frontendBuildPath}`);
         // Handler for the admin panel route must come BEFORE express.static
         // to ensure it's not overridden by the static file server.
-        // FIX: Use imported express types to resolve property access errors.
+        // FIX: Use Request and Response types from express to resolve property access errors.
         app.get('/taxaadmin*', (req: Request, res: Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'admin.html'));
         });
@@ -106,26 +125,38 @@ const startServer = async () => {
         
         // The "catchall" handler: for any request that doesn't match one of the above,
         // send back the main index.html file. This is crucial for client-side routing.
-        // FIX: Use imported express types to resolve property access errors.
+        // FIX: Use Request and Response types from express to resolve property access errors.
         app.get('*', (req: Request, res: Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
         });
     } else {
-        console.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        console.warn("!!! __dirname:", __dirname);
-        console.warn("!!! Frontend build directory not found at:", frontendBuildPath);
-        console.warn("!!! Make sure you have built the frontend part of the application.");
-        console.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        log.error("Static Server", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        log.error("Static Server", `!!! __dirname: ${__dirname}`);
+        log.error("Static Server", `!!! Frontend build directory not found at: ${frontendBuildPath}`);
+        log.error("Static Server", "!!! Make sure you have built the frontend part of the application.");
+        log.error("Static Server", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
+
+    // --- Global Error Handling Middleware ---
+    // This MUST be the last `app.use()` call.
+    // FIX: Use Request, Response, and NextFunction types from express to resolve property access errors.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
+      // Avoid sending stack trace to client in production
+      const errorMessage = process.env.NODE_ENV === 'production' 
+          ? 'An internal server error occurred.' 
+          : err.stack;
+      res.status(500).json({ message: 'Something broke!', error: errorMessage });
+    });
 
 
     // Use the http server to listen, not the express app, to support WebSockets.
     server.listen(PORT, () => {
-      console.log(`Server listening on port ${PORT}`);
+      log.info('Server', `Server is running and listening on port ${PORT}`);
     });
     
   } catch (error) {
-    console.error("Failed to start server:", error);
+    log.error("Server Startup", "Failed to start server:", error);
     // FIX: Cast process to any to access exit method, avoiding a type error.
     (process as any).exit(1);
   }

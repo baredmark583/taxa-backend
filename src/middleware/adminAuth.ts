@@ -1,15 +1,22 @@
 
-// FIX: Use named type imports for express to resolve property access errors.
-import type { Response, NextFunction } from 'express';
+
+
+
+
+// FIX: Use named imports from express for correct type resolution.
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { type AuthRequest } from './auth.js';
-import pool from '../db.js';
+import { query } from '../db.js';
+import { log } from '../utils/logger.js';
 
 // FIX: Use imported express types for middleware signature to resolve property errors.
 export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+  const CONTEXT = 'adminAuthMiddleware';
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    log.info(CONTEXT, 'Auth failed: Token missing or malformed.');
     return res.status(401).json({ message: 'Authentication token required' });
   }
 
@@ -20,20 +27,23 @@ export const adminAuthMiddleware = (req: AuthRequest, res: Response, next: NextF
     req.user = { id: decoded.userId };
     
     // Now, verify if the user is an admin
-    pool.query('SELECT role FROM "User" WHERE id = $1', [req.user.id])
+    query('SELECT role FROM "User" WHERE id = $1', [req.user.id])
         .then(result => {
             if (result.rows.length > 0 && result.rows[0].role === 'ADMIN') {
+                log.info(CONTEXT, `Access granted for admin user: ${req.user?.id}`);
                 next();
             } else {
+                log.info(CONTEXT, `Access forbidden for non-admin user: ${req.user?.id}`);
                 return res.status(403).json({ message: 'Forbidden: Admin access required' });
             }
         })
         .catch(error => {
-            console.error('Admin auth DB error:', error);
+            log.error(CONTEXT, 'DB error during admin role check.', error);
             return res.status(500).json({ message: 'Server error during auth check' });
         });
 
   } catch (error) {
+    log.error(CONTEXT, 'Auth failed: Invalid or expired token.', error);
     return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };

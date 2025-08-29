@@ -1,6 +1,8 @@
-import pool from './db.js';
+
+import pool, { query } from './db.js';
 import bcrypt from 'bcryptjs';
 import cuid from 'cuid';
+import { log } from './utils/logger.js';
 
 const createUserTableQuery = `
   CREATE TABLE "User" (
@@ -137,28 +139,29 @@ const createConfigurationTableQuery = `
   );
 `;
 
+const CONTEXT = 'DB-Init';
 
 const checkTableExists = async (tableName: string): Promise<boolean> => {
-  const res = await pool.query(
+  const res = await query(
     "SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = $1)",
     [tableName]
   );
   return res.rows[0].exists;
 };
 
-const createTableIfNotExists = async (name: string, query: string) => {
+const createTableIfNotExists = async (name: string, createQuery: string) => {
     const tableExists = await checkTableExists(name);
     if (!tableExists) {
-        console.log(`"${name}" table not found. Creating...`);
-        await pool.query(query);
-        console.log(`"${name}" table created successfully.`);
+        log.info(CONTEXT, `Table "${name}" not found. Creating...`);
+        await query(createQuery);
+        log.info(CONTEXT, `Table "${name}" created successfully.`);
     } else {
-        console.log(`"${name}" table already exists.`);
+        log.debug(CONTEXT, `Table "${name}" already exists.`);
     }
 };
 
 const checkColumnExists = async (tableName: string, columnName: string): Promise<boolean> => {
-    const res = await pool.query(
+    const res = await query(
         `SELECT EXISTS (
           SELECT 1
           FROM information_schema.columns
@@ -175,14 +178,14 @@ const addColumnIfNotExists = async (tableName: string, columnName: string, colum
 
     const columnExists = await checkColumnExists(tableName, columnName);
     if (!columnExists) {
-        console.log(`Column "${columnName}" not found in "${tableName}". Adding...`);
-        await pool.query(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnDefinition}`);
-        console.log(`Column "${columnName}" added successfully to "${tableName}".`);
+        log.info(CONTEXT, `Column "${columnName}" not found in "${tableName}". Adding...`);
+        await query(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnDefinition}`);
+        log.info(CONTEXT, `Column "${columnName}" added successfully to "${tableName}".`);
     }
 };
 
 const checkColumnIsNullable = async (tableName: string, columnName: string): Promise<boolean> => {
-    const res = await pool.query(
+    const res = await query(
         `SELECT is_nullable
          FROM information_schema.columns
          WHERE table_schema = 'public' AND table_name = $1 AND column_name = $2`,
@@ -203,12 +206,12 @@ const makeColumnNullable = async (tableName: string, columnName: string) => {
 
     const isNullable = await checkColumnIsNullable(tableName, columnName);
     if (!isNullable) {
-        console.log(`Column "${columnName}" in "${tableName}" is NOT NULL. Altering to allow NULLs...`);
+        log.info(CONTEXT, `Column "${columnName}" in "${tableName}" is NOT NULL. Altering to allow NULLs...`);
         try {
-            await pool.query(`ALTER TABLE "${tableName}" ALTER COLUMN "${columnName}" DROP NOT NULL`);
-            console.log(`Column "${columnName}" in "${tableName}" now allows NULLs.`);
+            await query(`ALTER TABLE "${tableName}" ALTER COLUMN "${columnName}" DROP NOT NULL`);
+            log.info(CONTEXT, `Column "${columnName}" in "${tableName}" now allows NULLs.`);
         } catch (error) {
-            console.error(`Failed to make column "${columnName}" nullable:`, error);
+            log.error(CONTEXT, `Failed to make column "${columnName}" nullable:`, error);
         }
     }
 };
@@ -218,23 +221,23 @@ const createAdminUserIfNotExists = async () => {
     const adminPassword = process.env.ADMIN_PASSWORD;
 
     if (!adminEmail || !adminPassword) {
-        console.warn('ADMIN_EMAIL or ADMIN_PASSWORD not set. Skipping admin user creation.');
+        log.info(CONTEXT, 'ADMIN_EMAIL or ADMIN_PASSWORD not set. Skipping admin user creation.');
         return;
     }
 
-    const res = await pool.query('SELECT * FROM "User" WHERE email = $1', [adminEmail]);
+    const res = await query('SELECT * FROM "User" WHERE email = $1', [adminEmail]);
     if (res.rows.length === 0) {
-        console.log(`Admin user with email ${adminEmail} not found. Creating...`);
+        log.info(CONTEXT, `Admin user with email ${adminEmail} not found. Creating...`);
         const hashedPassword = await bcrypt.hash(adminPassword, 12);
         const adminId = cuid(); // Generate ID in the application code
-        await pool.query(
+        await query(
             `INSERT INTO "User" (id, email, password, name, role, "updatedAt") 
              VALUES ($1, $2, $3, $4, 'ADMIN', $5)`,
             [adminId, adminEmail, hashedPassword, 'Admin', new Date()] // Pass the generated ID as a parameter
         );
-        console.log('Admin user created successfully.');
+        log.info(CONTEXT, 'Admin user created successfully.');
     } else {
-        console.log('Admin user already exists.');
+        log.debug(CONTEXT, 'Admin user already exists.');
     }
 };
 
@@ -251,7 +254,7 @@ const initializeConfiguration = async () => {
         'gcs_project_id': '',
         'gcs_credentials': '',
     };
-
+    // Use the raw pool for transactions as our wrapper doesn't support it
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
@@ -268,12 +271,12 @@ const initializeConfiguration = async () => {
     } finally {
         client.release();
     }
-    console.log('Configuration initialized.');
+    log.info(CONTEXT, 'Configuration initialized.');
 };
 
 
 export const initializeDatabase = async () => {
-  console.log('Checking database schema...');
+  log.info(CONTEXT, 'Checking database schema...');
 
   // Core tables
   await createTableIfNotExists('User', createUserTableQuery);
@@ -313,5 +316,5 @@ export const initializeDatabase = async () => {
   // Ensure admin user exists
   await createAdminUserIfNotExists();
 
-  console.log('Database schema check complete.');
+  log.info(CONTEXT, 'Database schema check complete.');
 };
