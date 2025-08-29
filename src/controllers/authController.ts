@@ -1,6 +1,7 @@
 
+
 // FIX: Use default express import to enable qualified type usage which resolves type errors.
-import express, { type Request, type Response } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
@@ -10,7 +11,7 @@ import crypto from 'crypto';
 import { updateLocationFromIp } from '../services/locationService.js';
 
 // FIX: Use imported express types for request and response handlers.
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: express.Request, res: express.Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -49,7 +50,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 // FIX: Use imported express types for request and response handlers.
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -87,7 +88,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // FIX: Use imported express types for request and response handlers.
-export const telegramLogin = async (req: Request, res: Response) => {
+export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
 

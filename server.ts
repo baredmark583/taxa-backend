@@ -1,7 +1,8 @@
 
+
 // FIX: Use default express import to enable qualified type usage (e.g., express.Response) which resolves type errors.
 // FIX: Import explicit Request and Response types to resolve type errors.
-import express, { type Request, type Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -86,10 +87,10 @@ const startServer = async () => {
     app.use('/api/chat', chatRoutes);
 
     // Serve static files from the React app build directory in production
-    // FIX: Changed path resolution to be based on __dirname, which is more reliable.
-    // The compiled server.js will be in `backend/dist`, so we go up two levels
-    // to the project root and then into the frontend's `dist` folder.
-    const frontendBuildPath = path.resolve(__dirname, '../../dist');
+    // FIX: Changed path resolution to be based on process.cwd(), which in a Render
+    // environment typically points to the repository root. This should correctly
+    // locate the top-level `dist` folder created by the frontend build process.
+    const frontendBuildPath = path.resolve((process as any).cwd(), 'dist');
 
     // Check if the build directory exists
     if (fs.existsSync(frontendBuildPath)) {
@@ -97,7 +98,7 @@ const startServer = async () => {
         // Handler for the admin panel route must come BEFORE express.static
         // to ensure it's not overridden by the static file server.
         // FIX: Use imported express types to resolve property access errors.
-        app.get('/taxaadmin*', (req: Request, res: Response) => {
+        app.get('/taxaadmin*', (req: express.Request, res: express.Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'admin.html'));
         });
 
@@ -106,12 +107,12 @@ const startServer = async () => {
         // The "catchall" handler: for any request that doesn't match one of the above,
         // send back the main index.html file. This is crucial for client-side routing.
         // FIX: Use imported express types to resolve property access errors.
-        app.get('*', (req: Request, res: Response) => {
+        app.get('*', (req: express.Request, res: express.Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
         });
     } else {
         console.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        console.warn("!!! __dirname:", __dirname);
+        console.warn("!!! process.cwd():", (process as any).cwd());
         console.warn("!!! Frontend build directory not found at:", frontendBuildPath);
         console.warn("!!! Make sure you have built the frontend part of the application.");
         console.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");

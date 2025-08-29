@@ -1,12 +1,13 @@
 
+
 // FIX: Use default express import to enable qualified type usage which resolves type errors.
-import express, { type Response } from 'express';
+import express from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Added editImageWithGemini to imports.
 import { generateAdDetailsFromImage, editImageWithGemini } from '../services/geminiService.js';
 
 // FIX: Use imported express types for request and response handlers.
-export const generateAd = async (req: AuthRequest, res: Response) => {
+export const generateAd = async (req: AuthRequest, res: express.Response) => {
     const { prompt, imageBase64, mimeType } = req.body;
     
     if (!prompt || !imageBase64 || !mimeType) {
@@ -23,7 +24,7 @@ export const generateAd = async (req: AuthRequest, res: Response) => {
 };
 
 // Add a new controller for image editing.
-export const editImage = async (req: AuthRequest, res: Response) => {
+export const editImage = async (req: AuthRequest, res: express.Response) => {
     const { imageBase64, mimeType, editType } = req.body as { imageBase64: string, mimeType: string, editType: 'background' | 'enhance' };
 
     if (!imageBase64 || !mimeType || !editType) {
