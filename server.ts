@@ -1,7 +1,8 @@
 
 
-// FIX: Removed 'type' from express imports to resolve type inference issues.
-import express, { Request, Response } from 'express';
+
+// FIX: Use default express import to enable qualified type usage (e.g., express.Response) which resolves type errors.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -90,16 +91,19 @@ const startServer = async () => {
 
     // Check if the build directory exists
     if (fs.existsSync(frontendBuildPath)) {
-        app.use(express.static(frontendBuildPath));
-        
-        // Handler for the admin panel route
-        app.get('/taxaadmin*', (req: Request, res: Response) => {
+        // Handler for the admin panel route must come BEFORE express.static
+        // to ensure it's not overridden by the static file server.
+        // FIX: Use qualified express types to resolve property access errors.
+        app.get('/taxaadmin*', (req: express.Request, res: express.Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'admin.html'));
         });
 
-        // The "catchall" handler: for any request that doesn't match an API or admin route,
-        // send back the main index.html file from the React build.
-        app.get('*', (req: Request, res: Response) => {
+        app.use(express.static(frontendBuildPath));
+        
+        // The "catchall" handler: for any request that doesn't match one of the above,
+        // send back the main index.html file. This is crucial for client-side routing.
+        // FIX: Use qualified express types to resolve property access errors.
+        app.get('*', (req: express.Request, res: express.Response) => {
             res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
         });
     } else {

@@ -1,8 +1,6 @@
 
-
-// controllers/chatController.ts
-// FIX: Removed 'type' from express imports to resolve type inference issues.
-import { Response } from 'express';
+// FIX: Use default express import to enable qualified type usage (e.g., express.Response) which resolves type errors.
+import express from 'express';
 import pool from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -11,7 +9,7 @@ import { sendMessageToUser } from '../services/websocketService.js';
 
 // Get all conversations for the current user
 // FIX: Use qualified express types for request and response handlers.
-export const getConversations = async (req: AuthRequest, res: Response) => {
+export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
 
     const query = `
@@ -57,7 +55,7 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 
 // Get all messages for a specific conversation (ad + other user)
 // FIX: Use qualified express types for request and response handlers.
-export const getMessages = async (req: AuthRequest, res: Response) => {
+export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
 
@@ -82,7 +80,7 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 
 // Send a new message
 // FIX: Use qualified express types for request and response handlers.
-export const sendMessage = async (req: AuthRequest, res: Response) => {
+export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
 
