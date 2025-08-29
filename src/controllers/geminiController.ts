@@ -1,9 +1,11 @@
 
 
 
+
+
 // FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
-// FIX: Import Response type directly from express to fix type errors.
-import { Response } from 'express';
+// FIX: Switched to default express import and qualified express.Response type to fix errors.
+import express from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Added editImageWithGemini to imports.
 import { generateAdDetailsFromImage, editImageWithGemini } from '../services/geminiService.js';
@@ -11,9 +13,9 @@ import { log } from '../utils/logger.js';
 
 // FIX: Use express.Response for correct typing.
 // FIX: Use qualified express types to resolve property access errors.
-// FIX: Use direct Response type.
+// FIX: Use express.Response type.
 // FIX: Switched to qualified express types to resolve all property access errors.
-export const generateAd = async (req: AuthRequest, res: Response) => {
+export const generateAd = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'geminiController:generateAd';
     const { prompt, imageBase64, mimeType } = req.body;
     log.info(CONTEXT, 'Received request to generate ad details from image.', { prompt, mimeType });
@@ -36,9 +38,9 @@ export const generateAd = async (req: AuthRequest, res: Response) => {
 // Add a new controller for image editing.
 // FIX: Use express.Response for correct typing.
 // FIX: Use qualified express types to resolve property access errors.
-// FIX: Use direct Response type.
+// FIX: Use express.Response type.
 // FIX: Switched to qualified express types to resolve all property access errors.
-export const editImage = async (req: AuthRequest, res: Response) => {
+export const editImage = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'geminiController:editImage';
     const { imageBase64, mimeType, editType } = req.body as { imageBase64: string, mimeType: string, editType: 'background' | 'enhance' };
     log.info(CONTEXT, 'Received request to edit an image.', { editType, mimeType });

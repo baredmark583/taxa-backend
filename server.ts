@@ -1,11 +1,10 @@
 
-
-
 // FIX: Use default express import to resolve type errors.
 // FIX: Reverted to using qualified express types (e.g., express.Request) to resolve widespread property access errors caused by potential type conflicts.
 // FIX: Import Request, Response, and NextFunction directly from express to fix type errors.
 // FIX: Import Request, Response, and NextFunction directly to fix type errors.
-import express, { Request, Response, NextFunction } from 'express';
+// FIX: Use default express import and qualified types to resolve all type errors.
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // Added imports for path and url to serve static files.
@@ -57,7 +56,8 @@ wss.on('connection', handleConnection);
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use direct Request, Response, and NextFunction types.
 // FIX: Switched to qualified express types to resolve all property access errors.
-app.use((req: Request, res: Response, next: NextFunction) => {
+// FIX: Use qualified express types (e.g., express.Request) to resolve type errors.
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -110,10 +110,16 @@ const startServer = async () => {
     app.use('/api/chat', chatRoutes);
     
     // --- Serve Frontend Static Files ---
-    // Path is relative from `backend/dist/server.js` to the frontend build output `frontend/dist`.
-    // In a typical monorepo setup, you'd adjust your build scripts to place this output correctly.
-    // We assume the frontend is built into a directory that becomes `../public` relative to the running server script.
-    const publicPath = path.join(__dirname, '..', 'public');
+    // The frontend is built by Vite into a 'dist' directory in the project root.
+    // We'll use process.cwd() which points to the project root on Render.
+    // FIX: Cast process to any to access cwd method, avoiding a type error.
+    const publicPath = path.join((process as any).cwd(), 'dist');
+
+    log.info('Server Path Check', `Looking for frontend static files`, {
+        // FIX: Cast process to any to access cwd method, avoiding a type error.
+        'process.cwd()': (process as any).cwd(),
+        'resolved publicPath': publicPath,
+    });
 
     if (fs.existsSync(publicPath)) {
         log.info('Server', `Serving static files from: ${publicPath}`);
@@ -125,7 +131,8 @@ const startServer = async () => {
         // FIX: Use qualified express types to resolve property access errors.
         // FIX: Use direct Request, Response, and NextFunction types.
         // FIX: Switched to qualified express types to resolve all property access errors.
-        app.get('*', (req: Request, res: Response, next: NextFunction) => {
+        // FIX: Use qualified express types (e.g., express.Request) to resolve type errors.
+        app.get('*', (req: express.Request, res: express.Response, next: express.NextFunction) => {
             // Exclude API calls and requests that look like files (contain a dot).
             // This is a more robust fix for the CSS MIME type error.
             if (req.path.startsWith('/api/') || req.path.includes('.')) {
@@ -133,7 +140,7 @@ const startServer = async () => {
             }
             
             // If the request path is for the admin panel, serve its dedicated HTML file.
-            // Vite builds this from admin.html to taxaadmin.html.
+            // Vite builds this from admin.html to dist/taxaadmin.html.
             if (req.path.startsWith('/taxaadmin')) {
                 res.sendFile(path.join(publicPath, 'taxaadmin.html'));
             } else {
@@ -154,7 +161,8 @@ const startServer = async () => {
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use direct Request, Response, and NextFunction types.
     // FIX: Switched to qualified express types to resolve all property access errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use qualified express types (e.g., express.Request) to resolve type errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 
