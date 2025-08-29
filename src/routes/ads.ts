@@ -1,16 +1,5 @@
-
-// FIX: Use default express import for correct type resolution.
 // FIX: Use default express import to resolve type errors.
-// FIX: Use default express import to resolve type conflicts.
-// FIX: Switched to default express import and qualified types.
-// FIX: Import Response and NextFunction from express to resolve type errors.
-// FIX: Use qualified express types to avoid conflicts with global types.
-// FIX: Import Response and NextFunction types directly from express to resolve type errors.
-// FIX: Switched to default express import and qualified types (express.Response, express.NextFunction) to resolve property access errors and handler overload errors.
-// FIX: Import Response and NextFunction directly from express to resolve type conflicts.
-// FIX: Use default express import and qualified types to fix all type errors.
-// FIX: Import Response and NextFunction from express to resolve type errors.
-import express, { type Response, type NextFunction } from 'express';
+import express, { Response, NextFunction } from 'express';
 import { getAllAds, createAd, getAdById, updateAdStatus, updateAd } from '../controllers/adController.js';
 import { authMiddleware, type AuthRequest } from '../middleware/auth.js';
 import { upload } from '../services/cloudinaryService.js';

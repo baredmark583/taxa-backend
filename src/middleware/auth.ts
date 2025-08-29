@@ -1,14 +1,5 @@
-
-// FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
-// FIX: Switched to qualified express types to resolve type conflicts and property access errors.
 // FIX: Import Request, Response, NextFunction directly from express.
-// FIX: Use qualified express types to avoid conflicts with global types.
-// FIX: Import Request, Response, and NextFunction types directly from express to resolve type errors.
-// FIX: Switched to default express import and qualified types (express.Request, express.Response, express.NextFunction) to resolve property access errors and type conflicts.
-// FIX: Import Request, Response, and NextFunction directly from express to resolve type conflicts and property access errors.
-// FIX: Use default express import and qualified types to fix all type errors.
-// FIX: Import Request, Response, and NextFunction types directly from express to resolve type errors.
-import { type Request, type Response, type NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import jwt from 'jsonwebtoken';
@@ -22,6 +13,7 @@ import jwt from 'jsonwebtoken';
 // FIX: Use qualified express types to resolve type conflicts.
 // FIX: Use the imported Request type directly for AuthRequest.
 // FIX: Qualify with express.Request to resolve type conflicts.
+// FIX: Switched to express.Request to resolve type conflicts with global Request type.
 export type AuthRequest = Request & {
   user?: { id: string };
 };

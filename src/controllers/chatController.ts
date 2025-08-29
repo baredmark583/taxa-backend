@@ -1,14 +1,5 @@
-
-// FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
-// FIX: Switched to default express import and qualified express.Response type to fix errors.
 // FIX: Import Response from express to resolve type errors.
-// FIX: Use qualified express types to avoid conflicts with global types.
-// FIX: Import Response type directly from express to resolve type errors.
-// FIX: Switched to default express import and qualified express.Response type to resolve property access errors from potential type conflicts.
-// FIX: Import Response directly from express to resolve type conflicts.
-// FIX: Use default express import and qualified types to fix all type errors.
-// FIX: Import Response type directly from express to resolve type errors.
-import { type Response } from 'express';
+import { Response } from 'express';
 import { query } from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';

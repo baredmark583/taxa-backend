@@ -1,5 +1,9 @@
 
 
+
+
+
+
 // FIX: Imported Modality for the image editing feature.
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { GeneratedAdData, Ad, ImageSearchQuery, ChatMessage } from '../types.js';
@@ -60,6 +64,7 @@ export const generateAdDetailsFromImage = async (userPrompt: string, imageBase64
     };
 
     const response = await ai.models.generateContent({
+      // FIX: Use the recommended model 'gemini-2.5-flash' instead of the deprecated 'gemini-1.5-flash'.
       model: 'gemini-2.5-flash',
       contents: { parts: [textPart, imagePart] },
       config: {

@@ -1,9 +1,5 @@
-
-// FIX: Switched to default express import and qualified types (express.Request, express.Response) to resolve property access errors from potential type conflicts.
 // FIX: Import Request and Response directly from express to resolve type conflicts.
-// FIX: Use default express import and qualified types to fix all type errors.
-// FIX: Import Request and Response directly from express to resolve type conflicts.
-import { type Request, type Response } from 'express';
+import { Request, Response } from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import { query } from '../db.js';
