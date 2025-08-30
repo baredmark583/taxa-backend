@@ -2,7 +2,7 @@ import express from 'express';
 import { 
     getAds, getUsers, deleteAd, deleteUser, getStats, updateAd, updateUser, getAnalytics, 
     getSettings, updateSettings, getBanner, updateBanner, getCategories, createCategory,
-    updateCategory, deleteCategory, saveAutomationFlow, getAutomationFlow
+    updateCategory, deleteCategory, saveAutomationFlow, getAutomationFlow, getAutomationHistory
 } from '../controllers/adminController.js';
 import { adminAuthMiddleware } from '../middleware/adminAuth.js';
 import { upload } from '../services/cloudinaryService.js';
@@ -35,6 +35,7 @@ router.delete('/categories/:id', deleteCategory);
 // Automation routes
 router.get('/automation', getAutomationFlow);
 router.post('/automation', saveAutomationFlow);
+router.get('/automation/history', getAutomationHistory);
 
 // User management
 router.get('/users', getUsers);

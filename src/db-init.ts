@@ -184,6 +184,20 @@ const createAutomationFlowTableQuery = `
     );
 `;
 
+const createAutomationRunHistoryTableQuery = `
+    CREATE TABLE "AutomationRunHistory" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "flowId" TEXT NOT NULL,
+        "triggerType" TEXT NOT NULL,
+        "triggerData" JSONB,
+        "status" TEXT NOT NULL,
+        "logs" TEXT[] NOT NULL,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL,
+        CONSTRAINT "AutomationRunHistory_flowId_fkey" FOREIGN KEY ("flowId") REFERENCES "AutomationFlow" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    );
+`;
+
 
 const CONTEXT = 'DB-Init';
 
@@ -368,6 +382,7 @@ export const initializeDatabase = async () => {
 
   // New table for automation
   await createTableIfNotExists('AutomationFlow', createAutomationFlowTableQuery);
+  await createTableIfNotExists('AutomationRunHistory', createAutomationRunHistoryTableQuery);
 
 
   // Ensure admin user exists

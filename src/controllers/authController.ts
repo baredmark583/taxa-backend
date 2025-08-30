@@ -1,7 +1,5 @@
 // FIX: Use a single default import for express to avoid type conflicts.
-// FIX: Import Request and Response types directly from express.
-// FIX: Import Request and Response types from express.
-import { Request, Response } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from '../db.js';
@@ -10,14 +8,10 @@ import { User } from '../types.js';
 import crypto from 'crypto';
 import { updateLocationFromIp } from '../services/locationService.js';
 import { log } from '../utils/logger.js';
+import eventEmitter from '../services/eventService.js';
 
 // FIX: Use qualified express types to fix property access errors.
-// FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-// FIX: Use imported Request and Response types.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use Request and Response types to fix property access errors.
-// FIX: Use express.Request and express.Response to fix type errors.
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: express.Request, res: express.Response) => {
   const CONTEXT = 'authController:register';
   const { email, password, name } = req.body;
   log.info(CONTEXT, 'Attempting to register new user.', { email, name });
@@ -54,6 +48,9 @@ export const register = async (req: Request, res: Response) => {
     // Asynchronously update user location based on IP, non-blocking
     updateLocationFromIp(req.ip, newUser.id).catch(err => log.error(CONTEXT, "Failed to update location for new user:", err));
 
+    // Emit an event for the automation service to pick up, non-blocking
+    eventEmitter.emit('USER_REGISTERED', userWithoutPassword);
+
     res.status(201).json({ token, user: userWithoutPassword });
   } catch (error) {
     log.error(CONTEXT, 'Server error during registration.', error);
@@ -62,12 +59,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 // FIX: Use qualified express types to fix property access errors.
-// FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-// FIX: Use imported Request and Response types.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use Request and Response types to fix property access errors.
-// FIX: Use express.Request and express.Response to fix type errors.
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: express.Request, res: express.Response) => {
   const CONTEXT = 'authController:login';
   const { email, password } = req.body;
   log.info(CONTEXT, 'Attempting to log in user.', { email });
@@ -112,12 +104,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // FIX: Use qualified express types to fix property access errors.
-// FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-// FIX: Use imported Request and Response types.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use Request and Response types to fix property access errors.
-// FIX: Use express.Request and express.Response to fix type errors.
-export const redeemWebCode = async (req: Request, res: Response) => {
+export const redeemWebCode = async (req: express.Request, res: express.Response) => {
   const CONTEXT = 'authController:redeemWebCode';
   const { code } = req.body;
   log.info(CONTEXT, 'Attempting to log in user with one-time code.', { code });
@@ -176,12 +163,7 @@ export const redeemWebCode = async (req: Request, res: Response) => {
 
 
 // FIX: Use qualified express types to fix property access errors.
-// FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-// FIX: Use imported Request and Response types.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use Request and Response types to fix property access errors.
-// FIX: Use express.Request and express.Response to fix type errors.
-export const telegramLogin = async (req: Request, res: Response) => {
+export const telegramLogin = async (req: express.Request, res: express.Response) => {
     const CONTEXT = 'authController:telegramLogin';
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -231,6 +213,10 @@ export const telegramLogin = async (req: Request, res: Response) => {
                 );
                 user = insertResult.rows[0];
                 log.info(CONTEXT, `New user created from Telegram data: ${user.id}`);
+                // Emit event for new user from telegram
+                const { password: _password, ...userWithoutPassword } = user;
+                eventEmitter.emit('USER_REGISTERED', userWithoutPassword);
+
             } else {
                 // User exists, update their details
                 user = userResult.rows[0];

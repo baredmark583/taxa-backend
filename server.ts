@@ -7,9 +7,7 @@ import { initializeDatabase } from './src/db-init.js';
 import { handleConnection } from './src/services/websocketService.js';
 import { log } from './src/utils/logger.js';
 // FIX: Use a single default import for express to avoid type conflicts.
-// FIX: Import specific types from express to fix property access errors.
-// FIX: Import Request, Response, and NextFunction types from express.
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './src/routes/auth.js';
@@ -18,6 +16,7 @@ import geminiRoutes from './src/routes/gemini.js';
 import adminRoutes from './src/routes/admin.js';
 import userRoutes from './src/routes/user.js';
 import chatRoutes from './src/routes/chat.js';
+import { initializeAutomationService } from './src/services/automationService.js';
 
 
 dotenv.config();
@@ -39,13 +38,7 @@ wss.on('connection', handleConnection);
 
 // --- Middleware for Request Logging ---
 // FIX: Use qualified express types to resolve property access errors.
-// FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-// FIX: Use imported Request, Response, and NextFunction types.
-// FIX: Use imported Request, Response, and NextFunction types to resolve property access errors.
-// FIX: Use qualified express types to resolve property access errors.
-// FIX: Use Request, Response, and NextFunction types to fix property access errors.
-// FIX: Use express.Request, express.Response, and express.NextFunction to fix type errors.
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -62,6 +55,9 @@ const startServer = async () => {
   try {
     // Initialize the database schema before starting the server
     await initializeDatabase();
+    
+    // Initialize the automation service to start listening for events
+    initializeAutomationService();
       
     // A more flexible CORS configuration to handle different environments.
     // FIX: Simplified to a direct array for better reliability in proxy environments like Render.
@@ -100,13 +96,7 @@ const startServer = async () => {
     // --- Global Error Handling Middleware ---
     // This MUST be the last `app.use()` call.
     // FIX: Use qualified express types to resolve property access errors.
-    // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-    // FIX: Use imported Request, Response, and NextFunction types.
-    // FIX: Use imported Request, Response, and NextFunction types to resolve property access errors.
-    // FIX: Use qualified express types to resolve property access errors.
-    // FIX: Use Request, Response, and NextFunction types to fix property access errors.
-    // FIX: Use express.Request, express.Response, and express.NextFunction to fix type errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 
