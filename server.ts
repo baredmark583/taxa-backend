@@ -2,6 +2,8 @@
 
 
 
+
+
 // Added http and ws imports for WebSocket server setup.
 import http from 'http';
 import { WebSocketServer } from 'ws';
@@ -11,7 +13,8 @@ import { initializeDatabase } from './src/db-init.js';
 import { handleConnection } from './src/services/websocketService.js';
 import { log } from './src/utils/logger.js';
 // FIX: Use a single default import for express to avoid type conflicts.
-import express from 'express';
+// FIX: Import Request, Response, and NextFunction to resolve typing issues.
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './src/routes/auth.js';
@@ -42,7 +45,8 @@ wss.on('connection', handleConnection);
 // --- Middleware for Request Logging ---
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use imported Request, Response, and NextFunction types.
+app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -98,7 +102,8 @@ const startServer = async () => {
     // This MUST be the last `app.use()` call.
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // FIX: Use imported Request, Response, and NextFunction types.
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 

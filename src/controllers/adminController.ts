@@ -1,5 +1,7 @@
+
+
 // FIX: Use a single default import for express to avoid type conflicts.
-import express from 'express';
+import { Request, Response } from 'express';
 import 'multer';
 import { query } from '../db.js';
 import cuid from 'cuid';
@@ -9,7 +11,7 @@ import { log } from '../utils/logger.js';
 // Get dashboard statistics
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
-export const getStats = async (req: AuthRequest, res: express.Response) => {
+export const getStats = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getStats';
     log.info(CONTEXT, 'Fetching dashboard statistics.');
     try {
@@ -46,7 +48,7 @@ export const getStats = async (req: AuthRequest, res: express.Response) => {
 // Get analytics data for charts
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
-export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
+export const getAnalytics = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getAnalytics';
     log.info(CONTEXT, 'Fetching analytics data for charts.');
     try {
@@ -84,7 +86,7 @@ export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
 // Get all users
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
-export const getUsers = async (req: AuthRequest, res: express.Response) => {
+export const getUsers = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getUsers';
   log.info(CONTEXT, 'Fetching all users for admin.');
   try {
@@ -100,7 +102,7 @@ export const getUsers = async (req: AuthRequest, res: express.Response) => {
 // Update a user
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-export const updateUser = async (req: express.Request, res: express.Response) => {
+export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateUser(${id})`;
     log.info(CONTEXT, 'Attempting to update user.', { body: req.body });
@@ -134,7 +136,7 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
 // Delete a user
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-export const deleteUser = async (req: express.Request, res: express.Response) => {
+export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteUser(${id})`;
   log.info(CONTEXT, 'Attempting to delete user.');
@@ -158,7 +160,7 @@ export const deleteUser = async (req: express.Request, res: express.Response) =>
 // Get all ads
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
-export const getAds = async (req: AuthRequest, res: express.Response) => {
+export const getAds = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getAds';
   log.info(CONTEXT, 'Fetching all ads for admin.');
   try {
@@ -180,7 +182,7 @@ export const getAds = async (req: AuthRequest, res: express.Response) => {
 // Update an ad
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-export const updateAd = async (req: express.Request, res: express.Response) => {
+export const updateAd = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateAd(${id})`;
     log.info(CONTEXT, 'Attempting to update ad.', { body: req.body });
@@ -220,7 +222,7 @@ export const updateAd = async (req: express.Request, res: express.Response) => {
 // Delete an ad
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
-export const deleteAd = async (req: express.Request, res: express.Response) => {
+export const deleteAd = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteAd(${id})`;
   log.info(CONTEXT, 'Attempting to delete ad.');
@@ -242,7 +244,7 @@ export const deleteAd = async (req: express.Request, res: express.Response) => {
 // Get storage settings
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
-export const getSettings = async (req: AuthRequest, res: express.Response) => {
+export const getSettings = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getSettings';
     log.info(CONTEXT, 'Fetching settings.');
     try {
@@ -271,7 +273,7 @@ export const getSettings = async (req: AuthRequest, res: express.Response) => {
 // Update storage settings
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
-export const updateSettings = async (req: AuthRequest, res: express.Response) => {
+export const updateSettings = async (req: AuthRequest, res: Response) => {
     const newSettings = req.body;
     const CONTEXT = 'adminController:updateSettings';
     log.info(CONTEXT, 'Attempting to update settings.', { newSettings });
@@ -307,7 +309,7 @@ export const updateSettings = async (req: AuthRequest, res: express.Response) =>
 };
 
 // --- Banner Management ---
-export const getBanner = async (req: express.Request, res: express.Response) => {
+export const getBanner = async (req: Request, res: Response) => {
     const CONTEXT = 'adminController:getBanner';
     log.info(CONTEXT, 'Fetching home page banner.');
     try {
@@ -319,7 +321,7 @@ export const getBanner = async (req: express.Request, res: express.Response) => 
     }
 };
 
-export const updateBanner = async (req: AuthRequest, res: express.Response) => {
+export const updateBanner = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:updateBanner';
     const { bannerData: bannerDataString } = req.body;
     const imageFile = req.file;
@@ -361,7 +363,7 @@ export const updateBanner = async (req: AuthRequest, res: express.Response) => {
 };
 
 // --- Category Management ---
-export const getCategories = async (req: express.Request, res: express.Response) => {
+export const getCategories = async (req: Request, res: Response) => {
     const CONTEXT = 'adminController:getCategories';
     log.info(CONTEXT, 'Fetching categories.');
     try {
@@ -373,7 +375,7 @@ export const getCategories = async (req: express.Request, res: express.Response)
     }
 };
 
-export const createCategory = async (req: AuthRequest, res: express.Response) => {
+export const createCategory = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:createCategory';
     const { name, parentId } = req.body;
     log.info(CONTEXT, 'Creating new category.', { name, parentId });
@@ -396,7 +398,7 @@ export const createCategory = async (req: AuthRequest, res: express.Response) =>
     }
 };
 
-export const updateCategory = async (req: express.Request, res: express.Response) => {
+export const updateCategory = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, parentId } = req.body;
     const CONTEXT = `adminController:updateCategory(${id})`;
@@ -417,7 +419,7 @@ export const updateCategory = async (req: express.Request, res: express.Response
     }
 };
 
-export const deleteCategory = async (req: express.Request, res: express.Response) => {
+export const deleteCategory = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:deleteCategory(${id})`;
     log.info(CONTEXT, 'Deleting category.');
