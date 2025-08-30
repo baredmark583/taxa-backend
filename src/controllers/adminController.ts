@@ -1,6 +1,5 @@
-
-
 // FIX: Use a single default import for express to avoid type conflicts.
+// FIX: Import Request and Response types directly from express.
 import { Request, Response } from 'express';
 import 'multer';
 import { query } from '../db.js';
@@ -11,6 +10,7 @@ import { log } from '../utils/logger.js';
 // Get dashboard statistics
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
+// FIX: Use imported Response type.
 export const getStats = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getStats';
     log.info(CONTEXT, 'Fetching dashboard statistics.');
@@ -48,6 +48,7 @@ export const getStats = async (req: AuthRequest, res: Response) => {
 // Get analytics data for charts
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
+// FIX: Use imported Response type.
 export const getAnalytics = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getAnalytics';
     log.info(CONTEXT, 'Fetching analytics data for charts.');
@@ -86,6 +87,7 @@ export const getAnalytics = async (req: AuthRequest, res: Response) => {
 // Get all users
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
+// FIX: Use imported Response type.
 export const getUsers = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getUsers';
   log.info(CONTEXT, 'Fetching all users for admin.');
@@ -102,6 +104,7 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 // Update a user
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
+// FIX: Use imported Request and Response types.
 export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateUser(${id})`;
@@ -136,6 +139,7 @@ export const updateUser = async (req: Request, res: Response) => {
 // Delete a user
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
+// FIX: Use imported Request and Response types.
 export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteUser(${id})`;
@@ -160,6 +164,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 // Get all ads
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
+// FIX: Use imported Response type.
 export const getAds = async (req: AuthRequest, res: Response) => {
   const CONTEXT = 'adminController:getAds';
   log.info(CONTEXT, 'Fetching all ads for admin.');
@@ -182,6 +187,7 @@ export const getAds = async (req: AuthRequest, res: Response) => {
 // Update an ad
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
+// FIX: Use imported Request and Response types.
 export const updateAd = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateAd(${id})`;
@@ -222,6 +228,7 @@ export const updateAd = async (req: Request, res: Response) => {
 // Delete an ad
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
+// FIX: Use imported Request and Response types.
 export const deleteAd = async (req: Request, res: Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteAd(${id})`;
@@ -244,6 +251,7 @@ export const deleteAd = async (req: Request, res: Response) => {
 // Get storage settings
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
+// FIX: Use imported Response type.
 export const getSettings = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:getSettings';
     log.info(CONTEXT, 'Fetching settings.');
@@ -273,6 +281,7 @@ export const getSettings = async (req: AuthRequest, res: Response) => {
 // Update storage settings
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
+// FIX: Use imported Response type.
 export const updateSettings = async (req: AuthRequest, res: Response) => {
     const newSettings = req.body;
     const CONTEXT = 'adminController:updateSettings';
@@ -309,6 +318,7 @@ export const updateSettings = async (req: AuthRequest, res: Response) => {
 };
 
 // --- Banner Management ---
+// FIX: Use imported Request and Response types.
 export const getBanner = async (req: Request, res: Response) => {
     const CONTEXT = 'adminController:getBanner';
     log.info(CONTEXT, 'Fetching home page banner.');
@@ -321,6 +331,7 @@ export const getBanner = async (req: Request, res: Response) => {
     }
 };
 
+// FIX: Use imported Response type.
 export const updateBanner = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:updateBanner';
     const { bannerData: bannerDataString } = req.body;
@@ -363,6 +374,7 @@ export const updateBanner = async (req: AuthRequest, res: Response) => {
 };
 
 // --- Category Management ---
+// FIX: Use imported Request and Response types.
 export const getCategories = async (req: Request, res: Response) => {
     const CONTEXT = 'adminController:getCategories';
     log.info(CONTEXT, 'Fetching categories.');
@@ -375,6 +387,7 @@ export const getCategories = async (req: Request, res: Response) => {
     }
 };
 
+// FIX: Use imported Response type.
 export const createCategory = async (req: AuthRequest, res: Response) => {
     const CONTEXT = 'adminController:createCategory';
     const { name, parentId } = req.body;
@@ -398,6 +411,7 @@ export const createCategory = async (req: AuthRequest, res: Response) => {
     }
 };
 
+// FIX: Use imported Request and Response types.
 export const updateCategory = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, parentId } = req.body;
@@ -419,6 +433,7 @@ export const updateCategory = async (req: Request, res: Response) => {
     }
 };
 
+// FIX: Use imported Request and Response types.
 export const deleteCategory = async (req: Request, res: Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:deleteCategory(${id})`;

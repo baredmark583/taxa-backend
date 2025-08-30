@@ -1,9 +1,3 @@
-
-
-
-
-
-
 // Added http and ws imports for WebSocket server setup.
 import http from 'http';
 import { WebSocketServer } from 'ws';
@@ -13,7 +7,7 @@ import { initializeDatabase } from './src/db-init.js';
 import { handleConnection } from './src/services/websocketService.js';
 import { log } from './src/utils/logger.js';
 // FIX: Use a single default import for express to avoid type conflicts.
-// FIX: Import Request, Response, and NextFunction to resolve typing issues.
+// FIX: Import specific types from express to fix property access errors.
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -46,6 +40,7 @@ wss.on('connection', handleConnection);
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
 // FIX: Use imported Request, Response, and NextFunction types.
+// FIX: Use imported Request, Response, and NextFunction types to resolve property access errors.
 app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
@@ -103,6 +98,7 @@ const startServer = async () => {
     // FIX: Use qualified express types to resolve property access errors.
     // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
     // FIX: Use imported Request, Response, and NextFunction types.
+    // FIX: Use imported Request, Response, and NextFunction types to resolve property access errors.
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
