@@ -1,6 +1,6 @@
 // FIX: Use a single default import for express to avoid type conflicts.
 // FIX: Import Request and Response types directly from express.
-import { Request, Response } from 'express';
+import express from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import { query } from '../db.js';
@@ -14,7 +14,8 @@ import { getRegionFromCity } from '../utils/locationUtils.js';
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
 // FIX: Use imported Request and Response types.
-export const getAllAds = async (req: Request, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const getAllAds = async (req: express.Request, res: express.Response) => {
     const CONTEXT = 'adController:getAllAds';
     log.info(CONTEXT, 'Attempting to fetch all ads', { query: req.query });
 
@@ -85,7 +86,8 @@ export const getAllAds = async (req: Request, res: Response) => {
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
 // FIX: Use imported Request and Response types.
-export const getAdById = async (req: Request, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const getAdById = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     const CONTEXT = `adController:getAdById(${id})`;
     log.info(CONTEXT, 'Attempting to fetch a single ad.');
@@ -119,7 +121,8 @@ export const getAdById = async (req: Request, res: Response) => {
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
-export const createAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const createAd = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'adController:createAd';
     const sellerId = req.user?.id;
     log.info(CONTEXT, 'Attempting to create a new ad', { sellerId });
@@ -192,7 +195,8 @@ export const createAd = async (req: AuthRequest, res: Response) => {
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
-export const updateAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const updateAd = async (req: AuthRequest, res: express.Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
     const CONTEXT = `adController:updateAd(${id})`;
@@ -266,7 +270,8 @@ export const updateAd = async (req: AuthRequest, res: Response) => {
 // FIX: Use qualified express types to fix property access errors.
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
-export const updateAdStatus = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const updateAdStatus = async (req: AuthRequest, res: express.Response) => {
     const { id } = req.params;
     const { status } = req.body as { status: AdStatus };
     const userId = req.user?.id;
@@ -318,7 +323,8 @@ export const updateAdStatus = async (req: AuthRequest, res: Response) => {
 
 
 // FIX: Use imported Request and Response types.
-export const getAdStatsByRegion = async (req: Request, res: Response) => {
+// FIX: Use qualified express types to resolve property access errors.
+export const getAdStatsByRegion = async (req: express.Request, res: express.Response) => {
     const CONTEXT = 'adController:getAdStatsByRegion';
     log.info(CONTEXT, 'Fetching ad statistics by region.');
 

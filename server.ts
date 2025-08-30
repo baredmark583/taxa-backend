@@ -8,7 +8,7 @@ import { handleConnection } from './src/services/websocketService.js';
 import { log } from './src/utils/logger.js';
 // FIX: Use a single default import for express to avoid type conflicts.
 // FIX: Import specific types from express to fix property access errors.
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './src/routes/auth.js';
@@ -41,7 +41,8 @@ wss.on('connection', handleConnection);
 // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
 // FIX: Use imported Request, Response, and NextFunction types.
 // FIX: Use imported Request, Response, and NextFunction types to resolve property access errors.
-app.use((req: Request, res: Response, next: NextFunction) => {
+// FIX: Use qualified express types to resolve property access errors.
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
     log.info('Request', `--> ${method} ${url}`, { ip, headers: req.headers });
@@ -99,7 +100,8 @@ const startServer = async () => {
     // FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
     // FIX: Use imported Request, Response, and NextFunction types.
     // FIX: Use imported Request, Response, and NextFunction types to resolve property access errors.
-    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // FIX: Use qualified express types to resolve property access errors.
+    app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production
       const errorMessage = process.env.NODE_ENV === 'production' 
