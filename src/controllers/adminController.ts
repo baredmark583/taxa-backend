@@ -1,14 +1,15 @@
-// FIX: Import Request and Response directly from express to resolve type conflicts.
-import { Request, Response } from 'express';
+// FIX: Use a single default import for express to avoid type conflicts.
+import express from 'express';
+import 'multer';
 import { query } from '../db.js';
+import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
 
 // Get dashboard statistics
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const getStats = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const getStats = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'adminController:getStats';
     log.info(CONTEXT, 'Fetching dashboard statistics.');
     try {
@@ -43,10 +44,9 @@ export const getStats = async (req: AuthRequest, res: Response) => {
 };
 
 // Get analytics data for charts
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const getAnalytics = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const getAnalytics = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'adminController:getAnalytics';
     log.info(CONTEXT, 'Fetching analytics data for charts.');
     try {
@@ -82,10 +82,9 @@ export const getAnalytics = async (req: AuthRequest, res: Response) => {
 
 
 // Get all users
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const getUsers = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const getUsers = async (req: AuthRequest, res: express.Response) => {
   const CONTEXT = 'adminController:getUsers';
   log.info(CONTEXT, 'Fetching all users for admin.');
   try {
@@ -99,10 +98,9 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 };
 
 // Update a user
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Request and Response types.
 // FIX: Use qualified express types to fix property access errors.
-export const updateUser = async (req: Request, res: Response) => {
+// FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
+export const updateUser = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateUser(${id})`;
     log.info(CONTEXT, 'Attempting to update user.', { body: req.body });
@@ -134,10 +132,9 @@ export const updateUser = async (req: Request, res: Response) => {
 
 
 // Delete a user
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Request and Response types.
 // FIX: Use qualified express types to fix property access errors.
-export const deleteUser = async (req: Request, res: Response) => {
+// FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
+export const deleteUser = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteUser(${id})`;
   log.info(CONTEXT, 'Attempting to delete user.');
@@ -159,10 +156,9 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 // Get all ads
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const getAds = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const getAds = async (req: AuthRequest, res: express.Response) => {
   const CONTEXT = 'adminController:getAds';
   log.info(CONTEXT, 'Fetching all ads for admin.');
   try {
@@ -182,10 +178,9 @@ export const getAds = async (req: AuthRequest, res: Response) => {
 
 
 // Update an ad
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Request and Response types.
 // FIX: Use qualified express types to fix property access errors.
-export const updateAd = async (req: Request, res: Response) => {
+// FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
+export const updateAd = async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     const CONTEXT = `adminController:updateAd(${id})`;
     log.info(CONTEXT, 'Attempting to update ad.', { body: req.body });
@@ -223,10 +218,9 @@ export const updateAd = async (req: Request, res: Response) => {
 };
 
 // Delete an ad
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Request and Response types.
 // FIX: Use qualified express types to fix property access errors.
-export const deleteAd = async (req: Request, res: Response) => {
+// FIX: Use qualified express types (express.Request, express.Response) to resolve property access errors.
+export const deleteAd = async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
   const CONTEXT = `adminController:deleteAd(${id})`;
   log.info(CONTEXT, 'Attempting to delete ad.');
@@ -246,10 +240,9 @@ export const deleteAd = async (req: Request, res: Response) => {
 
 
 // Get storage settings
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const getSettings = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const getSettings = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'adminController:getSettings';
     log.info(CONTEXT, 'Fetching settings.');
     try {
@@ -276,10 +269,9 @@ export const getSettings = async (req: AuthRequest, res: Response) => {
 };
 
 // Update storage settings
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const updateSettings = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const updateSettings = async (req: AuthRequest, res: express.Response) => {
     const newSettings = req.body;
     const CONTEXT = 'adminController:updateSettings';
     log.info(CONTEXT, 'Attempting to update settings.', { newSettings });
@@ -311,5 +303,133 @@ export const updateSettings = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: 'Failed to update settings' });
     } finally {
         client.release();
+    }
+};
+
+// --- Banner Management ---
+export const getBanner = async (req: express.Request, res: express.Response) => {
+    const CONTEXT = 'adminController:getBanner';
+    log.info(CONTEXT, 'Fetching home page banner.');
+    try {
+        const result = await query('SELECT * FROM "HomePageBanner" WHERE "isActive" = true LIMIT 1');
+        res.status(200).json(result.rows[0] || null);
+    } catch (error) {
+        log.error(CONTEXT, 'Failed to fetch banner.', error);
+        res.status(500).json({ message: 'Failed to fetch banner' });
+    }
+};
+
+export const updateBanner = async (req: AuthRequest, res: express.Response) => {
+    const CONTEXT = 'adminController:updateBanner';
+    const { bannerData: bannerDataString } = req.body;
+    const imageFile = req.file;
+    log.info(CONTEXT, 'Updating home page banner.');
+
+    try {
+        const bannerData = JSON.parse(bannerDataString);
+        const { title, subtitle, buttonText, buttonLink } = bannerData;
+        let imageUrl = bannerData.imageUrl;
+
+        if (imageFile) {
+            imageUrl = imageFile.path; // URL from Cloudinary
+        }
+
+        if (!imageUrl) {
+            return res.status(400).json({ message: 'Image is required for the banner.' });
+        }
+
+        // Use UPSERT logic: update existing or insert new one
+        const result = await query(
+            `INSERT INTO "HomePageBanner" (id, "imageUrl", title, subtitle, "buttonText", "buttonLink", "updatedAt")
+             VALUES ('main', $1, $2, $3, $4, $5, $6)
+             ON CONFLICT (id) DO UPDATE SET
+                "imageUrl" = EXCLUDED."imageUrl",
+                title = EXCLUDED.title,
+                subtitle = EXCLUDED.subtitle,
+                "buttonText" = EXCLUDED."buttonText",
+                "buttonLink" = EXCLUDED."buttonLink",
+                "updatedAt" = EXCLUDED."updatedAt"
+             RETURNING *`,
+            [imageUrl, title, subtitle, buttonText, buttonLink, new Date()]
+        );
+        log.info(CONTEXT, 'Successfully updated banner.');
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        log.error(CONTEXT, 'Failed to update banner.', error);
+        res.status(500).json({ message: 'Failed to update banner' });
+    }
+};
+
+// --- Category Management ---
+export const getCategories = async (req: express.Request, res: express.Response) => {
+    const CONTEXT = 'adminController:getCategories';
+    log.info(CONTEXT, 'Fetching categories.');
+    try {
+        const result = await query('SELECT * FROM "Category" ORDER BY "createdAt" ASC');
+        res.status(200).json(result.rows);
+    } catch (error) {
+        log.error(CONTEXT, 'Failed to fetch categories.', error);
+        res.status(500).json({ message: 'Failed to fetch categories' });
+    }
+};
+
+export const createCategory = async (req: AuthRequest, res: express.Response) => {
+    const CONTEXT = 'adminController:createCategory';
+    const { name, parentId } = req.body;
+    log.info(CONTEXT, 'Creating new category.', { name, parentId });
+
+    if (!name) {
+        return res.status(400).json({ message: 'Category name is required.' });
+    }
+
+    try {
+        const id = cuid();
+        const result = await query(
+            `INSERT INTO "Category" (id, name, "parentId", "updatedAt") VALUES ($1, $2, $3, $4) RETURNING *`,
+            [id, name, parentId || null, new Date()]
+        );
+        log.info(CONTEXT, 'Successfully created category.');
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        log.error(CONTEXT, 'Failed to create category.', error);
+        res.status(500).json({ message: 'Failed to create category.' });
+    }
+};
+
+export const updateCategory = async (req: express.Request, res: express.Response) => {
+    const { id } = req.params;
+    const { name, parentId } = req.body;
+    const CONTEXT = `adminController:updateCategory(${id})`;
+    log.info(CONTEXT, 'Updating category.', { name, parentId });
+    try {
+        const result = await query(
+            `UPDATE "Category" SET name = $1, "parentId" = $2, "updatedAt" = $3 WHERE id = $4 RETURNING *`,
+            [name, parentId || null, new Date(), id]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Category not found.' });
+        }
+        log.info(CONTEXT, 'Successfully updated category.');
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        log.error(CONTEXT, 'Failed to update category.', error);
+        res.status(500).json({ message: 'Failed to update category.' });
+    }
+};
+
+export const deleteCategory = async (req: express.Request, res: express.Response) => {
+    const { id } = req.params;
+    const CONTEXT = `adminController:deleteCategory(${id})`;
+    log.info(CONTEXT, 'Deleting category.');
+    try {
+        const result = await query('DELETE FROM "Category" WHERE id = $1', [id]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Category not found.' });
+        }
+        log.info(CONTEXT, 'Successfully deleted category.');
+        res.status(204).send();
+    } catch (error) {
+        log.error(CONTEXT, 'Failed to delete category.', error);
+        res.status(500).json({ message: 'Failed to delete category.' });
     }
 };

@@ -1,5 +1,9 @@
-// FIX: Import Response from express to resolve type errors.
-import { Response } from 'express';
+
+
+
+
+// FIX: Use a single default import for express to avoid type conflicts.
+import express from 'express';
 import { query } from '../db.js';
 import cuid from 'cuid';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -8,10 +12,9 @@ import { sendMessageToUser } from '../services/websocketService.js';
 import { log } from '../utils/logger.js';
 
 // Get all conversations for the current user
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const getConversations = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `chatController:getConversations(${userId})`;
     log.info(CONTEXT, 'Fetching conversations for user.');
@@ -59,10 +62,9 @@ export const getConversations = async (req: AuthRequest, res: Response) => {
 };
 
 // Get all messages for a specific conversation (ad + other user)
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const getMessages = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
     const CONTEXT = `chatController:getMessages(${userId})`;
@@ -90,10 +92,9 @@ export const getMessages = async (req: AuthRequest, res: Response) => {
 };
 
 // Send a new message
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const sendMessage = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;
     const CONTEXT = `chatController:sendMessage(${senderId})`;

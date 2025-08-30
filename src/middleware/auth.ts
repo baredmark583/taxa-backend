@@ -1,33 +1,23 @@
-// FIX: Import Request, Response, NextFunction directly from express.
-import { Request, Response, NextFunction } from 'express';
+
+
+
+
+// FIX: Use a single default import for express to avoid type conflicts.
+import express from 'express';
 // FIX: Added 'multer' import to make Express.Multer.File type available.
 import 'multer';
 import jwt from 'jsonwebtoken';
 
 // Extend the standard express Request type.
-// FIX: Use Request for better compatibility.
-// FIX: Base AuthRequest on Request for correct typing.
-// FIX: Use Request type directly to avoid conflicts with global Request.
-// FIX: Switched to qualified express types to resolve all property access errors.
-// FIX: Use imported Request type to fix type errors.
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use the imported Request type directly for AuthRequest.
 // FIX: Qualify with express.Request to resolve type conflicts.
-// FIX: Switched to express.Request to resolve type conflicts with global Request type.
-export type AuthRequest = Request & {
+// FIX: Use qualified express.Request to resolve property access errors.
+export type AuthRequest = express.Request & {
   user?: { id: string };
 };
 
-// FIX: Use imported express types for middleware signature.
-// FIX: Use Response and NextFunction for correct typing.
 // FIX: Use qualified express types for middleware signature.
-// FIX: Use Response and NextFunction types directly.
-// FIX: Switched to qualified express types to resolve all property access errors.
-// FIX: Use imported Response and NextFunction types to fix type errors.
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response and NextFunction types for the middleware signature.
-// FIX: Use qualified express types to fix property access errors.
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use qualified express types (express.Response, express.NextFunction) to fix property access errors.
+export const authMiddleware = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

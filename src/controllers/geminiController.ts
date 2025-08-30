@@ -1,14 +1,17 @@
-// FIX: Import Response from express to resolve type errors.
-import { Response } from 'express';
+
+
+
+
+// FIX: Use a single default import for express to avoid type conflicts.
+import express from 'express';
 import { type AuthRequest } from '../middleware/auth.js';
 // FIX: Added editImageWithGemini to imports.
 import { generateAdDetailsFromImage, editImageWithGemini } from '../services/geminiService.js';
 import { log } from '../utils/logger.js';
 
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const generateAd = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const generateAd = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'geminiController:generateAd';
     const { prompt, imageBase64, mimeType } = req.body;
     log.info(CONTEXT, 'Received request to generate ad details from image.', { prompt, mimeType });
@@ -29,10 +32,9 @@ export const generateAd = async (req: AuthRequest, res: Response) => {
 };
 
 // Add a new controller for image editing.
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const editImage = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const editImage = async (req: AuthRequest, res: express.Response) => {
     const CONTEXT = 'geminiController:editImage';
     const { imageBase64, mimeType, editType } = req.body as { imageBase64: string, mimeType: string, editType: 'background' | 'enhance' };
     log.info(CONTEXT, 'Received request to edit an image.', { editType, mimeType });

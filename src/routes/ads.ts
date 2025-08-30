@@ -1,6 +1,6 @@
 // FIX: Use default express import to resolve type errors.
-import express, { Response, NextFunction } from 'express';
-import { getAllAds, createAd, getAdById, updateAdStatus, updateAd } from '../controllers/adController.js';
+import express from 'express';
+import { getAllAds, createAd, getAdById, updateAdStatus, updateAd, getAdStatsByRegion } from '../controllers/adController.js';
 import { authMiddleware, type AuthRequest } from '../middleware/auth.js';
 import { upload } from '../services/cloudinaryService.js';
 
@@ -8,6 +8,8 @@ import { upload } from '../services/cloudinaryService.js';
 const router = express.Router();
 
 router.get('/', getAllAds);
+router.get('/stats-by-region', getAdStatsByRegion); // New route for map data
+
 // Use multer middleware to handle file uploads directly to Cloudinary
 router.post('/', authMiddleware, upload.array('images', 10), createAd);
 // Add a new route to get a single ad by its ID for deeplinking.
@@ -18,10 +20,9 @@ router.put('/:id/status', authMiddleware, updateAdStatus);
 
 // Custom error handler for multer/cloudinary errors on this router.
 // This will catch errors from the `upload.array()` middleware.
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response and NextFunction types.
 // FIX: Use qualified express types to fix property access errors.
-router.use((err: Error, req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use qualified express types (express.Response, express.NextFunction) to fix property access errors.
+router.use((err: Error, req: AuthRequest, res: express.Response, next: express.NextFunction) => {
     if (err) {
         console.error('File Upload Error:', err.message);
         // Provide a more specific error message if possible.

@@ -101,6 +101,26 @@ export interface Follow {
   createdAt: Date;
 }
 
+export interface HomePageBanner {
+    id: string;
+    imageUrl: string;
+    title: string;
+    subtitle?: string;
+    buttonText?: string;
+    buttonLink?: string;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface Category {
+    id: string;
+    name: string;
+    parentId: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 
 // --- API Payloads & Helpers ---
 

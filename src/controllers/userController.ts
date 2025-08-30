@@ -1,15 +1,18 @@
-// FIX: Import Response from express to resolve type errors.
-import { Response } from 'express';
+
+
+
+
+// FIX: Use a single default import for express to avoid type conflicts.
+import express from 'express';
 import { query } from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
 import { log } from '../utils/logger.js';
 import crypto from 'crypto';
 
 // Get user's favorite ad IDs
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:getFavoriteAdIds(${userId})`;
     log.info(CONTEXT, "Fetching user's favorite ad IDs.");
@@ -25,10 +28,9 @@ export const getFavoriteAdIds = async (req: AuthRequest, res: Response) => {
 };
 
 // Add an ad to favorites
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const addFavorite = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const addFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     const CONTEXT = `userController:addFavorite(${userId})`;
@@ -47,10 +49,9 @@ export const addFavorite = async (req: AuthRequest, res: Response) => {
 };
 
 // Remove an ad from favorites
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const removeFavorite = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const removeFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
     const CONTEXT = `userController:removeFavorite(${userId})`;
@@ -69,10 +70,9 @@ export const removeFavorite = async (req: AuthRequest, res: Response) => {
 };
 
 // Get ads favorited by the user
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const getFavoriteAds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:getFavoriteAds(${userId})`;
     log.info(CONTEXT, "Fetching user's favorite ads.");
@@ -98,10 +98,9 @@ export const getFavoriteAds = async (req: AuthRequest, res: Response) => {
     }
 }
 
-// FIX: Use qualified express types to resolve type conflicts.
-// FIX: Use imported Response type.
 // FIX: Use qualified express types to fix property access errors.
-export const generateWebCode = async (req: AuthRequest, res: Response) => {
+// FIX: Use qualified express.Response type to fix property access errors.
+export const generateWebCode = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:generateWebCode(${userId})`;
     log.info(CONTEXT, "Generating a one-time web login code.");

@@ -1,4 +1,3 @@
-
 import pool, { query } from './db.js';
 import bcrypt from 'bcryptjs';
 import cuid from 'cuid';
@@ -146,6 +145,31 @@ const createWebLoginCodeTableQuery = `
       "expiresAt" TIMESTAMP(3) NOT NULL,
       CONSTRAINT "WebLoginCode_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
   );
+`;
+
+const createCategoryTableQuery = `
+    CREATE TABLE "Category" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL,
+        "parentId" TEXT,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL,
+        CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE
+    );
+`;
+
+const createHomePageBannerTableQuery = `
+    CREATE TABLE "HomePageBanner" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "imageUrl" TEXT NOT NULL,
+        "title" TEXT NOT NULL,
+        "subtitle" TEXT,
+        "buttonText" TEXT,
+        "buttonLink" TEXT,
+        "isActive" BOOLEAN NOT NULL DEFAULT true,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL
+    );
 `;
 
 
@@ -325,6 +349,11 @@ export const initializeDatabase = async () => {
 
   // Add settings table
   await initializeConfiguration();
+
+  // New tables for rebranding
+  await createTableIfNotExists('Category', createCategoryTableQuery);
+  await createTableIfNotExists('HomePageBanner', createHomePageBannerTableQuery);
+
 
   // Ensure admin user exists
   await createAdminUserIfNotExists();
