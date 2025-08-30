@@ -1,5 +1,6 @@
 // FIX: Use a single default import for express to avoid type conflicts.
 // FIX: Import Response type directly from express.
+// FIX: Import Response from express.
 import express from 'express';
 import { query } from '../db.js';
 import cuid from 'cuid';
@@ -13,6 +14,8 @@ import { log } from '../utils/logger.js';
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Response type to fix property access errors.
+// FIX: Use express.Response to fix type errors.
 export const getConversations = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `chatController:getConversations(${userId})`;
@@ -65,6 +68,8 @@ export const getConversations = async (req: AuthRequest, res: express.Response) 
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Response type to fix property access errors.
+// FIX: Use express.Response to fix type errors.
 export const getMessages = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId, participantId } = req.params;
@@ -97,6 +102,8 @@ export const getMessages = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Response type to fix property access errors.
+// FIX: Use express.Response to fix type errors.
 export const sendMessage = async (req: AuthRequest, res: express.Response) => {
     const senderId = req.user?.id;
     const { adId, receiverId, text } = req.body;

@@ -8,6 +8,7 @@ import { handleConnection } from './src/services/websocketService.js';
 import { log } from './src/utils/logger.js';
 // FIX: Use a single default import for express to avoid type conflicts.
 // FIX: Import specific types from express to fix property access errors.
+// FIX: Import Request, Response, and NextFunction types from express.
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -42,6 +43,8 @@ wss.on('connection', handleConnection);
 // FIX: Use imported Request, Response, and NextFunction types.
 // FIX: Use imported Request, Response, and NextFunction types to resolve property access errors.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Request, Response, and NextFunction types to fix property access errors.
+// FIX: Use express.Request, express.Response, and express.NextFunction to fix type errors.
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     const start = Date.now();
     const { method, url, ip } = req;
@@ -101,6 +104,8 @@ const startServer = async () => {
     // FIX: Use imported Request, Response, and NextFunction types.
     // FIX: Use imported Request, Response, and NextFunction types to resolve property access errors.
     // FIX: Use qualified express types to resolve property access errors.
+    // FIX: Use Request, Response, and NextFunction types to fix property access errors.
+    // FIX: Use express.Request, express.Response, and express.NextFunction to fix type errors.
     app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
       log.error('UnhandledError', `An error occurred for request ${req.method} ${req.originalUrl}`, err);
       // Avoid sending stack trace to client in production

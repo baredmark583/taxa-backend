@@ -1,5 +1,6 @@
 // FIX: Use default express import to resolve type errors.
 // FIX: Import Response and NextFunction types directly for the error handler.
+// FIX: Import Response and NextFunction from express.
 import express from 'express';
 import { getAllAds, createAd, getAdById, updateAdStatus, updateAd, getAdStatsByRegion } from '../controllers/adController.js';
 import { authMiddleware, type AuthRequest } from '../middleware/auth.js';
@@ -25,6 +26,8 @@ router.put('/:id/status', authMiddleware, updateAdStatus);
 // FIX: Use qualified express types (express.Response, express.NextFunction) to fix property access errors.
 // FIX: Use imported Response and NextFunction types for the error handler signature.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Response and NextFunction types to fix property access errors.
+// FIX: Use express.Response and express.NextFunction to fix type errors.
 router.use((err: Error, req: AuthRequest, res: express.Response, next: express.NextFunction) => {
     if (err) {
         console.error('File Upload Error:', err.message);

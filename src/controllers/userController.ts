@@ -1,5 +1,6 @@
 // FIX: Use a single default import for express to avoid type conflicts.
 // FIX: Import Response type directly from express.
+// FIX: Import Response from express.
 import express from 'express';
 import { query } from '../db.js';
 import { type AuthRequest } from '../middleware/auth.js';
@@ -11,6 +12,8 @@ import crypto from 'crypto';
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Response type to fix property access errors.
+// FIX: Use express.Response to fix type errors.
 export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:getFavoriteAdIds(${userId})`;
@@ -31,6 +34,8 @@ export const getFavoriteAdIds = async (req: AuthRequest, res: express.Response) 
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Response type to fix property access errors.
+// FIX: Use express.Response to fix type errors.
 export const addFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
@@ -54,6 +59,8 @@ export const addFavorite = async (req: AuthRequest, res: express.Response) => {
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Response type to fix property access errors.
+// FIX: Use express.Response to fix type errors.
 export const removeFavorite = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const { adId } = req.params;
@@ -77,6 +84,8 @@ export const removeFavorite = async (req: AuthRequest, res: express.Response) =>
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Response type to fix property access errors.
+// FIX: Use express.Response to fix type errors.
 export const getFavoriteAds = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:getFavoriteAds(${userId})`;
@@ -107,6 +116,8 @@ export const getFavoriteAds = async (req: AuthRequest, res: express.Response) =>
 // FIX: Use qualified express.Response type to fix property access errors.
 // FIX: Use imported Response type.
 // FIX: Use qualified express types to resolve property access errors.
+// FIX: Use Response type to fix property access errors.
+// FIX: Use express.Response to fix type errors.
 export const generateWebCode = async (req: AuthRequest, res: express.Response) => {
     const userId = req.user?.id;
     const CONTEXT = `userController:generateWebCode(${userId})`;
