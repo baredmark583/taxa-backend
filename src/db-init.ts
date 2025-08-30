@@ -172,6 +172,18 @@ const createHomePageBannerTableQuery = `
     );
 `;
 
+const createAutomationFlowTableQuery = `
+    CREATE TABLE "AutomationFlow" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL,
+        "triggerType" TEXT NOT NULL UNIQUE,
+        "flowData" JSONB NOT NULL,
+        "isActive" BOOLEAN NOT NULL DEFAULT true,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL
+    );
+`;
+
 
 const CONTEXT = 'DB-Init';
 
@@ -353,6 +365,9 @@ export const initializeDatabase = async () => {
   // New tables for rebranding
   await createTableIfNotExists('Category', createCategoryTableQuery);
   await createTableIfNotExists('HomePageBanner', createHomePageBannerTableQuery);
+
+  // New table for automation
+  await createTableIfNotExists('AutomationFlow', createAutomationFlowTableQuery);
 
 
   // Ensure admin user exists

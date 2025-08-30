@@ -1,7 +1,7 @@
 // FIX: Use a single default import for express to avoid type conflicts.
 // FIX: Import Request and Response types directly from express.
 // FIX: Import Request and Response types from express.
-import express from 'express';
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from '../db.js';
@@ -17,7 +17,7 @@ import { log } from '../utils/logger.js';
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use Request and Response types to fix property access errors.
 // FIX: Use express.Request and express.Response to fix type errors.
-export const register = async (req: express.Request, res: express.Response) => {
+export const register = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:register';
   const { email, password, name } = req.body;
   log.info(CONTEXT, 'Attempting to register new user.', { email, name });
@@ -67,7 +67,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use Request and Response types to fix property access errors.
 // FIX: Use express.Request and express.Response to fix type errors.
-export const login = async (req: express.Request, res: express.Response) => {
+export const login = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:login';
   const { email, password } = req.body;
   log.info(CONTEXT, 'Attempting to log in user.', { email });
@@ -117,7 +117,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use Request and Response types to fix property access errors.
 // FIX: Use express.Request and express.Response to fix type errors.
-export const redeemWebCode = async (req: express.Request, res: express.Response) => {
+export const redeemWebCode = async (req: Request, res: Response) => {
   const CONTEXT = 'authController:redeemWebCode';
   const { code } = req.body;
   log.info(CONTEXT, 'Attempting to log in user with one-time code.', { code });
@@ -181,7 +181,7 @@ export const redeemWebCode = async (req: express.Request, res: express.Response)
 // FIX: Use qualified express types to resolve property access errors.
 // FIX: Use Request and Response types to fix property access errors.
 // FIX: Use express.Request and express.Response to fix type errors.
-export const telegramLogin = async (req: express.Request, res: express.Response) => {
+export const telegramLogin = async (req: Request, res: Response) => {
     const CONTEXT = 'authController:telegramLogin';
     const { initData } = req.body;
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
