@@ -242,7 +242,8 @@ export const config: VendureConfig = {
     assetOptions: {
         assetStorageStrategy: new CloudinaryStorageStrategy(),
         assetPreviewStrategy: new SharpAssetPreviewStrategy({
-            resizeOptions: { width: 400, height: 400, mode: 'cover' },
+            maxWidth: 400,
+            maxHeight: 400,
         }),
     },
     customFields: {},
