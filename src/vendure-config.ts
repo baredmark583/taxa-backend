@@ -7,6 +7,8 @@ import {
     AssetStorageStrategy,
     Logger,
 } from '@vendure/core';
+// FIX: In Vendure 2+, SharpAssetPreviewStrategy was moved to the @vendure/asset-server-plugin package.
+import { SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
@@ -239,6 +241,9 @@ export const config: VendureConfig = {
     },
     assetOptions: {
         assetStorageStrategy: new CloudinaryStorageStrategy(),
+        assetPreviewStrategy: new SharpAssetPreviewStrategy({
+            resizeOptions: { width: 400, height: 400, mode: 'cover' },
+        }),
     },
     customFields: {},
     plugins: [
