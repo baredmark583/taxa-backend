@@ -14,6 +14,7 @@ import path from 'path';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 const serverPort = +process.env.PORT || 3000;
+const appUrl = process.env.APP_URL || `http://localhost:${serverPort}`;
 
 export const config: VendureConfig = {
     apiOptions: {
@@ -21,13 +22,12 @@ export const config: VendureConfig = {
         adminApiPath: 'admin-api',
         shopApiPath: 'shop-api',
         trustProxy: IS_DEV ? false : 1,
-        // The following options are useful in development mode,
-        // but are best turned off for production for security
-        // reasons.
-        ...(IS_DEV ? {
-            adminApiDebug: true,
-            shopApiDebug: true,
-        } : {}),
+        ...(IS_DEV
+            ? {
+                  adminApiDebug: true,
+                  shopApiDebug: true,
+              }
+            : {}),
     },
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
@@ -36,13 +36,11 @@ export const config: VendureConfig = {
             password: process.env.SUPERADMIN_PASSWORD,
         },
         cookieOptions: {
-          secret: process.env.COOKIE_SECRET,
+            secret: process.env.COOKIE_SECRET,
         },
     },
     dbConnectionOptions: {
         type: 'postgres',
-        // See the README.md "Migrations" section for an explanation of
-        // the `synchronize` and `migrations` options.
         synchronize: false,
         migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
         logging: false,
@@ -57,43 +55,51 @@ export const config: VendureConfig = {
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
-    // When adding or altering custom field definitions, the database will
-    // need to be updated. See the "Migrations" section in README.md.
     customFields: {},
     plugins: [
         GraphiqlPlugin.init(),
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),
-            // For local dev, the correct value for assetUrlPrefix should
-            // be guessed correctly, but for production it will usually need
-            // to be set manually to match your production url.
-            assetUrlPrefix: IS_DEV ? undefined : 'https://www.my-shop.com/assets/',
+            assetUrlPrefix: IS_DEV
+                ? undefined
+                : `${appUrl}/assets/`, // важно: Render должен отдавать ассеты с твоего домена
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
-            devMode: true,
+            devMode: IS_DEV,
             outputPath: path.join(__dirname, '../static/email/test-emails'),
             route: 'mailbox',
             handlers: defaultEmailHandlers,
-            templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
+            templateLoader: new FileBasedTemplateLoader(
+                path.join(__dirname, '../static/email/templates')
+            ),
             globalTemplateVars: {
-                // The following variables will change depending on your storefront implementation.
-                // Here we are assuming a storefront running at http://localhost:8080.
                 fromAddress: '"example" <noreply@example.com>',
-                verifyEmailAddressUrl: 'http://localhost:8080/verify',
-                passwordResetUrl: 'http://localhost:8080/password-reset',
-                changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
+                verifyEmailAddressUrl: `${appUrl}/verify`,
+                passwordResetUrl: `${appUrl}/password-reset`,
+                changeEmailAddressUrl: `${appUrl}/verify-email-address-change`,
             },
         }),
-        AdminUiPlugin.init({
-            route: 'admin',
-            port: serverPort + 2,
-            adminUiConfig: {
-                apiPort: serverPort,
-            },
-        }),
+        AdminUiPlugin.init(
+            IS_DEV
+                ? {
+                      route: 'admin',
+                      port: serverPort + 2, // локально админка на отдельном порту
+                      adminUiConfig: {
+                          apiPort: serverPort,
+                          apiHost: `http://localhost:${serverPort}`,
+                      },
+                  }
+                : {
+                      route: 'admin',
+                      adminUiConfig: {
+                          apiPort: serverPort,
+                          apiHost: appUrl,
+                      },
+                  }
+        ),
     ],
 };
