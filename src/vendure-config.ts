@@ -14,7 +14,7 @@ import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import 'dotenv/config';
 import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
-import streamifier from 'streamifier';
+const streamifier = require('streamifier'); // FIX: Use require to avoid TS type error for modules without declarations.
 import { Readable } from 'stream';
 
 
@@ -169,6 +169,8 @@ export const config: VendureConfig = {
         // Configure the AssetServerPlugin. The storage strategy is now defined globally.
         AssetServerPlugin.init({
             route: 'assets',
+            // FIX: Provide a directory for temporary asset storage, which is required by the plugin.
+            assetUploadDir: path.join(__dirname, '../static/assets'),
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
