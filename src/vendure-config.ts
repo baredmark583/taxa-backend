@@ -8,7 +8,6 @@ import {
     Logger,
 } from '@vendure/core';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
-import { AssetServerPlugin } from '@vendure/asset-server-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import 'dotenv/config';
@@ -84,6 +83,7 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
     async deleteFile(identifier: string): Promise<void> {
         const public_id = this.getPublicIdFromUrl(identifier);
         try {
+            // For deletion, the public_id must include the folder path.
             await cloudinary.uploader.destroy(public_id, { resource_type: 'auto' });
         } catch (error: any) {
             Logger.error(`Error deleting file from Cloudinary: ${error.message}`, 'CloudinaryPlugin');
@@ -107,16 +107,19 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
 
     private getPublicIdFromUrl(url: string): string {
         try {
-            const parsedUrl = new URL(url);
-            // Example path: /v1234567/vendure-assets/some-asset.jpg
-            const pathSegments = parsedUrl.pathname.split('/');
-            // Remove the version, folder, and get the filename without extension
-            const fileNameWithExt = pathSegments.slice(3).join('/');
-            return path.parse(fileNameWithExt).name;
-        } catch (e) {
-             Logger.error(`Could not parse public_id from URL: ${url}`, 'CloudinaryPlugin');
-             // As a fallback, try to extract from a simple file path
-             return path.parse(url).name;
+            // This regex finds the version number (e.g., /v123456/) and captures everything after it.
+            const regex = /\/v\d+\/(.+)/;
+            const match = url.match(regex);
+            if (!match || !match[1]) {
+                 throw new Error('Could not find version segment in Cloudinary URL');
+            }
+            // match[1] will be something like 'vendure-assets/asset-name.jpg'
+            const fullPublicId = match[1];
+            return fullPublicId;
+        } catch (e: any) {
+             Logger.error(`Could not parse public_id from URL: ${url}. Error: ${e.message}`, 'CloudinaryPlugin');
+             // As a fallback for simple identifiers, just return the identifier itself.
+             return url;
         }
     }
 }
@@ -159,6 +162,11 @@ export const config: VendureConfig = {
         ssl: {
             rejectUnauthorized: false,
         },
+        // FIX: Add a longer timeout for database connections
+        // This helps in environments like Render where initial connections can be slow.
+        extra: {
+            connectionTimeoutMillis: 10000,
+        },
     },
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
@@ -169,10 +177,8 @@ export const config: VendureConfig = {
     customFields: {},
     plugins: [
         GraphiqlPlugin.init(),
-        AssetServerPlugin.init({
-            route: 'assets',
-            assetUploadDir: path.join(__dirname, '../static/assets'),
-        }),
+        // FIX: Removed the AssetServerPlugin as it conflicts with the CloudinaryStorageStrategy.
+        // The Cloudinary strategy handles serving assets from its own CDN URLs.
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
