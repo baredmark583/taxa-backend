@@ -22,6 +22,8 @@ import { Readable } from 'stream';
 
 // FIX: Updated class to implement the modern AssetStorageStrategy interface.
 class CloudinaryStorageStrategy implements AssetStorageStrategy {
+    private readonly folder = 'vendure-assets';
+
     constructor() {
         // Automatically configure Cloudinary from the CLOUDINARY_URL environment variable
         if (!process.env.CLOUDINARY_URL) {
@@ -37,7 +39,7 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
                     public_id,
-                    folder: 'vendure-assets', // Optional: organize assets in a folder
+                    folder: this.folder, 
                     resource_type: 'auto',
                 },
                 (error, result) => {
@@ -64,10 +66,10 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
 
     // FIX: Added helper to determine resource type from URL extension.
     // Cloudinary's admin/destroy APIs do not support 'auto' resource_type.
-    private getResourceTypeFromUrl(url: string): 'image' | 'video' | 'raw' {
+    private getResourceTypeFromIdentifier(identifier: string): 'image' | 'video' | 'raw' {
         try {
-            const pathname = new URL(url).pathname;
-            const extension = path.extname(pathname).toLowerCase();
+            // This simple extension check works for both full URLs and plain filenames.
+            const extension = path.extname(identifier).toLowerCase();
             const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico'];
             const videoExtensions = ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.webm', '.mkv'];
 
@@ -79,41 +81,68 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
             }
             return 'raw';
         } catch (e) {
-            Logger.warn(`Could not parse URL to determine resource type: ${url}. Defaulting to 'image'.`, 'CloudinaryPlugin');
+            Logger.warn(`Could not determine resource type from identifier: ${identifier}. Defaulting to 'image'.`, 'CloudinaryPlugin');
             return 'image';
         }
     }
 
     async fileExists(identifier: string): Promise<boolean> {
-        // The identifier is the full URL, we need to extract the public_id
-        const public_id = this.getPublicIdFromUrl(identifier);
-        // FIX: Specify resource_type as 'auto' is not valid here.
-        const resource_type = this.getResourceTypeFromUrl(identifier);
+        const public_id = this.getPublicId(identifier);
+        const resource_type = this.getResourceTypeFromIdentifier(identifier);
         try {
-            // Use `resource` for any resource type, or specify for better performance if known.
             await cloudinary.api.resource(public_id, { resource_type });
             return true;
         } catch (error: any) {
-            // A "not found" error means the file doesn't exist
-            if (error.http_code === 404) {
+            // FIX: Correctly handle Cloudinary's 404 error structure.
+            // A "not found" error is the expected outcome for a new file.
+            if (error.http_code === 404 || error.error?.http_code === 404) {
+                Logger.info(`File with public_id '${public_id}' does not exist (this is normal for new uploads).`, 'CloudinaryPlugin');
                 return false;
             }
-            Logger.error(`Error checking if file exists in Cloudinary: ${error.message}`, 'CloudinaryPlugin');
-            // Re-throw other errors
+            Logger.error(`Error checking if file exists in Cloudinary: ${JSON.stringify(error, null, 2)}`, 'CloudinaryPlugin');
+            // Re-throw other, unexpected errors
             throw error;
         }
     }
 
     async deleteFile(identifier: string): Promise<void> {
-        const public_id = this.getPublicIdFromUrl(identifier);
-        // FIX: Specify resource_type as 'auto' is not valid here.
-        const resource_type = this.getResourceTypeFromUrl(identifier);
+        const public_id = this.getPublicId(identifier);
+        const resource_type = this.getResourceTypeFromIdentifier(identifier);
         try {
-            // For deletion, the public_id must include the folder path.
             await cloudinary.uploader.destroy(public_id, { resource_type });
         } catch (error: any) {
             Logger.error(`Error deleting file from Cloudinary: ${error.message}`, 'CloudinaryPlugin');
             throw error;
+        }
+    }
+
+    // FIX: This robust method handles both full URLs (from existing assets)
+    // and simple filenames (from new uploads).
+    private getPublicId(identifier: string): string {
+        try {
+            // Check if it's a full Cloudinary URL
+            if (identifier.includes('res.cloudinary.com')) {
+                // Regex to capture the path after /upload/ and an optional version segment /v12345/
+                const regex = /\/upload\/(?:v\d+\/)?(.+)/;
+                const match = identifier.match(regex);
+                if (match && match[1]) {
+                    const fullPathWithExt = match[1];
+                    const parsed = path.parse(fullPathWithExt);
+                    // Returns 'folder/filename' which is the full public_id
+                    return path.join(parsed.dir, parsed.name); 
+                }
+            }
+            
+            // If not a URL, assume it's a filename from a new upload (e.g., 'my-image.jpg')
+            // We must construct the full public_id including the folder.
+            const parsedFilename = path.parse(identifier);
+            return `${this.folder}/${parsedFilename.name}`;
+
+        } catch (e: any) {
+             Logger.error(`Could not parse public_id from identifier: ${identifier}. Error: ${e.message}`, 'CloudinaryPlugin');
+             // Fallback: return the identifier without extension
+             const parsed = path.parse(identifier);
+             return path.join(parsed.dir, parsed.name);
         }
     }
 
@@ -129,33 +158,6 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
     // we just return it directly.
     toAbsoluteUrl(request: any, identifier: string): string {
         return identifier;
-    }
-
-    // FIX: Correctly parse the public_id from a full Cloudinary URL, removing the file extension.
-    private getPublicIdFromUrl(url: string): string {
-        try {
-            // This regex tries to find the public ID after "/upload/" and an optional version segment (/v12345/).
-            // It captures everything up to the file extension.
-            const regex = /\/upload\/(?:v\d+\/)?(.+)/;
-            const match = url.match(regex);
-
-            if (match && match[1]) {
-                const fullPathWithExt = match[1];
-                const parsedPath = path.parse(fullPathWithExt);
-                // Combine directory and name to get the path without extension
-                return path.join(parsedPath.dir, parsedPath.name);
-            }
-            
-            // Fallback for identifiers that are not full URLs (e.g., just 'source/image.jpg')
-            const parsedFallback = path.parse(url);
-            if (parsedFallback.ext) {
-               return path.join(parsedFallback.dir, parsedFallback.name);
-            }
-            return url; // Assume it's already a public_id if no extension
-        } catch (e: any) {
-             Logger.error(`Could not parse public_id from URL: ${url}. Error: ${e.message}`, 'CloudinaryPlugin');
-             return url;
-        }
     }
 }
 
