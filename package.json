@@ -18,9 +18,11 @@
     "@vendure/core": "3.4.1",
     "@vendure/email-plugin": "3.4.1",
     "@vendure/graphiql-plugin": "3.4.1",
+    "cloudinary": "^2.7.0",
     "dotenv": "17.2.2",
     "pg": "8.16.3",
-    "pg-connection-string": "^2.9.1"
+    "pg-connection-string": "^2.9.1",
+    "streamifier": "^0.1.1"
   },
   "devDependencies": {
     "@vendure/cli": "3.4.1",
