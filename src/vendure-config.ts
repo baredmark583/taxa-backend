@@ -128,9 +128,12 @@ const serverPort = +process.env.PORT || 3000;
 export const config: VendureConfig = {
     apiOptions: {
         port: serverPort,
+        // For Render, bind to 0.0.0.0
+        hostname: IS_DEV ? 'localhost' : '0.0.0.0',
         adminApiPath: 'admin-api',
         shopApiPath: 'shop-api',
-        trustProxy: IS_DEV ? false : 1,
+        // Important for Render's proxy
+        trustProxy: true,
         ...(IS_DEV ? {
             adminApiDebug: true,
             shopApiDebug: true,
@@ -152,6 +155,7 @@ export const config: VendureConfig = {
         migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
         logging: false,
         url: process.env.DATABASE_URL,
+        // Required for Render's managed PostgreSQL
         ssl: {
             rejectUnauthorized: false,
         },
@@ -159,17 +163,14 @@ export const config: VendureConfig = {
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
-    // FIX: Moved asset storage configuration to the top-level `assetOptions`.
     assetOptions: {
         assetStorageStrategy: new CloudinaryStorageStrategy(),
     },
     customFields: {},
     plugins: [
         GraphiqlPlugin.init(),
-        // Configure the AssetServerPlugin. The storage strategy is now defined globally.
         AssetServerPlugin.init({
             route: 'assets',
-            // FIX: Provide a directory for temporary asset storage, which is required by the plugin.
             assetUploadDir: path.join(__dirname, '../static/assets'),
         }),
         DefaultSchedulerPlugin.init(),
@@ -190,9 +191,13 @@ export const config: VendureConfig = {
         }),
         AdminUiPlugin.init({
             route: 'admin',
-            port: serverPort + 2,
+            // The port setting is for local development and can be ignored by Render.
+            port: 3002, 
+            // FIX: This is the crucial part. We provide the public URL
+            // for the Admin UI to connect to the API in production.
             adminUiConfig: {
-                apiPort: serverPort,
+                // FIX: The correct property name for the Admin UI API URL is 'apiHost', not 'apiUrl'.
+                apiHost: IS_DEV ? undefined : 'https://taxa-backend.onrender.com',
             },
         }),
     ],
