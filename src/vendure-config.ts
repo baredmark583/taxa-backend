@@ -21,7 +21,7 @@ export const config: VendureConfig = {
         port: serverPort,
         adminApiPath: 'admin-api',
         shopApiPath: 'shop-api',
-        trustProxy: IS_DEV ? false : 1,
+        trustProxy: IS_DEV ? undefined : 1,
         ...(IS_DEV
             ? {
                   adminApiDebug: true,
@@ -63,7 +63,7 @@ export const config: VendureConfig = {
             assetUploadDir: path.join(__dirname, '../static/assets'),
             assetUrlPrefix: IS_DEV
                 ? undefined
-                : `${appUrl}/assets/`, // важно: Render должен отдавать ассеты с твоего домена
+                : `${appUrl}/assets/`,
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
@@ -83,23 +83,13 @@ export const config: VendureConfig = {
                 changeEmailAddressUrl: `${appUrl}/verify-email-address-change`,
             },
         }),
-        AdminUiPlugin.init(
-            IS_DEV
-                ? {
-                      route: 'admin',
-                      port: serverPort + 2, // локально админка на отдельном порту
-                      adminUiConfig: {
-                          apiPort: serverPort,
-                          apiHost: `http://localhost:${serverPort}`,
-                      },
-                  }
-                : {
-                      route: 'admin',
-                      adminUiConfig: {
-                          apiPort: serverPort,
-                          apiHost: appUrl,
-                      },
-                  }
-        ),
+        AdminUiPlugin.init({
+            route: 'admin',
+            port: serverPort, // важно: на Render должен совпадать с apiOptions.port
+            adminUiConfig: {
+                apiPort: serverPort,
+                apiHost: appUrl,
+            },
+        }),
     ],
 };
