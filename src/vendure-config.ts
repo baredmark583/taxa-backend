@@ -15,6 +15,7 @@ import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 const streamifier = require('streamifier'); // FIX: Use require to avoid TS type error for modules without declarations.
 import { Readable } from 'stream';
+import https from 'https';
 
 
 // --- Custom Cloudinary Storage Strategy ---
@@ -147,11 +148,39 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
     }
 
     readFileToBuffer(identifier: string): Promise<Buffer> {
-        throw new Error('CloudinaryStorageStrategy.readFileToBuffer() is not implemented.');
+        // Vendure calls this method to generate asset previews.
+        // We need to download the file from Cloudinary and return its data as a Buffer.
+        return new Promise((resolve, reject) => {
+            https.get(identifier, response => {
+                if (response.statusCode !== 200) {
+                    const error = new Error(`Failed to download file from ${identifier}: ${response.statusCode}`);
+                    Logger.error(error.message, 'CloudinaryPlugin');
+                    return reject(error);
+                }
+                const chunks: Buffer[] = [];
+                response.on('data', chunk => chunks.push(chunk));
+                response.on('end', () => resolve(Buffer.concat(chunks)));
+            }).on('error', err => {
+                Logger.error(`Error downloading file from Cloudinary: ${err.message}`, 'CloudinaryPlugin');
+                reject(err);
+            });
+        });
     }
 
     readFileToStream(identifier: string): Promise<Readable> {
-        throw new Error('CloudinaryStorageStrategy.readFileToStream() is not implemented.');
+        return new Promise((resolve, reject) => {
+            https.get(identifier, response => {
+                if (response.statusCode !== 200) {
+                     const error = new Error(`Failed to stream file from ${identifier}: ${response.statusCode}`);
+                    Logger.error(error.message, 'CloudinaryPlugin');
+                    return reject(error);
+                }
+                resolve(response);
+            }).on('error', err => {
+                Logger.error(`Error streaming file from Cloudinary: ${err.message}`, 'CloudinaryPlugin');
+                reject(err);
+            });
+        });
     }
     
     // Vendure uses this method to create the final URL. Since writeFile already returns a full URL,
