@@ -90,7 +90,7 @@ export const config: VendureConfig = {
         }),
         AdminUiPlugin.init({
             route: 'admin',
-            port: serverPort,
+            port: serverPort + 2,
             adminUiConfig: {
                 apiPort: serverPort,
             },
