@@ -46,13 +46,13 @@ export const config: VendureConfig = {
         synchronize: false,
         migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
         logging: false,
-        database: process.env.DB_NAME,
-        schema: process.env.DB_SCHEMA,
-        ssl: true,
-        host: process.env.DB_HOST,
-        port: +process.env.DB_PORT,
-        username: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
+        // Use the DATABASE_URL environment variable for connection.
+        // It's a cleaner and more standard way for platforms like Render.
+        url: process.env.DATABASE_URL,
+		// This is required for Render's managed PostgreSQL databases which use self-signed certificates.
+        ssl: {
+            rejectUnauthorized: false,
+        },
     },
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
@@ -64,11 +64,9 @@ export const config: VendureConfig = {
         GraphiqlPlugin.init(),
         AssetServerPlugin.init({
             route: 'assets',
-            assetUploadDir: path.join(__dirname, '../static/assets'),
-            // For local dev, the correct value for assetUrlPrefix should
-            // be guessed correctly, but for production it will usually need
-            // to be set manually to match your production url.
-            assetUrlPrefix: IS_DEV ? undefined : 'https://www.my-shop.com/assets/',
+            assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, '../static/assets'),
+            // Use the APP_URL for production assets to ensure correct links are generated.
+            assetUrlPrefix: IS_DEV ? undefined : `${process.env.APP_URL}/assets`,
         }),
         DefaultSchedulerPlugin.init(),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
