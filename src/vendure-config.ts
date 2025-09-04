@@ -19,11 +19,7 @@ import { Readable } from 'stream';
 const streamifier: any = require('streamifier');
 import https from 'https';
 
-/**
- * CloudinaryStorageStrategy
- * Реализует AssetStorageStrategy для загрузки/удаления/чтения ассетов в Cloudinary.
- * Возвращает в writeFile... абсолютный URL (secure_url).
- */
+/* -------------------- CloudinaryStorageStrategy -------------------- */
 class CloudinaryStorageStrategy implements AssetStorageStrategy {
   private readonly folder = 'vendure-assets';
 
@@ -31,7 +27,6 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
     if (!process.env.CLOUDINARY_URL) {
       throw new Error('CLOUDINARY_URL environment variable must be set!');
     }
-    // Автоматическая конфигурация из CLOUDINARY_URL
     cloudinary.config();
     Logger.info('Cloudinary Storage Strategy initialized.', 'CloudinaryPlugin');
   }
@@ -71,11 +66,10 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
       const extension = path.extname(identifier).toLowerCase();
       const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico'];
       const videoExtensions = ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.webm', '.mkv'];
-
       if (imageExtensions.includes(extension)) return 'image';
       if (videoExtensions.includes(extension)) return 'video';
       return 'raw';
-    } catch (e) {
+    } catch {
       Logger.warn(`Could not determine resource type from identifier: ${identifier}. Defaulting to 'image'.`, 'CloudinaryPlugin');
       return 'image';
     }
@@ -89,7 +83,7 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
       return true;
     } catch (error: any) {
       if (error?.http_code === 404 || error?.error?.http_code === 404) {
-        Logger.info(`File with public_id '${public_id}' does not exist (normal for new uploads).`, 'CloudinaryPlugin');
+        Logger.info(`File with public_id '${public_id}' does not exist.`, 'CloudinaryPlugin');
         return false;
       }
       Logger.error(`Error checking if file exists in Cloudinary: ${JSON.stringify(error, null, 2)}`, 'CloudinaryPlugin');
@@ -110,18 +104,15 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
 
   private getPublicId(identifier: string): string {
     try {
-      // Если это полный Cloudinary URL, парсим public_id
       if (identifier.includes('res.cloudinary.com')) {
         const regex = /\/upload\/(?:v\d+\/)?(.+)/;
         const match = identifier.match(regex);
         if (match && match[1]) {
           const fullPathWithExt = match[1];
           const parsed = path.parse(fullPathWithExt);
-          // Возвращаем 'folder/filename' (без расширения)
           return path.join(parsed.dir, parsed.name);
         }
       }
-      // Иначе — имя файла, добавляем папку
       const parsedFilename = path.parse(identifier);
       return `${this.folder}/${parsedFilename.name}`;
     } catch (e: any) {
@@ -135,17 +126,12 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
     return new Promise((resolve, reject) => {
       https.get(identifier, (response) => {
         if (response.statusCode !== 200) {
-          const error = new Error(`Failed to download file from ${identifier}: ${response.statusCode}`);
-          Logger.error(error.message, 'CloudinaryPlugin');
-          return reject(error);
+          return reject(new Error(`Failed to download file: ${response.statusCode}`));
         }
         const chunks: Buffer[] = [];
         response.on('data', chunk => chunks.push(chunk));
         response.on('end', () => resolve(Buffer.concat(chunks)));
-      }).on('error', (err) => {
-        Logger.error(`Error downloading file from Cloudinary: ${err.message}`, 'CloudinaryPlugin');
-        reject(err);
-      });
+      }).on('error', (err) => reject(err));
     });
   }
 
@@ -153,25 +139,19 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
     return new Promise((resolve, reject) => {
       https.get(identifier, response => {
         if (response.statusCode !== 200) {
-          const error = new Error(`Failed to stream file from ${identifier}: ${response.statusCode}`);
-          Logger.error(error.message, 'CloudinaryPlugin');
-          return reject(error);
+          return reject(new Error(`Failed to stream file: ${response.statusCode}`));
         }
         resolve(response);
-      }).on('error', (err) => {
-        Logger.error(`Error streaming file from Cloudinary: ${err.message}`, 'CloudinaryPlugin');
-        reject(err);
-      });
+      }).on('error', (err) => reject(err));
     });
   }
 
   toAbsoluteUrl(_request: any, identifier: string): string {
-    // writeFile возвращает уже полный URL (secure_url), так что возвращаем напрямую.
     return identifier;
   }
 }
 
-/* -------------------- Конфигурация Vendure -------------------- */
+/* -------------------- Vendure Config -------------------- */
 
 const serverPort = +process.env.PORT || 3000;
 const IS_DEV = process.env.APP_ENV === 'dev';
@@ -182,24 +162,18 @@ export const config: VendureConfig = {
     hostname: IS_DEV ? 'localhost' : '0.0.0.0',
     adminApiPath: 'admin-api',
     shopApiPath: 'shop-api',
-    // Для Render важно доверять прокси. Устанавливаем в true для продакшена.
-    trustProxy: !IS_DEV,
+    trustProxy: true,
     cors: {
       origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
-      // Применяем 'as const' для решения проблемы с выводом типов TypeScript,
-      // так как компилятор ожидает литеральный тип `true`.
-      credentials: true as const,
+      credentials: true,
     },
-    // Устанавливаем флаги отладки напрямую, без spread, для большей ясности
     adminApiDebug: IS_DEV,
     shopApiDebug: IS_DEV,
   },
 
-  // Язык по умолчанию
   defaultLanguageCode: LanguageCode.uk,
 
   authOptions: {
-    // Важно: as const, чтобы соответствовать строгому типу
     tokenMethod: ['bearer', 'cookie'] as const,
     superadminCredentials: {
       identifier: process.env.SUPERADMIN_USERNAME || 'superadmin',
@@ -216,13 +190,8 @@ export const config: VendureConfig = {
     migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
     logging: false,
     url: process.env.DATABASE_URL,
-    ssl: {
-      // Для Render managed Postgres
-      rejectUnauthorized: false,
-    },
-    extra: {
-      connectionTimeoutMillis: 10000,
-    },
+    ssl: { rejectUnauthorized: false },
+    extra: { connectionTimeoutMillis: 10000 },
   },
 
   paymentOptions: {
@@ -232,7 +201,6 @@ export const config: VendureConfig = {
   customFields: {},
 
   plugins: [
-    // AssetServerPlugin: assetUploadDir обязателен в типах
     AssetServerPlugin.init({
       route: 'assets',
       assetUploadDir: path.join(__dirname, '../static/assets'),
@@ -243,24 +211,19 @@ export const config: VendureConfig = {
       }),
     }),
 
-    GraphiqlPlugin.init({
-      route: 'graphiql',
-    }),
+    GraphiqlPlugin.init({ route: 'graphiql' }),
 
     DefaultJobQueuePlugin.init({}),
-
-    DefaultSearchPlugin.init({
-      // опция примерная — оставить true/false по желанию (соответствует типам)
-      indexStockStatus: true,
-    }),
+    DefaultSearchPlugin.init({ indexStockStatus: true }),
 
     EmailPlugin.init({
-      // Dev mode сохраняет письма в файл; в продакшне можно настроить SMTP/transport.
       devMode: IS_DEV,
       outputPath: path.join(__dirname, '../static/email/test-emails'),
       route: 'mailbox',
       handlers: defaultEmailHandlers,
-      templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
+      templateLoader: new FileBasedTemplateLoader(
+        path.join(__dirname, '../static/email/templates'),
+      ),
       globalTemplateVars: {
         fromAddress: '"example" <noreply@example.com>',
         verifyEmailAddressUrl: 'http://localhost:8080/verify',
@@ -271,7 +234,6 @@ export const config: VendureConfig = {
 
     AdminUiPlugin.init({
       route: 'admin',
-      // Обязательно: порт. Для простоты используем один порт сервера.
       port: serverPort,
       adminUiConfig: {
         apiHost: IS_DEV ? 'http://localhost' : 'https://taxa-backend.onrender.com',
