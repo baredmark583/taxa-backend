@@ -7,7 +7,7 @@ import {
     AssetStorageStrategy,
     Logger,
     LanguageCode,
-    // FIX: In Vendure 2+, i18n settings are configured via a plugin.
+// FIX: Import DefaultI18nPlugin to correctly configure internationalization.
     DefaultI18nPlugin,
 } from '@vendure/core';
 // FIX: In Vendure 2+, SharpAssetPreviewStrategy was moved to the @vendure/asset-server-plugin package.
@@ -247,6 +247,8 @@ export const config: VendureConfig = {
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
+    // FIX: The top-level `i18n` property is deprecated in Vendure 2+ and causes a type error.
+    // Internationalization is now configured via the `DefaultI18nPlugin`.
     assetOptions: {
         assetStorageStrategy: new CloudinaryStorageStrategy(),
         assetPreviewStrategy: new SharpAssetPreviewStrategy({
@@ -256,7 +258,7 @@ export const config: VendureConfig = {
     },
     customFields: {},
     plugins: [
-        // FIX: In Vendure 2+, i18n settings were moved into a plugin.
+        // FIX: Moved i18n configuration into the DefaultI18nPlugin.
         DefaultI18nPlugin.init({
             defaultLanguageCode: LanguageCode.uk,
             availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
