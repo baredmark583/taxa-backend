@@ -242,7 +242,15 @@ export const config: VendureConfig = {
       previewStrategy: new SharpAssetPreviewStrategy({ maxWidth: 400, maxHeight: 400 }),
     }),
 
-    GraphiqlPlugin.init({ route: 'graphiql' }),
+    GraphiqlPlugin.init({
+  adminApiPath: 'admin-api',
+  shopApiPath: 'shop-api',
+  apiPlayground: {
+    admin: true,
+    shop: true,
+  },
+}),
+
 
     DefaultJobQueuePlugin.init({}),
     DefaultSearchPlugin.init({ indexStockStatus: true }),
