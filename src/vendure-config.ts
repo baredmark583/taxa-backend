@@ -6,17 +6,16 @@ import {
     VendureConfig,
     AssetStorageStrategy,
     Logger,
-    LanguageCode,
 } from '@vendure/core';
-// FIX: In Vendure v2, SharpAssetPreviewStrategy is often in a separate package, but we try importing from asset-server-plugin to avoid adding new dependencies.
-import { AssetServerPlugin, SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
+// FIX: In Vendure 2+, SharpAssetPreviewStrategy was moved to the @vendure/asset-server-plugin package.
+import { SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import 'dotenv/config';
 import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
-const streamifier = require('streamifier');
+const streamifier = require('streamifier'); // FIX: Use require to avoid TS type error for modules without declarations.
 import { Readable } from 'stream';
 import https from 'https';
 
@@ -24,6 +23,7 @@ import https from 'https';
 // --- Custom Cloudinary Storage Strategy ---
 // This strategy handles uploading, deleting, and resolving URLs for assets using Cloudinary.
 
+// FIX: Updated class to implement the modern AssetStorageStrategy interface.
 class CloudinaryStorageStrategy implements AssetStorageStrategy {
     private readonly folder = 'vendure-assets';
 
@@ -67,6 +67,8 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
         return this.writeFileFromStream(fileName, streamifier.createReadStream(data));
     }
 
+    // FIX: Added helper to determine resource type from URL extension.
+    // Cloudinary's admin/destroy APIs do not support 'auto' resource_type.
     private getResourceTypeFromIdentifier(identifier: string): 'image' | 'video' | 'raw' {
         try {
             // This simple extension check works for both full URLs and plain filenames.
@@ -94,6 +96,8 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
             await cloudinary.api.resource(public_id, { resource_type });
             return true;
         } catch (error: any) {
+            // FIX: Correctly handle Cloudinary's 404 error structure.
+            // A "not found" error is the expected outcome for a new file.
             if (error.http_code === 404 || error.error?.http_code === 404) {
                 Logger.info(`File with public_id '${public_id}' does not exist (this is normal for new uploads).`, 'CloudinaryPlugin');
                 return false;
@@ -115,6 +119,8 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
         }
     }
 
+    // FIX: This robust method handles both full URLs (from existing assets)
+    // and simple filenames (from new uploads).
     private getPublicId(identifier: string): string {
         try {
             // Check if it's a full Cloudinary URL
@@ -199,11 +205,6 @@ export const config: VendureConfig = {
         shopApiPath: 'shop-api',
         // Important for Render's proxy
         trustProxy: true,
-        // Add explicit CORS configuration for production deployment
-        cors: {
-            origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
-            credentials: true,
-        },
         ...(IS_DEV ? {
             adminApiDebug: true,
             shopApiDebug: true,
@@ -235,33 +236,24 @@ export const config: VendureConfig = {
             connectionTimeoutMillis: 10000,
         },
     },
-    i18n: {
-        defaultLanguageCode: LanguageCode.uk,
-        availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
-    },
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
+    assetOptions: {
+        assetStorageStrategy: new CloudinaryStorageStrategy(),
+        assetPreviewStrategy: new SharpAssetPreviewStrategy({
+            maxWidth: 400,
+            maxHeight: 400,
+        }),
+    },
     customFields: {},
-    // FIX: Migrated all plugin initializations to Vendure v2 syntax (`Plugin.init()`).
-    // The build errors indicated a mismatch between the configuration (v1 style) and the installed Vendure version (v2).
     plugins: [
-        // FIX: In Vendure v2, asset options are configured inside the AssetServerPlugin.
-        AssetServerPlugin.init({
-            route: 'assets',
-            assetStorageStrategy: new CloudinaryStorageStrategy(),
-            assetPreviewStrategy: new SharpAssetPreviewStrategy({
-                maxWidth: 400,
-                maxHeight: 400,
-            }),
-        }),
-        GraphiqlPlugin.init({ 
-            route: 'graphiql',
-        }),
-        // FIX: DefaultSchedulerPlugin is a class reference in v2, not instantiated.
-        DefaultSchedulerPlugin,
-        DefaultJobQueuePlugin.init({}),
-        DefaultSearchPlugin.init({}),
+        GraphiqlPlugin.init(),
+        // FIX: Removed the AssetServerPlugin as it conflicts with the CloudinaryStorageStrategy.
+        // The Cloudinary strategy handles serving assets from its own CDN URLs.
+        DefaultSchedulerPlugin.init(),
+        DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
+        DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
             devMode: true,
             outputPath: path.join(__dirname, '../static/email/test-emails'),
@@ -275,17 +267,16 @@ export const config: VendureConfig = {
                 changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
             },
         }),
-        // FIX: Replaced AdminUiPlugin v1 config with the v2 equivalent.
-        // The `app` property and `compileUiExtensions` are used to build and serve the Admin UI.
         AdminUiPlugin.init({
             route: 'admin',
-            app: AdminUiPlugin.compileUiExtensions({
-                outputPath: path.join(__dirname, '__admin-ui'),
-                extensions: [],
-                devMode: IS_DEV,
-            }),
-            apiHost: IS_DEV ? 'http://localhost' : 'https://taxa-backend.onrender.com',
-            apiPort: IS_DEV ? serverPort : undefined,
+            // The port setting is for local development and can be ignored by Render.
+            port: 3002, 
+            // FIX: This is the crucial part. We provide the public URL
+            // for the Admin UI to connect to the API in production.
+            adminUiConfig: {
+                // FIX: The correct property name for the Admin UI API URL is 'apiHost', not 'apiUrl'.
+                apiHost: IS_DEV ? undefined : 'https://taxa-backend.onrender.com',
+            },
         }),
     ],
 };
