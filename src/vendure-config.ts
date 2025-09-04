@@ -182,17 +182,17 @@ export const config: VendureConfig = {
     hostname: IS_DEV ? 'localhost' : '0.0.0.0',
     adminApiPath: 'admin-api',
     shopApiPath: 'shop-api',
-    // Для Render важно доверять прокси
-    trustProxy: true,
+    // Для Render важно доверять прокси. Устанавливаем в true для продакшена.
+    trustProxy: !IS_DEV,
     cors: {
       origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
-      credentials: true,
+      // Применяем 'as const' для решения проблемы с выводом типов TypeScript,
+      // так как компилятор ожидает литеральный тип `true`.
+      credentials: true as const,
     },
-    ...(IS_DEV ? {
-      // Явно передаём литералы true
-      adminApiDebug: true,
-      shopApiDebug: true,
-    } : {}),
+    // Устанавливаем флаги отладки напрямую, без spread, для большей ясности
+    adminApiDebug: IS_DEV,
+    shopApiDebug: IS_DEV,
   },
 
   // Язык по умолчанию
