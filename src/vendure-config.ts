@@ -243,27 +243,30 @@ export const config: VendureConfig = {
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
+    // FIX: Moved asset options to root level to resolve type errors. This matches Vendure v1 syntax.
+    assetOptions: {
+        assetStorageStrategy: new CloudinaryStorageStrategy(),
+        assetPreviewStrategy: new SharpAssetPreviewStrategy({
+            maxWidth: 400,
+            maxHeight: 400,
+        }),
+    },
     customFields: {},
     plugins: [
-        // In Vendure v2+, asset strategies are configured inside the AssetServerPlugin.
+        // FIX: Removed asset strategies from plugin and defined in root assetOptions to resolve type errors.
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),
-            storageStrategy: new CloudinaryStorageStrategy(),
-            previewStrategy: new SharpAssetPreviewStrategy({
-                maxWidth: 400,
-                maxHeight: 400,
-            }),
         }),
         // In Vendure v2+, GraphiqlPlugin no longer has a `devMode` option.
         GraphiqlPlugin.init({ 
             route: 'graphiql',
         }),
-        // In Vendure v2+, plugins are instantiated.
-        new DefaultJobQueuePlugin(),
+        // FIX: Reverted to v1 plugin syntax to resolve type errors.
+        DefaultJobQueuePlugin,
         // NOTE: DefaultSchedulerPlugin was removed from @vendure/core in v2. 
         // For scheduled jobs, you may need to install and configure a package like `@vendure/job-queue-plugin`.
-        new DefaultSearchPlugin(),
+        DefaultSearchPlugin,
         EmailPlugin.init({
             devMode: IS_DEV,
             outputPath: path.join(__dirname, '../static/email/test-emails'),
@@ -277,14 +280,10 @@ export const config: VendureConfig = {
                 changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
             },
         }),
-        // In Vendure v2+, AdminUiPlugin is configured this way to work in production.
+        // FIX: Reverted AdminUiPlugin to v1 syntax (using port) to resolve type errors.
         AdminUiPlugin.init({
             route: 'admin',
-            adminUiConfig: {
-                // Use the RENDER_EXTERNAL_URL env var for the Admin UI to connect to the API in production
-                apiHost: IS_DEV ? 'http://localhost' : process.env.RENDER_EXTERNAL_URL,
-                apiPort: IS_DEV ? serverPort : undefined,
-            }
+            port: 3002,
         }),
     ],
 };
