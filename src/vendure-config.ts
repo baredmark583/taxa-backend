@@ -1,14 +1,14 @@
+
 import {
     dummyPaymentHandler,
     DefaultJobQueuePlugin,
-    DefaultSchedulerPlugin,
     DefaultSearchPlugin,
     VendureConfig,
     AssetStorageStrategy,
     Logger,
     LanguageCode,
 } from '@vendure/core';
-// In Vendure v2/v3, SharpAssetPreviewStrategy is in the asset-server-plugin.
+// In Vendure v2, SharpAssetPreviewStrategy is in the asset-server-plugin.
 import { AssetServerPlugin, SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
@@ -204,15 +204,15 @@ export const config: VendureConfig = {
             origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
             credentials: true,
         },
-        // FIX: Moved i18n config here for Vendure v1 compatibility.
-        i18n: {
-            defaultLanguageCode: LanguageCode.uk,
-            availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
-        },
         ...(IS_DEV ? {
             adminApiDebug: true,
             shopApiDebug: true,
         } : {}),
+    },
+    // In Vendure v2+, i18n config is at the root level.
+    i18n: {
+        defaultLanguageCode: LanguageCode.uk,
+        availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
     },
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
@@ -243,34 +243,29 @@ export const config: VendureConfig = {
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
-    // FIX: Reverted to Vendure v1 `assetOptions` at the root of the config.
-    // The asset storage strategy must be defined here in v1.
-    assetOptions: {
-        assetStorageStrategy: new CloudinaryStorageStrategy(),
-        assetPreviewStrategy: new SharpAssetPreviewStrategy({
-            maxWidth: 400,
-            maxHeight: 400,
-        }),
-    },
     customFields: {},
     plugins: [
-        // FIX: The AssetServerPlugin in v1 does not handle storage strategy directly.
-        // It is used to serve assets, typically from a local directory.
+        // In Vendure v2+, asset strategies are configured inside the AssetServerPlugin.
         AssetServerPlugin.init({
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),
+            storageStrategy: new CloudinaryStorageStrategy(),
+            previewStrategy: new SharpAssetPreviewStrategy({
+                maxWidth: 400,
+                maxHeight: 400,
+            }),
         }),
-        // FIX: Reverted GraphiqlPlugin to v1 syntax with `devMode`.
+        // In Vendure v2+, GraphiqlPlugin no longer has a `devMode` option.
         GraphiqlPlugin.init({ 
             route: 'graphiql',
-            devMode: IS_DEV,
         }),
-        // FIX: Reverted to v1 plugin syntax (no .init() for default plugins without options).
-        DefaultSchedulerPlugin,
-        DefaultJobQueuePlugin,
-        DefaultSearchPlugin,
+        // In Vendure v2+, plugins are instantiated.
+        new DefaultJobQueuePlugin(),
+        // NOTE: DefaultSchedulerPlugin was removed from @vendure/core in v2. 
+        // For scheduled jobs, you may need to install and configure a package like `@vendure/job-queue-plugin`.
+        new DefaultSearchPlugin(),
         EmailPlugin.init({
-            devMode: true,
+            devMode: IS_DEV,
             outputPath: path.join(__dirname, '../static/email/test-emails'),
             route: 'mailbox',
             handlers: defaultEmailHandlers,
@@ -282,10 +277,14 @@ export const config: VendureConfig = {
                 changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
             },
         }),
-        // FIX: Reverted AdminUiPlugin to v1 syntax, which requires a port and does not use the `app` property.
+        // In Vendure v2+, AdminUiPlugin is configured this way to work in production.
         AdminUiPlugin.init({
             route: 'admin',
-            port: 3002,
+            adminUiConfig: {
+                // Use the RENDER_EXTERNAL_URL env var for the Admin UI to connect to the API in production
+                apiHost: IS_DEV ? 'http://localhost' : process.env.RENDER_EXTERNAL_URL,
+                apiPort: IS_DEV ? serverPort : undefined,
+            }
         }),
     ],
 };
