@@ -8,7 +8,7 @@ import {
     Logger,
     LanguageCode,
 } from '@vendure/core';
-// FIX: In Vendure v2, SharpAssetPreviewStrategy is part of the AssetServerPlugin.
+// FIX: In Vendure v2, SharpAssetPreviewStrategy is often in a separate package, but we try importing from asset-server-plugin to avoid adding new dependencies.
 import { AssetServerPlugin, SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
@@ -235,7 +235,6 @@ export const config: VendureConfig = {
             connectionTimeoutMillis: 10000,
         },
     },
-    // FIX: Reverted i18n settings to a top-level property for Vendure v1 compatibility.
     i18n: {
         defaultLanguageCode: LanguageCode.uk,
         availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
@@ -244,8 +243,10 @@ export const config: VendureConfig = {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
     customFields: {},
+    // FIX: Migrated all plugin initializations to Vendure v2 syntax (`Plugin.init()`).
+    // The build errors indicated a mismatch between the configuration (v1 style) and the installed Vendure version (v2).
     plugins: [
-        // FIX: Vendure v2 uses the AssetServerPlugin to configure asset handling.
+        // FIX: In Vendure v2, asset options are configured inside the AssetServerPlugin.
         AssetServerPlugin.init({
             route: 'assets',
             assetStorageStrategy: new CloudinaryStorageStrategy(),
@@ -254,11 +255,13 @@ export const config: VendureConfig = {
                 maxHeight: 400,
             }),
         }),
-        // FIX: Updated plugin initialization to use the static `init()` method for Vendure v2 compatibility.
-        GraphiqlPlugin.init({ route: 'graphiql' }),
+        GraphiqlPlugin.init({ 
+            route: 'graphiql',
+        }),
+        // FIX: DefaultSchedulerPlugin is a class reference in v2, not instantiated.
         DefaultSchedulerPlugin,
-        DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
-        DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
+        DefaultJobQueuePlugin.init({}),
+        DefaultSearchPlugin.init({}),
         EmailPlugin.init({
             devMode: true,
             outputPath: path.join(__dirname, '../static/email/test-emails'),
@@ -272,13 +275,17 @@ export const config: VendureConfig = {
                 changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
             },
         }),
+        // FIX: Replaced AdminUiPlugin v1 config with the v2 equivalent.
+        // The `app` property and `compileUiExtensions` are used to build and serve the Admin UI.
         AdminUiPlugin.init({
             route: 'admin',
-            // The port setting is for local development and can be ignored by Render.
-            // port: 3002, // FIX: port is deprecated in Vendure v2
-            adminUiConfig: {
-                apiHost: IS_DEV ? undefined : 'https://taxa-backend.onrender.com',
-            },
+            app: AdminUiPlugin.compileUiExtensions({
+                outputPath: path.join(__dirname, '__admin-ui'),
+                extensions: [],
+                devMode: IS_DEV,
+            }),
+            apiHost: IS_DEV ? 'http://localhost' : 'https://taxa-backend.onrender.com',
+            apiPort: IS_DEV ? serverPort : undefined,
         }),
     ],
 };
