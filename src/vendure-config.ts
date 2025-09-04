@@ -157,19 +157,19 @@ const serverPort = +process.env.PORT || 3000;
 const IS_DEV = process.env.APP_ENV === 'dev';
 
 export const config: VendureConfig = {
-  apiOptions: {
-    port: serverPort,
-    hostname: IS_DEV ? 'localhost' : '0.0.0.0',
-    adminApiPath: 'admin-api',
-    shopApiPath: 'shop-api',
-    trustProxy: true,
-    cors: {
-      origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
-      credentials: true,
-    },
-    adminApiDebug: IS_DEV,
-    shopApiDebug: IS_DEV,
-  },
+	apiOptions: {
+	  port: serverPort,
+	  hostname: IS_DEV ? 'localhost' : '0.0.0.0',
+	  adminApiPath: 'admin-api',
+	  shopApiPath: 'shop-api',
+	  trustProxy: true,
+	  cors: {
+		origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
+		credentials: true,
+	  },
+	  ...(IS_DEV ? { adminApiDebug: true as true, shopApiDebug: true as true } : {}),
+	},
+
 
   defaultLanguageCode: LanguageCode.uk,
 
