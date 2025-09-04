@@ -1,4 +1,3 @@
-
 import {
     dummyPaymentHandler,
     DefaultJobQueuePlugin,
@@ -8,6 +7,7 @@ import {
     AssetStorageStrategy,
     Logger,
     LanguageCode,
+    AssetOptions,
 } from '@vendure/core';
 // In Vendure v2, SharpAssetPreviewStrategy is in the asset-server-plugin.
 import { AssetServerPlugin, SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
@@ -205,6 +205,11 @@ export const config: VendureConfig = {
             origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
             credentials: true,
         },
+        // FIX: Moved i18n config here for Vendure v1 compatibility.
+        i18n: {
+            defaultLanguageCode: LanguageCode.uk,
+            availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
+        },
         ...(IS_DEV ? {
             adminApiDebug: true,
             shopApiDebug: true,
@@ -231,40 +236,43 @@ export const config: VendureConfig = {
             rejectUnauthorized: false,
         },
         // Add a longer timeout for database connections
+        // This helps in environments like Render where initial connections can be slow.
         extra: {
             connectionTimeoutMillis: 10000,
         },
     },
-    // FIX: The `i18n` config property was moved to the root level in Vendure v2.
-    i18n: {
-        defaultLanguageCode: LanguageCode.uk,
-        availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
-    },
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
+    // FIX: Reverted to Vendure v1 `assetOptions` at the root of the config.
+    // The asset storage strategy must be defined here in v1.
+    assetOptions: {
+        assetStorageStrategy: new CloudinaryStorageStrategy(),
+        assetPreviewStrategy: new SharpAssetPreviewStrategy({
+            maxWidth: 400,
+            maxHeight: 400,
+        }),
+    },
     customFields: {},
     plugins: [
-        // FIX: In Vendure v2, asset storage/preview options are configured inside the AssetServerPlugin.
+        // FIX: The AssetServerPlugin in v1 does not handle storage strategy directly.
+        // It is used to serve assets, typically from a local directory.
+        // Since Cloudinary is used, this may need further adjustment based on specific needs,
+        // but for now, we remove the strategy configuration from it.
         AssetServerPlugin.init({
             route: 'assets',
-            storageStrategy: new CloudinaryStorageStrategy(),
-            previewStrategy: new SharpAssetPreviewStrategy({
-                maxWidth: 400,
-                maxHeight: 400,
-            }),
+            // A temporary upload dir might be needed by Vendure internally.
+            assetUploadDir: path.join(__dirname, '../static/assets'),
         }),
-        // FIX: Replaced `new GraphiqlPlugin()` with `GraphiqlPlugin.init()` for v2 and removed invalid `devMode` property.
-        GraphiqlPlugin.init({
+        // FIX: Added devMode for Vendure v1 compatibility.
+        GraphiqlPlugin.init({ 
             route: 'graphiql',
+            devMode: IS_DEV,
         }),
-        // FIX: DefaultSchedulerPlugin is a class reference in v2, not instantiated.
+        // FIX: Reverted to v1 plugin syntax (no .init() for default plugins without options).
         DefaultSchedulerPlugin,
-        // FIX: Replaced `new DefaultJobQueuePlugin()` with `DefaultJobQueuePlugin.init()` for v2.
-        DefaultJobQueuePlugin.init({}),
-        // FIX: Replaced `new DefaultSearchPlugin()` with `DefaultSearchPlugin.init()` for v2.
-        DefaultSearchPlugin.init({}),
-        // FIX: Replaced `new EmailPlugin()` with `EmailPlugin.init()` for v2.
+        DefaultJobQueuePlugin,
+        DefaultSearchPlugin,
         EmailPlugin.init({
             devMode: true,
             outputPath: path.join(__dirname, '../static/email/test-emails'),
@@ -278,19 +286,10 @@ export const config: VendureConfig = {
                 changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
             },
         }),
-        // FIX: Replaced AdminUiPlugin v1 config with the v2 equivalent.
-        // `compileUiExtensions` is renamed to `compile`, and `apiHost`/`apiPort` are moved into `adminUiConfig`.
+        // FIX: Reverted AdminUiPlugin to v1 syntax, which requires a port and does not use the `app` property.
         AdminUiPlugin.init({
             route: 'admin',
-            app: AdminUiPlugin.compile({
-                outputPath: path.join(__dirname, '__admin-ui'),
-                extensions: [],
-                devMode: IS_DEV,
-                adminUiConfig: {
-                    apiHost: IS_DEV ? 'http://localhost' : 'https://taxa-backend.onrender.com',
-                    apiPort: IS_DEV ? serverPort : undefined,
-                },
-            }),
+            port: 3002,
         }),
     ],
 };
