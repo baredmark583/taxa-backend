@@ -141,7 +141,10 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
 const serverPort = +process.env.PORT || 3000;
 const IS_DEV = process.env.APP_ENV === 'dev';
 
-/* --- EmailPlugin options: соберём prod/dev версии явно --- */
+/* ---------------- EmailPlugin: transport selection ----------------
+   If SMTP env vars provided -> use SMTP transport.
+   Else -> fallback to file transport (safe, won't crash), in dev include devMode:true and mailbox route.
+-----------------------------------------------------------------*/
 
 const commonEmailOptions = {
   handlers: defaultEmailHandlers,
@@ -152,28 +155,46 @@ const commonEmailOptions = {
     passwordResetUrl: 'http://localhost:8080/password-reset',
     changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change',
   },
-} as const;
-
-const devEmailOptions = {
-  // строго литерал true — соответствует EmailPluginDevModeOptions
-  devMode: true as true,
-  outputPath: path.join(__dirname, '../static/email/test-emails'),
-  route: 'mailbox',
-  ...commonEmailOptions,
 };
 
-const prodEmailOptions = {
-  // production: только общие опции (devMode отсутствует)
-  ...commonEmailOptions,
-};
+let emailPlugin: ReturnType<typeof EmailPlugin.init>;
 
-/* Приведём emailPlugin: в dev — devOptions, в prod — prodOptions.
-   Приводим к any, чтобы TS не спорил с условной сборкой (по факту объекты корректны). */
-const emailPlugin = IS_DEV
-  ? EmailPlugin.init(devEmailOptions as any)
-  : EmailPlugin.init(prodEmailOptions as any);
+if (process.env.SMTP_HOST) {
+  // SMTP transport configured via env
+  const smtpPort = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587;
+  const smtpTransport = {
+    type: 'smtp' as const,
+    host: process.env.SMTP_HOST,
+    port: smtpPort,
+    secure: process.env.SMTP_SECURE === 'true',
+    auth:
+      process.env.SMTP_USER && process.env.SMTP_PASS
+        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+        : undefined,
+  };
 
-/* Экспорт конфига */
+  emailPlugin = EmailPlugin.init({
+    ...commonEmailOptions,
+    transport: smtpTransport as any,
+  } as any);
+} else {
+  // Fallback to file transport so plugin never crashes if SMTP is not set.
+  const fileTransport = {
+    type: 'file' as const,
+    outputPath: path.join(__dirname, '../static/email/test-emails'),
+  };
+
+  // For dev, include devMode:true and mailbox route; for prod keep those keys out (not required)
+  const devPart = IS_DEV ? { devMode: true as true, route: 'mailbox' } : {};
+  emailPlugin = EmailPlugin.init({
+    ...commonEmailOptions,
+    transport: fileTransport as any,
+    ...devPart,
+  } as any);
+}
+
+/* ---------------- Final Vendure config ---------------- */
+
 export const config: VendureConfig = {
   apiOptions: {
     port: serverPort,
@@ -185,7 +206,6 @@ export const config: VendureConfig = {
       origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
       credentials: true,
     },
-    // добавляем debug-поля ТОЛЬКО в dev как литерал true
     ...(IS_DEV ? { adminApiDebug: true as true, shopApiDebug: true as true } : {}),
   },
 
@@ -227,7 +247,7 @@ export const config: VendureConfig = {
     DefaultJobQueuePlugin.init({}),
     DefaultSearchPlugin.init({ indexStockStatus: true }),
 
-    // ставим готовый emailPlugin
+    // Insert configured email plugin
     emailPlugin,
 
     AdminUiPlugin.init({
