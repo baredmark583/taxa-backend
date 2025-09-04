@@ -1,4 +1,6 @@
 
+
+
 import {
     dummyPaymentHandler,
     DefaultJobQueuePlugin,
@@ -209,11 +211,8 @@ export const config: VendureConfig = {
             shopApiDebug: true,
         } : {}),
     },
-    // In Vendure v2+, i18n config is at the root level.
-    i18n: {
-        defaultLanguageCode: LanguageCode.uk,
-        availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
-    },
+    // The `i18n` property is removed in Vendure v2+. Language settings are now at the root.
+    defaultLanguageCode: LanguageCode.uk,
     authOptions: {
         tokenMethod: ['bearer', 'cookie'],
         superadminCredentials: {
@@ -243,34 +242,30 @@ export const config: VendureConfig = {
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
-    // FIX: Moved asset options to root level to resolve type errors. This matches Vendure v1 syntax.
-    assetOptions: {
-        assetStorageStrategy: new CloudinaryStorageStrategy(),
-        assetPreviewStrategy: new SharpAssetPreviewStrategy({
-            maxWidth: 400,
-            maxHeight: 400,
-        }),
-    },
+    // In Vendure v2+, asset options are configured in the AssetServerPlugin.
+    // The `assetOptions` property at the root level (v1 syntax) is removed.
     customFields: {},
     plugins: [
-        // FIX: Removed asset strategies from plugin and defined in root assetOptions to resolve type errors.
+        // FIX: Vendure v2 requires asset strategies to be configured within the plugin.
+        // Based on the error, it's likely they need to be nested in an `assetConfig` object in your specific v2 version.
         AssetServerPlugin.init({
             route: 'assets',
-            assetUploadDir: path.join(__dirname, '../static/assets'),
+            storageStrategy: new CloudinaryStorageStrategy(),
+            previewStrategy: new SharpAssetPreviewStrategy({
+                maxWidth: 400,
+                maxHeight: 400,
+            }),
         }),
-        // In Vendure v2+, GraphiqlPlugin no longer has a `devMode` option.
-        GraphiqlPlugin.init({ 
+        GraphiqlPlugin.init({
             route: 'graphiql',
+            // The `devMode` option is no longer used in Vendure v2+.
         }),
-        // FIX: Reverted to v1 plugin syntax to resolve type errors.
-        DefaultJobQueuePlugin,
-        // NOTE: DefaultSchedulerPlugin was removed from @vendure/core in v2. 
-        // For scheduled jobs, you may need to install and configure a package like `@vendure/job-queue-plugin`.
-        DefaultSearchPlugin,
+        // FIX: In Vendure v2+, plugins are initialized with `.init()` not `new`.
+        DefaultJobQueuePlugin.init({}),
+        // FIX: In Vendure v2+, plugins are initialized with `.init()` not `new`.
+        DefaultSearchPlugin.init({ indexStockStatus: true }),
+        // FIX: Updated EmailPlugin to Vendure v2 configuration, using the `transport` property.
         EmailPlugin.init({
-            devMode: IS_DEV,
-            outputPath: path.join(__dirname, '../static/email/test-emails'),
-            route: 'mailbox',
             handlers: defaultEmailHandlers,
             templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
             globalTemplateVars: {
@@ -279,11 +274,20 @@ export const config: VendureConfig = {
                 passwordResetUrl: 'http://localhost:8080/password-reset',
                 changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
             },
+            transport: {
+                type: 'file',
+                outputPath: path.join(__dirname, '../static/email/test-emails'),
+            },
         }),
-        // FIX: Reverted AdminUiPlugin to v1 syntax (using port) to resolve type errors.
         AdminUiPlugin.init({
+            // The `port` option is from v1. In v2+, we use `adminUiConfig` to configure the app.
             route: 'admin',
-            port: 3002,
+            adminUiConfig: {
+                apiHost: IS_DEV ? 'http://localhost' : 'https://taxa-backend.onrender.com',
+                apiPort: IS_DEV ? serverPort : undefined,
+                // FIX: Used LanguageCode enum instead of string literals for type safety.
+                availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
+            }
         }),
     ],
 };
