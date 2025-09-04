@@ -19,11 +19,7 @@ import { Readable } from 'stream';
 const streamifier: any = require('streamifier');
 import https from 'https';
 
-/**
- * CloudinaryStorageStrategy
- * Реализует AssetStorageStrategy для загрузки/удаления/чтения ассетов в Cloudinary.
- * Возвращает в writeFile... абсолютный URL (secure_url).
- */
+/* CloudinaryStorageStrategy */
 class CloudinaryStorageStrategy implements AssetStorageStrategy {
   private readonly folder = 'vendure-assets';
 
@@ -31,7 +27,6 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
     if (!process.env.CLOUDINARY_URL) {
       throw new Error('CLOUDINARY_URL environment variable must be set!');
     }
-    // Автоматическая конфигурация из CLOUDINARY_URL
     cloudinary.config();
     Logger.info('Cloudinary Storage Strategy initialized.', 'CloudinaryPlugin');
   }
@@ -47,11 +42,11 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
         },
         (error: any, result: any) => {
           if (error) {
-            Logger.error(`Failed to upload to Cloudinary: ${error.message}`, 'CloudinaryPlugin');
+            Logger.error(`Cloudinary upload error: ${error.message}`, 'CloudinaryPlugin');
             return reject(error);
           }
           if (!result || !result.secure_url) {
-            const msg = `Cloudinary upload returned no result or missing secure_url.`;
+            const msg = 'Cloudinary upload returned no secure_url';
             Logger.error(msg, 'CloudinaryPlugin');
             return reject(new Error(msg));
           }
@@ -68,15 +63,13 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
 
   private getResourceTypeFromIdentifier(identifier: string): 'image' | 'video' | 'raw' {
     try {
-      const extension = path.extname(identifier).toLowerCase();
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico'];
-      const videoExtensions = ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.webm', '.mkv'];
-
-      if (imageExtensions.includes(extension)) return 'image';
-      if (videoExtensions.includes(extension)) return 'video';
+      const ext = path.extname(identifier).toLowerCase();
+      const imageExt = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico'];
+      const videoExt = ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.webm', '.mkv'];
+      if (imageExt.includes(ext)) return 'image';
+      if (videoExt.includes(ext)) return 'video';
       return 'raw';
-    } catch (e) {
-      Logger.warn(`Could not determine resource type from identifier: ${identifier}. Defaulting to 'image'.`, 'CloudinaryPlugin');
+    } catch {
       return 'image';
     }
   }
@@ -87,45 +80,31 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
     try {
       await cloudinary.api.resource(public_id, { resource_type });
       return true;
-    } catch (error: any) {
-      if (error?.http_code === 404 || error?.error?.http_code === 404) {
-        Logger.info(`File with public_id '${public_id}' does not exist (normal for new uploads).`, 'CloudinaryPlugin');
-        return false;
-      }
-      Logger.error(`Error checking if file exists in Cloudinary: ${JSON.stringify(error, null, 2)}`, 'CloudinaryPlugin');
-      throw error;
+    } catch (err: any) {
+      if (err?.http_code === 404 || err?.error?.http_code === 404) return false;
+      throw err;
     }
   }
 
   async deleteFile(identifier: string): Promise<void> {
     const public_id = this.getPublicId(identifier);
     const resource_type = this.getResourceTypeFromIdentifier(identifier);
-    try {
-      await cloudinary.uploader.destroy(public_id, { resource_type });
-    } catch (error: any) {
-      Logger.error(`Error deleting file from Cloudinary: ${error.message}`, 'CloudinaryPlugin');
-      throw error;
-    }
+    await cloudinary.uploader.destroy(public_id, { resource_type });
   }
 
   private getPublicId(identifier: string): string {
     try {
-      // Если это полный Cloudinary URL, парсим public_id
       if (identifier.includes('res.cloudinary.com')) {
         const regex = /\/upload\/(?:v\d+\/)?(.+)/;
         const match = identifier.match(regex);
         if (match && match[1]) {
-          const fullPathWithExt = match[1];
-          const parsed = path.parse(fullPathWithExt);
-          // Возвращаем 'folder/filename' (без расширения)
+          const parsed = path.parse(match[1]);
           return path.join(parsed.dir, parsed.name);
         }
       }
-      // Иначе — имя файла, добавляем папку
-      const parsedFilename = path.parse(identifier);
-      return `${this.folder}/${parsedFilename.name}`;
-    } catch (e: any) {
-      Logger.error(`Could not parse public_id from identifier: ${identifier}. Error: ${e?.message}`, 'CloudinaryPlugin');
+      const parsed = path.parse(identifier);
+      return `${this.folder}/${parsed.name}`;
+    } catch {
       const parsed = path.parse(identifier);
       return path.join(parsed.dir, parsed.name);
     }
@@ -133,45 +112,30 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
 
   readFileToBuffer(identifier: string): Promise<Buffer> {
     return new Promise((resolve, reject) => {
-      https.get(identifier, (response) => {
-        if (response.statusCode !== 200) {
-          const error = new Error(`Failed to download file from ${identifier}: ${response.statusCode}`);
-          Logger.error(error.message, 'CloudinaryPlugin');
-          return reject(error);
-        }
+      https.get(identifier, (res) => {
+        if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
         const chunks: Buffer[] = [];
-        response.on('data', chunk => chunks.push(chunk));
-        response.on('end', () => resolve(Buffer.concat(chunks)));
-      }).on('error', (err) => {
-        Logger.error(`Error downloading file from Cloudinary: ${err.message}`, 'CloudinaryPlugin');
-        reject(err);
-      });
+        res.on('data', c => chunks.push(c));
+        res.on('end', () => resolve(Buffer.concat(chunks)));
+      }).on('error', reject);
     });
   }
 
   readFileToStream(identifier: string): Promise<Readable> {
     return new Promise((resolve, reject) => {
-      https.get(identifier, response => {
-        if (response.statusCode !== 200) {
-          const error = new Error(`Failed to stream file from ${identifier}: ${response.statusCode}`);
-          Logger.error(error.message, 'CloudinaryPlugin');
-          return reject(error);
-        }
-        resolve(response);
-      }).on('error', (err) => {
-        Logger.error(`Error streaming file from Cloudinary: ${err.message}`, 'CloudinaryPlugin');
-        reject(err);
-      });
+      https.get(identifier, (res) => {
+        if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
+        resolve(res);
+      }).on('error', reject);
     });
   }
 
-  toAbsoluteUrl(_request: any, identifier: string): string {
-    // writeFile возвращает уже полный URL (secure_url), так что возвращаем напрямую.
+  toAbsoluteUrl(_req: any, identifier: string): string {
     return identifier;
   }
 }
 
-/* -------------------- Конфигурация Vendure -------------------- */
+/* Vendure config */
 
 const serverPort = +process.env.PORT || 3000;
 const IS_DEV = process.env.APP_ENV === 'dev';
@@ -182,32 +146,25 @@ export const config: VendureConfig = {
     hostname: IS_DEV ? 'localhost' : '0.0.0.0',
     adminApiPath: 'admin-api',
     shopApiPath: 'shop-api',
-    // Для Render важно доверять прокси. Устанавливаем в true для продакшена.
-    trustProxy: !IS_DEV,
+    trustProxy: true,
     cors: {
       origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
-      // Применяем 'as const' для решения проблемы с выводом типов TypeScript,
-      // так как компилятор ожидает литеральный тип `true`.
       credentials: true,
     },
-    // Устанавливаем флаги отладки напрямую, без spread, для большей ясности
-    adminApiDebug: IS_DEV,
-    shopApiDebug: IS_DEV,
+    // Важный момент: добавляем adminApiDebug/shopApiDebug ТОЛЬКО если IS_DEV === true,
+    // и явно помечаем как литерал `true` — это устраняет ошибку типов.
+    ...(IS_DEV ? { adminApiDebug: true as true, shopApiDebug: true as true } : {}),
   },
 
-  // Язык по умолчанию
   defaultLanguageCode: LanguageCode.uk,
 
   authOptions: {
-    // Важно: as const, чтобы соответствовать строгому типу
     tokenMethod: ['bearer', 'cookie'] as const,
     superadminCredentials: {
       identifier: process.env.SUPERADMIN_USERNAME || 'superadmin',
       password: process.env.SUPERADMIN_PASSWORD || 'superadmin',
     },
-    cookieOptions: {
-      secret: process.env.COOKIE_SECRET || 'cookie-secret-placeholder',
-    },
+    cookieOptions: { secret: process.env.COOKIE_SECRET || 'cookie-secret' },
   },
 
   dbConnectionOptions: {
@@ -216,46 +173,29 @@ export const config: VendureConfig = {
     migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
     logging: false,
     url: process.env.DATABASE_URL,
-    ssl: {
-      // Для Render managed Postgres
-      rejectUnauthorized: false,
-    },
-    extra: {
-      connectionTimeoutMillis: 10000,
-    },
+    ssl: { rejectUnauthorized: false },
+    extra: { connectionTimeoutMillis: 10000 },
   },
 
-  paymentOptions: {
-    paymentMethodHandlers: [dummyPaymentHandler],
-  },
+  paymentOptions: { paymentMethodHandlers: [dummyPaymentHandler] },
 
   customFields: {},
 
   plugins: [
-    // AssetServerPlugin: assetUploadDir обязателен в типах
     AssetServerPlugin.init({
       route: 'assets',
+      // assetUploadDir обязателен в типах
       assetUploadDir: path.join(__dirname, '../static/assets'),
       storageStrategyFactory: () => new CloudinaryStorageStrategy(),
-      previewStrategy: new SharpAssetPreviewStrategy({
-        maxWidth: 400,
-        maxHeight: 400,
-      }),
+      previewStrategy: new SharpAssetPreviewStrategy({ maxWidth: 400, maxHeight: 400 }),
     }),
 
-    GraphiqlPlugin.init({
-      route: 'graphiql',
-    }),
+    GraphiqlPlugin.init({ route: 'graphiql' }),
 
     DefaultJobQueuePlugin.init({}),
-
-    DefaultSearchPlugin.init({
-      // опция примерная — оставить true/false по желанию (соответствует типам)
-      indexStockStatus: true,
-    }),
+    DefaultSearchPlugin.init({ indexStockStatus: true }),
 
     EmailPlugin.init({
-      // Dev mode сохраняет письма в файл; в продакшне можно настроить SMTP/transport.
       devMode: IS_DEV,
       outputPath: path.join(__dirname, '../static/email/test-emails'),
       route: 'mailbox',
@@ -271,7 +211,6 @@ export const config: VendureConfig = {
 
     AdminUiPlugin.init({
       route: 'admin',
-      // Обязательно: порт. Для простоты используем один порт сервера.
       port: serverPort,
       adminUiConfig: {
         apiHost: IS_DEV ? 'http://localhost' : 'https://taxa-backend.onrender.com',
