@@ -1,3 +1,4 @@
+
 import {
     dummyPaymentHandler,
     DefaultJobQueuePlugin,
@@ -8,7 +9,7 @@ import {
     Logger,
     LanguageCode,
 } from '@vendure/core';
-// FIX: In Vendure v2, SharpAssetPreviewStrategy is often in a separate package, but we try importing from asset-server-plugin to avoid adding new dependencies.
+// In Vendure v2, SharpAssetPreviewStrategy is in the asset-server-plugin.
 import { AssetServerPlugin, SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
@@ -229,12 +230,12 @@ export const config: VendureConfig = {
         ssl: {
             rejectUnauthorized: false,
         },
-        // FIX: Add a longer timeout for database connections
-        // This helps in environments like Render where initial connections can be slow.
+        // Add a longer timeout for database connections
         extra: {
             connectionTimeoutMillis: 10000,
         },
     },
+    // FIX: The `i18n` config property was moved to the root level in Vendure v2.
     i18n: {
         defaultLanguageCode: LanguageCode.uk,
         availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
@@ -243,25 +244,27 @@ export const config: VendureConfig = {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
     customFields: {},
-    // FIX: Migrated all plugin initializations to Vendure v2 syntax (`Plugin.init()`).
-    // The build errors indicated a mismatch between the configuration (v1 style) and the installed Vendure version (v2).
     plugins: [
-        // FIX: In Vendure v2, asset options are configured inside the AssetServerPlugin.
+        // FIX: In Vendure v2, asset storage/preview options are configured inside the AssetServerPlugin.
         AssetServerPlugin.init({
             route: 'assets',
-            assetStorageStrategy: new CloudinaryStorageStrategy(),
-            assetPreviewStrategy: new SharpAssetPreviewStrategy({
+            storageStrategy: new CloudinaryStorageStrategy(),
+            previewStrategy: new SharpAssetPreviewStrategy({
                 maxWidth: 400,
                 maxHeight: 400,
             }),
         }),
-        GraphiqlPlugin.init({ 
+        // FIX: Replaced `new GraphiqlPlugin()` with `GraphiqlPlugin.init()` for v2 and removed invalid `devMode` property.
+        GraphiqlPlugin.init({
             route: 'graphiql',
         }),
         // FIX: DefaultSchedulerPlugin is a class reference in v2, not instantiated.
         DefaultSchedulerPlugin,
+        // FIX: Replaced `new DefaultJobQueuePlugin()` with `DefaultJobQueuePlugin.init()` for v2.
         DefaultJobQueuePlugin.init({}),
+        // FIX: Replaced `new DefaultSearchPlugin()` with `DefaultSearchPlugin.init()` for v2.
         DefaultSearchPlugin.init({}),
+        // FIX: Replaced `new EmailPlugin()` with `EmailPlugin.init()` for v2.
         EmailPlugin.init({
             devMode: true,
             outputPath: path.join(__dirname, '../static/email/test-emails'),
@@ -276,16 +279,18 @@ export const config: VendureConfig = {
             },
         }),
         // FIX: Replaced AdminUiPlugin v1 config with the v2 equivalent.
-        // The `app` property and `compileUiExtensions` are used to build and serve the Admin UI.
+        // `compileUiExtensions` is renamed to `compile`, and `apiHost`/`apiPort` are moved into `adminUiConfig`.
         AdminUiPlugin.init({
             route: 'admin',
-            app: AdminUiPlugin.compileUiExtensions({
+            app: AdminUiPlugin.compile({
                 outputPath: path.join(__dirname, '__admin-ui'),
                 extensions: [],
                 devMode: IS_DEV,
+                adminUiConfig: {
+                    apiHost: IS_DEV ? 'http://localhost' : 'https://taxa-backend.onrender.com',
+                    apiPort: IS_DEV ? serverPort : undefined,
+                },
             }),
-            apiHost: IS_DEV ? 'http://localhost' : 'https://taxa-backend.onrender.com',
-            apiPort: IS_DEV ? serverPort : undefined,
         }),
     ],
 };
