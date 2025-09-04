@@ -7,9 +7,8 @@ import {
     AssetStorageStrategy,
     Logger,
     LanguageCode,
-    AssetOptions,
 } from '@vendure/core';
-// In Vendure v2, SharpAssetPreviewStrategy is in the asset-server-plugin.
+// In Vendure v2/v3, SharpAssetPreviewStrategy is in the asset-server-plugin.
 import { AssetServerPlugin, SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
@@ -257,14 +256,11 @@ export const config: VendureConfig = {
     plugins: [
         // FIX: The AssetServerPlugin in v1 does not handle storage strategy directly.
         // It is used to serve assets, typically from a local directory.
-        // Since Cloudinary is used, this may need further adjustment based on specific needs,
-        // but for now, we remove the strategy configuration from it.
         AssetServerPlugin.init({
             route: 'assets',
-            // A temporary upload dir might be needed by Vendure internally.
             assetUploadDir: path.join(__dirname, '../static/assets'),
         }),
-        // FIX: Added devMode for Vendure v1 compatibility.
+        // FIX: Reverted GraphiqlPlugin to v1 syntax with `devMode`.
         GraphiqlPlugin.init({ 
             route: 'graphiql',
             devMode: IS_DEV,
