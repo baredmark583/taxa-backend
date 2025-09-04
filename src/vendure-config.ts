@@ -7,18 +7,16 @@ import {
     AssetStorageStrategy,
     Logger,
     LanguageCode,
-    // FIX: Import DefaultI18nPlugin to handle internationalization.
-    DefaultI18nPlugin,
 } from '@vendure/core';
-// FIX: In Vendure 2+, SharpAssetPreviewStrategy was moved to the @vendure/asset-server-plugin package.
-import { SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
+// FIX: In Vendure v2, SharpAssetPreviewStrategy is part of the AssetServerPlugin.
+import { AssetServerPlugin, SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import 'dotenv/config';
 import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
-const streamifier = require('streamifier'); // FIX: Use require to avoid TS type error for modules without declarations.
+const streamifier = require('streamifier');
 import { Readable } from 'stream';
 import https from 'https';
 
@@ -26,7 +24,6 @@ import https from 'https';
 // --- Custom Cloudinary Storage Strategy ---
 // This strategy handles uploading, deleting, and resolving URLs for assets using Cloudinary.
 
-// FIX: Updated class to implement the modern AssetStorageStrategy interface.
 class CloudinaryStorageStrategy implements AssetStorageStrategy {
     private readonly folder = 'vendure-assets';
 
@@ -70,8 +67,6 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
         return this.writeFileFromStream(fileName, streamifier.createReadStream(data));
     }
 
-    // FIX: Added helper to determine resource type from URL extension.
-    // Cloudinary's admin/destroy APIs do not support 'auto' resource_type.
     private getResourceTypeFromIdentifier(identifier: string): 'image' | 'video' | 'raw' {
         try {
             // This simple extension check works for both full URLs and plain filenames.
@@ -99,8 +94,6 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
             await cloudinary.api.resource(public_id, { resource_type });
             return true;
         } catch (error: any) {
-            // FIX: Correctly handle Cloudinary's 404 error structure.
-            // A "not found" error is the expected outcome for a new file.
             if (error.http_code === 404 || error.error?.http_code === 404) {
                 Logger.info(`File with public_id '${public_id}' does not exist (this is normal for new uploads).`, 'CloudinaryPlugin');
                 return false;
@@ -122,8 +115,6 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
         }
     }
 
-    // FIX: This robust method handles both full URLs (from existing assets)
-    // and simple filenames (from new uploads).
     private getPublicId(identifier: string): string {
         try {
             // Check if it's a full Cloudinary URL
@@ -244,29 +235,28 @@ export const config: VendureConfig = {
             connectionTimeoutMillis: 10000,
         },
     },
+    // FIX: Reverted i18n settings to a top-level property for Vendure v1 compatibility.
+    i18n: {
+        defaultLanguageCode: LanguageCode.uk,
+        availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
+    },
     paymentOptions: {
         paymentMethodHandlers: [dummyPaymentHandler],
     },
-    // FIX: Removed top-level `i18n` property. In this version of Vendure,
-    // it must be configured via the `DefaultI18nPlugin`.
-    assetOptions: {
-        assetStorageStrategy: new CloudinaryStorageStrategy(),
-        assetPreviewStrategy: new SharpAssetPreviewStrategy({
-            maxWidth: 400,
-            maxHeight: 400,
-        }),
-    },
     customFields: {},
     plugins: [
-        // FIX: Added DefaultI18nPlugin to handle internationalization settings.
-        DefaultI18nPlugin.init({
-            defaultLanguageCode: LanguageCode.uk,
-            availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
+        // FIX: Vendure v2 uses the AssetServerPlugin to configure asset handling.
+        AssetServerPlugin.init({
+            route: 'assets',
+            assetStorageStrategy: new CloudinaryStorageStrategy(),
+            assetPreviewStrategy: new SharpAssetPreviewStrategy({
+                maxWidth: 400,
+                maxHeight: 400,
+            }),
         }),
-        GraphiqlPlugin.init(),
-        // FIX: Removed the AssetServerPlugin as it conflicts with the CloudinaryStorageStrategy.
-        // The Cloudinary strategy handles serving assets from its own CDN URLs.
-        DefaultSchedulerPlugin.init(),
+        // FIX: Updated plugin initialization to use the static `init()` method for Vendure v2 compatibility.
+        GraphiqlPlugin.init({ route: 'graphiql' }),
+        DefaultSchedulerPlugin,
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
@@ -285,11 +275,8 @@ export const config: VendureConfig = {
         AdminUiPlugin.init({
             route: 'admin',
             // The port setting is for local development and can be ignored by Render.
-            port: 3002, 
-            // FIX: This is the crucial part. We provide the public URL
-            // for the Admin UI to connect to the API in production.
+            // port: 3002, // FIX: port is deprecated in Vendure v2
             adminUiConfig: {
-                // FIX: The correct property name for the Admin UI API URL is 'apiHost', not 'apiUrl'.
                 apiHost: IS_DEV ? undefined : 'https://taxa-backend.onrender.com',
             },
         }),
