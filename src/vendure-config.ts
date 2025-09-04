@@ -11,7 +11,8 @@ import {
 import { AssetServerPlugin, SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
-import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
+// FIX: Removed deprecated GraphiqlPlugin import. API playgrounds are now configured directly in apiOptions.
+// import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import 'dotenv/config';
 import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
@@ -207,6 +208,9 @@ export const config: VendureConfig = {
       credentials: true,
     },
     ...(IS_DEV ? { adminApiDebug: true as true, shopApiDebug: true as true } : {}),
+    // FIX: Replaced deprecated GraphiqlPlugin with built-in API playground options.
+    adminApiPlayground: IS_DEV,
+    shopApiPlayground: IS_DEV,
   },
 
   defaultLanguageCode: LanguageCode.uk,
@@ -242,15 +246,16 @@ export const config: VendureConfig = {
       previewStrategy: new SharpAssetPreviewStrategy({ maxWidth: 400, maxHeight: 400 }),
     }),
 
-    GraphiqlPlugin.init({
-  adminApiPath: 'admin-api',
-  shopApiPath: 'shop-api',
-  apiPlayground: {
-    admin: true,
-    shop: true,
-  },
-}),
-
+    // FIX: Removed deprecated GraphiqlPlugin. API playgrounds are now configured via `apiOptions`.
+    // GraphiqlPlugin.init({
+    //   adminApiPath: 'admin-api',
+    //   shopApiPath: 'shop-api',
+    //   route: 'graphiql',
+    //   apiPlayground: {
+    //     admin: true,
+    //     shop: true,
+    //   },
+    // }),
 
     DefaultJobQueuePlugin.init({}),
     DefaultSearchPlugin.init({ indexStockStatus: true }),
