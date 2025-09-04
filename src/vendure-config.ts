@@ -6,6 +6,9 @@ import {
     VendureConfig,
     AssetStorageStrategy,
     Logger,
+    LanguageCode,
+    // FIX: In Vendure 2+, i18n settings are configured via a plugin.
+    DefaultI18nPlugin,
 } from '@vendure/core';
 // FIX: In Vendure 2+, SharpAssetPreviewStrategy was moved to the @vendure/asset-server-plugin package.
 import { SharpAssetPreviewStrategy } from '@vendure/asset-server-plugin';
@@ -205,6 +208,11 @@ export const config: VendureConfig = {
         shopApiPath: 'shop-api',
         // Important for Render's proxy
         trustProxy: true,
+        // Add explicit CORS configuration for production deployment
+        cors: {
+            origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
+            credentials: true,
+        },
         ...(IS_DEV ? {
             adminApiDebug: true,
             shopApiDebug: true,
@@ -248,6 +256,11 @@ export const config: VendureConfig = {
     },
     customFields: {},
     plugins: [
+        // FIX: In Vendure 2+, i18n settings were moved into a plugin.
+        DefaultI18nPlugin.init({
+            defaultLanguageCode: LanguageCode.uk,
+            availableLanguages: [LanguageCode.uk, LanguageCode.en, LanguageCode.ru],
+        }),
         GraphiqlPlugin.init(),
         // FIX: Removed the AssetServerPlugin as it conflicts with the CloudinaryStorageStrategy.
         // The Cloudinary strategy handles serving assets from its own CDN URLs.
