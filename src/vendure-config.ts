@@ -19,7 +19,8 @@ import { Readable } from 'stream';
 const streamifier: any = require('streamifier');
 import https from 'https';
 
-/* CloudinaryStorageStrategy */
+/* ---------------- CloudinaryStorageStrategy ---------------- */
+
 class CloudinaryStorageStrategy implements AssetStorageStrategy {
   private readonly folder = 'vendure-assets';
 
@@ -135,11 +136,44 @@ class CloudinaryStorageStrategy implements AssetStorageStrategy {
   }
 }
 
-/* Vendure config */
+/* ---------------- Vendure config ---------------- */
 
 const serverPort = +process.env.PORT || 3000;
 const IS_DEV = process.env.APP_ENV === 'dev';
 
+/* --- EmailPlugin options: соберём prod/dev версии явно --- */
+
+const commonEmailOptions = {
+  handlers: defaultEmailHandlers,
+  templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
+  globalTemplateVars: {
+    fromAddress: '"example" <noreply@example.com>',
+    verifyEmailAddressUrl: 'http://localhost:8080/verify',
+    passwordResetUrl: 'http://localhost:8080/password-reset',
+    changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change',
+  },
+} as const;
+
+const devEmailOptions = {
+  // строго литерал true — соответствует EmailPluginDevModeOptions
+  devMode: true as true,
+  outputPath: path.join(__dirname, '../static/email/test-emails'),
+  route: 'mailbox',
+  ...commonEmailOptions,
+};
+
+const prodEmailOptions = {
+  // production: только общие опции (devMode отсутствует)
+  ...commonEmailOptions,
+};
+
+/* Приведём emailPlugin: в dev — devOptions, в prod — prodOptions.
+   Приводим к any, чтобы TS не спорил с условной сборкой (по факту объекты корректны). */
+const emailPlugin = IS_DEV
+  ? EmailPlugin.init(devEmailOptions as any)
+  : EmailPlugin.init(prodEmailOptions as any);
+
+/* Экспорт конфига */
 export const config: VendureConfig = {
   apiOptions: {
     port: serverPort,
@@ -151,7 +185,7 @@ export const config: VendureConfig = {
       origin: ['https://taxa-5ky4.onrender.com', 'http://localhost:5173'],
       credentials: true,
     },
-    // добавляем debug-поля ТОЛЬКО в dev и указываем их как литерал true
+    // добавляем debug-поля ТОЛЬКО в dev как литерал true
     ...(IS_DEV ? { adminApiDebug: true as true, shopApiDebug: true as true } : {}),
   },
 
@@ -193,25 +227,8 @@ export const config: VendureConfig = {
     DefaultJobQueuePlugin.init({}),
     DefaultSearchPlugin.init({ indexStockStatus: true }),
 
-    EmailPlugin.init({
-      // ВАЖНО: devMode добавляем ТОЛЬКО если IS_DEV === true и как литерал true
-      handlers: defaultEmailHandlers,
-      templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
-      globalTemplateVars: {
-        fromAddress: '"example" <noreply@example.com>',
-        verifyEmailAddressUrl: 'http://localhost:8080/verify',
-        passwordResetUrl: 'http://localhost:8080/password-reset',
-        changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change',
-      },
-      // file output and mailbox only in dev:
-      ...(IS_DEV
-        ? {
-            devMode: true as true,
-            outputPath: path.join(__dirname, '../static/email/test-emails'),
-            route: 'mailbox',
-          }
-        : {}),
-    }),
+    // ставим готовый emailPlugin
+    emailPlugin,
 
     AdminUiPlugin.init({
       route: 'admin',
