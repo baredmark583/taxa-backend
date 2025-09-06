@@ -204,7 +204,7 @@ export const config: VendureConfig = {
     shopApiPath: 'shop-api',
     trustProxy: true,
     cors: {
-      origin: ['https://taxa-2zge.onrender.com', 'http://localhost:5173'],
+      origin: ['https://taxaai.onrender.com, 'http://localhost:5173'],
       credentials: true,
     },
     ...(IS_DEV ? { adminApiDebug: true as true, shopApiDebug: true as true } : {}),
